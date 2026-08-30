@@ -237,7 +237,7 @@
 
         .metric-info p {
             margin: 2px 0 0 0;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--text-color);
         }
@@ -254,11 +254,11 @@
             border-collapse: collapse;
             font-size: 12px;
             text-align: left;
-            min-width: 300px;
+            min-width: 320px;
         }
 
         th, td {
-            padding: 10px 10px;
+            padding: 10px 8px;
             border-bottom: 1px solid var(--border-color);
             white-space: nowrap;
         }
@@ -346,7 +346,7 @@
                         <div class="metric-icon"><i class="fa-solid fa-wallet"></i></div>
                     </div>
                     <div class="metric-info">
-                        <h3>Faturamento</h3>
+                        <h3>Faturamento Bruto</h3>
                         <p id="stat-faturamento">R$ 0</p>
                     </div>
                 </div>
@@ -355,27 +355,28 @@
                         <div class="metric-icon"><i class="fa-solid fa-chart-line"></i></div>
                     </div>
                     <div class="metric-info">
-                        <h3>Lucro Líq.</h3>
+                        <h3>Lucro Empresa</h3>
                         <p id="stat-lucro">R$ 0</p>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <h3><i class="fa-solid fa-clock-rotate-left"></i> Últimas Viagens (Nuvem)</h3>
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Histórico Detalhado de Viagens</h3>
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
                                 <th>Motorista</th>
                                 <th>Rota</th>
-                                <th>Frete</th>
+                                <th>Frete (Arrecadado)</th>
+                                <th>Comissão (40%)</th>
                                 <th>Combustível</th>
-                                <th>Lucro</th>
+                                <th>Lucro Líquido</th>
                             </tr>
                         </thead>
                         <tbody id="tabela-ultimas-viagens">
-                            <tr><td colspan="5" class="empty-row">Carregando da nuvem...</td></tr>
+                            <tr><td colspan="6" class="empty-row">Carregando da nuvem...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -402,17 +403,18 @@
             </div>
 
             <div class="card">
-                <h3><i class="fa-solid fa-address-book"></i> Motoristas Cadastrados</h3>
+                <h3><i class="fa-solid fa-address-book"></i> Motoristas Cadastrados & Faturamento</h3>
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th>Nome</th>
-                                <th>Usuário</th>
+                                <th>Motorista</th>
+                                <th>Total Arrecadado (Fretes)</th>
+                                <th>Comissão Total (40%)</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-funcionarios">
-                            <tr><td colspan="2" class="empty-row">Carregando...</td></tr>
+                        <tbody id="tabela-faturamento-motoristas">
+                            <tr><td colspan="3" class="empty-row">Nenhum motorista com viagens.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -483,7 +485,7 @@
                     <input type="number" id="viagem-km" placeholder="0">
                 </div>
                 <div class="form-group">
-                    <label>Valor do Frete (R$)</label>
+                    <label>Valor do Frete (Arrecadado R$)</label>
                     <input type="number" id="viagem-valor" placeholder="0.00">
                 </div>
                 <button class="btn-submit" onclick="registrarViagem()">Calcular e Enviar para Nuvem</button>
@@ -505,7 +507,7 @@
             projectId: "painelets2-aa773",
             storageBucket: "painelets2-aa773.firebasestorage.app",
             messagingSenderId: "823969900699",
-            appId: "1:823969900699:web:bc784a0abdeea887c6fe3e"
+            appId: "1:823969900699:web:bc784a0abdeea887c6f6e3e"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -603,7 +605,7 @@
                 document.getElementById('viagem-km').value = '';
                 document.getElementById('viagem-valor').value = '';
 
-                mostrarToast(`Viagem salva! Lucro: R$ ${lucroEmpresa.toFixed(0)}`);
+                mostrarToast(`Viagem salva! Arrecadado: R$ ${valorFrete.toFixed(0)}`);
             } catch (e) {
                 mostrarToast('Erro ao salvar viagem!', '#f85149');
             }
@@ -619,11 +621,25 @@
             document.getElementById('stat-faturamento').innerText = `R$ ${totalFat.toFixed(0)}`;
             document.getElementById('stat-lucro').innerText = `R$ ${totalLucro.toFixed(0)}`;
 
-            // Tabela Motoristas
+            // Tabela Motoristas & Faturamento Individual
             let tabelaFunc = document.getElementById('tabela-funcionarios');
+            let tabelaFatMotoristas = document.getElementById('tabela-faturamento-motoristas');
+            
             tabelaFunc.innerHTML = dados.funcionarios.length ? '' : '<tr><td colspan="2" class="empty-row">Nenhum motorista.</td></tr>';
+            tabelaFatMotoristas.innerHTML = dados.funcionarios.length ? '' : '<tr><td colspan="3" class="empty-row">Nenhum motorista.</td></tr>';
+
             dados.funcionarios.forEach(f => {
+                let viagensMot = dados.viagens.filter(v => v.motoristaId == f.id);
+                let totalArrecadadoMot = viagensMot.reduce((sum, v) => sum + (v.valorFrete || 0), 0);
+                let totalComissaoMot = viagensMot.reduce((sum, v) => sum + (v.comissaoMotorista || 0), 0);
+
                 tabelaFunc.innerHTML += `<tr><td><b>${f.nome}</b></td><td><code>${f.usuario}</code></td></tr>`;
+                tabelaFatMotoristas.innerHTML += `
+                    <tr>
+                        <td><b>${f.nome}</b></td>
+                        <td style="color: var(--accent-color); font-weight: bold;">R$ ${totalArrecadadoMot.toFixed(0)}</td>
+                        <td style="color: #2ea043; font-weight: bold;">R$ ${totalComissaoMot.toFixed(0)}</td>
+                    </tr>`;
             });
 
             let selectFuncTruck = document.getElementById('truck-motorista');
@@ -645,23 +661,23 @@
                 tabelaTruck.innerHTML += `<tr><td><b>${c.marca} ${c.modelo}</b></td><td>${motNome}</td></tr>`;
             });
 
-            // Tabela Viagens
+            // Tabela Viagens Detalhada
             let tabelaViagens = document.getElementById('tabela-ultimas-viagens');
-            tabelaViagens.innerHTML = dados.viagens.length ? '' : '<tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>';
+            tabelaViagens.innerHTML = dados.viagens.length ? '' : '<tr><td colspan="6" class="empty-row">Nenhuma viagem registrada.</td></tr>';
             
-            // Ordenar por data se houver timestamp
             let viagensOrdenadas = [...dados.viagens].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
-            viagensOrdenadas.slice(0, 5).forEach(v => {
+            viagensOrdenadas.forEach(v => {
                 let mot = dados.funcionarios.find(f => f.id == v.motoristaId);
                 let motNome = mot ? mot.nome : 'Desconhecido';
                 tabelaViagens.innerHTML += `
                     <tr>
                         <td><b>${motNome}</b></td>
                         <td>${v.origem} ➔ ${v.destino}</td>
-                        <td>R$ ${v.valorFrete.toFixed(0)}</td>
+                        <td style="font-weight: bold; color: var(--accent-color);">R$ ${v.valorFrete.toFixed(0)}</td>
+                        <td style="color: #2ea043;">R$ ${v.comissaoMotorista.toFixed(0)}</td>
                         <td style="color: #f85149;">-R$ ${v.custoCombustivel.toFixed(0)}</td>
-                        <td style="color: #2ea043; font-weight: bold;">R$ ${v.lucroEmpresa.toFixed(0)}</td>
+                        <td style="font-weight: bold; color: #2ea043;">R$ ${v.lucroEmpresa.toFixed(0)}</td>
                     </tr>`;
             });
         }
