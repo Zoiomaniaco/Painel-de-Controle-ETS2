@@ -407,7 +407,7 @@
                             <thead>
                                 <tr>
                                     <th>Motorista</th>
-                                    <th>Rota</th>
+                                    <th>Rota / País</th>
                                     <th>Frete</th>
                                     <th>Comissão</th>
                                     <th>Combustível</th>
@@ -548,7 +548,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Rota</th>
+                                    <th>Rota / País</th>
                                     <th>Carga / KM</th>
                                     <th>Frete</th>
                                     <th>Status / Liberação</th>
@@ -568,6 +568,21 @@
                 <div class="card">
                     <h3><i class="fa-solid fa-file-invoice-dollar"></i> Nova Viagem (Motorista)</h3>
                     <div class="form-group">
+                        <label>País de Destino (Para cálculo do Diesel)</label>
+                        <select id="m-viagem-pais">
+                            <option value="Alemanha">Alemanha (~€1.42/L)</option>
+                            <option value="Áustria">Áustria (~€1.38/L)</option>
+                            <option value="Bélgica">Bélgica (~€1.45/L)</option>
+                            <option value="Espanha">Espanha (~€1.25/L)</option>
+                            <option value="França">França (~€1.50/L)</option>
+                            <option value="Itália">Itália (~€1.48/L)</option>
+                            <option value="Noruega">Noruega (~€1.65/L - Mais caro)</option>
+                            <option value="Polônia">Polônia (~€1.15/L - Mais barato)</option>
+                            <option value="Reino Unido">Reino Unido (~€1.55/L)</option>
+                            <option value="Brasil (Mapa EAA)">Brasil / Padrão Fixo (~R$ 5,00/L)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>Origem</label>
                         <input type="text" id="m-viagem-origem" placeholder="Ex: Berlim">
                     </div>
@@ -585,7 +600,7 @@
                     </div>
                     <div class="form-group">
                         <label>Valor do Frete (R$)</label>
-                        <input type="number" id="m-viagem-valor" placeholder="0.00">
+                        <input type="number" id="m-viagem-valor" placeholder="1500">
                     </div>
                     <button class="btn-submit" onclick="motoristaCriarViagem()">Registrar e Iniciar Rota</button>
                 </div>
@@ -620,6 +635,20 @@
         };
 
         let sessaoAtual = null;
+
+        // Tabela de conversão do preço do litro do diesel por país no ETS 2 (Simulado em moeda interna proporcional)
+        const precosDieselPorPais = {
+            "Alemanha": 5.80,
+            "Áustria": 5.60,
+            "Bélgica": 5.95,
+            "Espanha": 5.10,
+            "França": 6.15,
+            "Itália": 6.05,
+            "Noruega": 6.80,
+            "Polônia": 4.70,
+            "Reino Unido": 6.30,
+            "Brasil (Mapa EAA)": 5.00
+        };
 
         window.formatarMoeda = function(valor) {
             return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -680,7 +709,6 @@
 
                 if (motoristaEncontrado) {
                     try {
-                        // Atualiza o registro do motorista com o timestamp do último login (Online)
                         await updateDoc(doc(db, "funcionarios", motoristaEncontrado.idDoc), {
                             ultimoUltimoAcesso: Date.now()
                         });
@@ -774,6 +802,7 @@
         window.motoristaCriarViagem = async function() {
             if (sessaoAtual?.tipo !== 'motorista') return;
 
+            let pais = document.getElementById('m-viagem-pais').value;
             let origem = document.getElementById('m-viagem-origem').value.trim();
             let destino = document.getElementById('m-viagem-destino').value.trim();
             let carga = document.getElementById('m-viagem-carga').value.trim();
@@ -785,20 +814,22 @@
                 return;
             }
 
-            let litrosGastos = km / 2.5;
-            let custoCombustivel = litrosGastos * 5.00;
+            // Cálculo automatizado do combustível baseado no preço do litro do país selecionado (Média de 3 km/l do caminhão)
+            let precoLitro = precosDieselPorPais[pais] || 5.00;
+            let litrosGastos = km / 3.0; 
+            let custoCombustivel = litrosGastos * precoLitro;
+            
             let comissaoMotorista = valorFrete * 0.40;
             let lucroEmpresa = valorFrete - comissaoMotorista - custoCombustivel;
 
             try {
-                // Atualiza o status online ao mexer no painel
                 await updateDoc(doc(db, "funcionarios", sessaoAtual.usuarioObj.idDoc), {
                     ultimoUltimoAcesso: Date.now()
                 });
 
                 await addDoc(collection(db, "viagens"), {
                     motoristaId: sessaoAtual.usuarioObj.id,
-                    origem, destino, carga, km, valorFrete, custoCombustivel, comissaoMotorista, lucroEmpresa,
+                    pais, origem, destino, carga, km, valorFrete, custoCombustivel, comissaoMotorista, lucroEmpresa,
                     status: 'pendente_saida',
                     timestampCriacao: Date.now(),
                     timestampChegada: null
@@ -810,7 +841,7 @@
                 document.getElementById('m-viagem-km').value = '';
                 document.getElementById('m-viagem-valor').value = '';
 
-                mostrarToast('Viagem criada! Confirme a saída.');
+                mostrarToast('Viagem criada com base no diesel de ' + pais + '!');
                 switchTab({ currentTarget: document.querySelectorAll('.nav-tabs')[1].children[0] }, 'm-extrato');
             } catch (e) {
                 mostrarToast('Erro ao registrar viagem!', '#f85149');
@@ -865,7 +896,6 @@
                         let totalArrecadadoMot = viagensMotOficiais.reduce((sum, v) => sum + (v.valorFrete || 0), 0);
                         let totalComissaoMot = viagensMotOficiais.reduce((sum, v) => sum + (v.comissaoMotorista || 0), 0);
 
-                        // Verifica se está online (último acesso nos últimos 5 minutos)
                         let isOnline = f.ultimoUltimoAcesso && (agora - f.ultimoUltimoAcesso <= cincoMinutosMs);
                         let corNome = isOnline ? 'color: var(--success-color); font-weight: bold;' : 'color: var(--text-color);';
 
@@ -909,7 +939,7 @@
                         tabelaViagens.innerHTML += `
                             <tr>
                                 <td><b>${motNome}</b></td>
-                                <td>${v.origem} ➔ ${v.destino}</td>
+                                <td>${v.origem} ➔ ${v.destino}<br><small style="color:var(--text-muted)">📍 ${v.pais || 'Brasil'}</small></td>
                                 <td style="font-weight: bold; color: var(--accent-color);">${formatarMoeda(v.valorFrete)}</td>
                                 <td style="color: #2ea043;">${formatarMoeda(v.comissaoMotorista)}</td>
                                 <td style="color: #f85149;">-${formatarMoeda(v.custoCombustivel)}</td>
@@ -961,7 +991,7 @@
 
                         tabelaMotViagens.innerHTML += `
                             <tr>
-                                <td><b>${v.origem} ➔ ${v.destino}</b></td>
+                                <td><b>${v.origem} ➔ ${v.destino}</b><br><small style="color:var(--text-muted)">📍 ${v.pais || 'Brasil'}</small></td>
                                 <td>${v.carga || 'Geral'}<br><small>${v.km} KM</small></td>
                                 <td style="color: var(--accent-color); font-weight: bold;">${formatarMoeda(v.valorFrete)}<br><small>Comissão: ${formatarMoeda(v.comissaoMotorista)}</small></td>
                                 <td>${statusHtml}</td>
