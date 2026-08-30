@@ -237,6 +237,17 @@
             font-weight: 600;
         }
 
+        .btn-danger-soft {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+            padding: 5px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -419,7 +430,7 @@
                 <!-- QUADRO / PLANILHA DE DESPESAS DA EMPRESA -->
                 <div class="card">
                     <h3><i class="fa-solid fa-chart-pie"></i> Relatório de Despesas da Empresa</h3>
-                    <p style="font-size: 11px; color: var(--text-muted); margin-top:0;">Distribuição dos custos totais gerados pelas viagens e frota.</p>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top:0;">Detalhamento individualizado de todos os custos da empresa.</p>
                     <div class="table-responsive">
                         <table>
                             <thead>
@@ -453,13 +464,15 @@
                                     <th>Rota / País</th>
                                     <th>Frete</th>
                                     <th>Comissão</th>
-                                    <th>Combustível</th>
-                                    <th>Extras (Pedágio/Balsa)</th>
+                                    <th>Diesel</th>
+                                    <th>Pedágio</th>
+                                    <th>Balsa</th>
+                                    <th>Multa</th>
                                     <th>Lucro</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-ultimas-viagens">
-                                <tr><td colspan="7" class="empty-row">Nenhuma viagem registrada.</td></tr>
+                                <tr><td colspan="9" class="empty-row">Nenhuma viagem registrada.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -528,15 +541,14 @@
                 </div>
 
                 <div class="card">
-                    <h3><i class="fa-solid fa-warehouse"></i> Frota & Manutenção (Troca de Óleo)</h3>
-                    <p style="font-size: 11px; color: var(--text-muted); margin-top:0;">* Alerta de troca de óleo acende automaticamente a cada 15.000 KM rodados.</p>
+                    <h3><i class="fa-solid fa-warehouse"></i> Frota & Manutenção</h3>
                     <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Veículo / Motorista</th>
                                     <th>KM Rodado</th>
-                                    <th>Status Manutenção</th>
+                                    <th>Status Manutenção / Óleo</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
@@ -590,16 +602,16 @@
                 </div>
 
                 <div class="card">
-                    <h3><i class="fa-solid fa-list-check"></i> Minhas Viagens, Despesas de Rota e Confirmações</h3>
-                    <p style="font-size: 11px; color: var(--text-muted); margin-top:0;">* Enquanto a viagem estiver <b>Em Trânsito</b>, você pode adicionar valores de pedágio ou balsa direto na linha dela!</p>
+                    <h3><i class="fa-solid fa-list-check"></i> Minhas Viagens e Gastos em Rota</h3>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top:0;">* Enquanto estiver <b>Em Trânsito</b>, lance pedágios, balsas e multas separadamente nos botões abaixo da linha!</p>
                     <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Rota / País</th>
                                     <th>Carga / KM</th>
-                                    <th>Frete / Extras</th>
-                                    <th>Status / Gastos em Rota</th>
+                                    <th>Frete / Custos Rota</th>
+                                    <th>Status / Lançamentos</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
@@ -885,7 +897,8 @@
                     modelo, 
                     motoristaId,
                     kmTrocaOleo: 0,
-                    ultimaManutencaoValor: 0,
+                    custoTrocaOleoTotal: 0,
+                    outrasManutencoesTotal: 0,
                     ultimaManutencaoData: ''
                 });
                 document.getElementById('truck-marca').value = '';
@@ -896,21 +909,44 @@
             }
         }
 
-        window.realizarManutencaoCaminhao = async function(idDoc, marcaModelo) {
+        window.registrarTrocaOleo = async function(idDoc, marcaModelo) {
             if (sessaoAtual?.tipo !== 'patrao') return;
 
-            let custoManutencao = prompt(`Qual foi o custo da troca de óleo / manutenção para o caminhão ${marcaModelo}? (Ex: 1200)`, "1000");
-            if (custoManutencao === null) return;
-            
-            let valorGasto = parseFloat(custoManutencao) || 0;
+            let custoInput = prompt(`Qual foi o custo da TROCA DE ÓLEO para o caminhão ${marcaModelo}? (Ex: 400)`, "400");
+            if (custoInput === null) return;
+            let valorGasto = parseFloat(custoInput) || 0;
 
             try {
+                let caminhao = dados.caminhoes.find(c => c.idDoc === idDoc);
+                let novoTotalOleo = (caminhao.custoTrocaOleoTotal || 0) + valorGasto;
+
                 await updateDoc(doc(db, "caminhoes", idDoc), {
                     kmTrocaOleo: 0,
-                    ultimaManutencaoValor: valorGasto,
+                    custoTrocaOleoTotal: novoTotalOleo,
                     ultimaManutencaoData: new Date().toLocaleDateString('pt-BR')
                 });
-                mostrarToast(`Manutenção registrada! Gasto de ${formatarMoeda(valorGasto)} computado.`);
+                mostrarToast(`Troca de óleo registrada! Custo de ${formatarMoeda(valorGasto)} computado.`);
+            } catch (e) {
+                mostrarToast('Erro ao registrar troca de óleo.', '#f85149');
+            }
+        }
+
+        window.registrarOutraManutencao = async function(idDoc, marcaModelo) {
+            if (sessaoAtual?.tipo !== 'patrao') return;
+
+            let custoInput = prompt(`Qual foi o custo de OUTRAS MANUTENÇÕES (peças, oficina, batidas) para ${marcaModelo}? (Ex: 1500)`, "1000");
+            if (custoInput === null) return;
+            let valorGasto = parseFloat(custoInput) || 0;
+
+            try {
+                let caminhao = dados.caminhoes.find(c => c.idDoc === idDoc);
+                let novoTotalManut = (caminhao.outrasManutencoesTotal || 0) + valorGasto;
+
+                await updateDoc(doc(db, "caminhoes", idDoc), {
+                    outrasManutencoesTotal: novoTotalManut,
+                    ultimaManutencaoData: new Date().toLocaleDateString('pt-BR')
+                });
+                mostrarToast(`Manutenção registrada! Custo de ${formatarMoeda(valorGasto)} computado.`);
             } catch (e) {
                 mostrarToast('Erro ao registrar manutenção.', '#f85149');
             }
@@ -934,9 +970,7 @@
             let precoLitro = precosDieselPorPais[pais] || 5.00;
             let litrosGastos = km / 3.0; 
             let custoCombustivel = litrosGastos * precoLitro;
-            
             let comissaoMotorista = valorFrete * 0.40;
-            let despesasExtras = 0; // Pedágio / Balsa inicial
 
             try {
                 await updateDoc(doc(db, "funcionarios", sessaoAtual.usuarioObj.idDoc), {
@@ -945,7 +979,10 @@
 
                 await addDoc(collection(db, "viagens"), {
                     motoristaId: sessaoAtual.usuarioObj.id,
-                    pais, origem, destino, carga, km, valorFrete, custoCombustivel, comissaoMotorista, despesasExtras,
+                    pais, origem, destino, carga, km, valorFrete, custoCombustivel, comissaoMotorista,
+                    pedagio: 0,
+                    balsa: 0,
+                    multa: 0,
                     status: 'pendente_saida',
                     timestampCriacao: Date.now(),
                     timestampChegada: null
@@ -957,7 +994,7 @@
                 document.getElementById('m-viagem-km').value = '';
                 document.getElementById('m-viagem-valor').value = '';
 
-                mostrarToast('Viagem criada com base no diesel de ' + pais + '!');
+                mostrarToast('Viagem criada com sucesso!');
                 switchTab({ currentTarget: document.querySelectorAll('.nav-tabs')[1].children[0] }, 'm-extrato');
             } catch (e) {
                 mostrarToast('Erro ao registrar viagem!', '#f85149');
@@ -974,23 +1011,30 @@
             }
         }
 
-        // Função para o motorista adicionar pedágio ou balsa enquanto a viagem está em andamento
-        window.adicionarGastoRota = async function(idDoc) {
-            let valorInput = prompt("Digite o valor do Pedágio ou Balsa gasto nesta rota:", "50");
+        // Funções para o motorista adicionar Pedágio, Balsa ou Multa separadamente
+        window.adicionarGastoViagem = async function(idDoc, tipoGasto) {
+            let tituloMsg = "";
+            if (tipoGasto === 'pedagio') tituloMsg = "Digite o valor do Pedágio gasto:";
+            if (tipoGasto === 'balsa') tituloMsg = "Digite o valor da Balsa gasta:";
+            if (tipoGasto === 'multa') tituloMsg = "Digite o valor da Multa tomada:";
+
+            let valorInput = prompt(tituloMsg, "50");
             if (valorInput === null) return;
-            let valorExtra = parseFloat(valorInput) || 0;
-            if (valorExtra <= 0) return;
+            let valor = parseFloat(valorInput) || 0;
+            if (valor <= 0) return;
 
             try {
                 let viagemAtual = dados.viagens.find(v => v.idDoc === idDoc);
-                let novoTotalExtras = (viagemAtual.despesasExtras || 0) + valorExtra;
+                let valorAtual = viagemAtual[tipoGasto] || 0;
+                let novoValor = valorAtual + valor;
 
-                await updateDoc(doc(db, "viagens", idDoc), {
-                    despesasExtras: novoTotalExtras
-                });
-                mostrarToast(`Gasto de ${formatarMoeda(valorExtra)} adicionado à viagem!`);
+                let atualizacao = {};
+                atualizacao[tipoGasto] = novoValor;
+
+                await updateDoc(doc(db, "viagens", idDoc), atualizacao);
+                mostrarToast(`Registrado ${formatarMoeda(valor)} em ${tipoGasto}!`);
             } catch(e) {
-                mostrarToast('Erro ao registrar gasto de rota.', '#f85149');
+                mostrarToast('Erro ao registrar gasto.', '#f85149');
             }
         }
 
@@ -1034,49 +1078,65 @@
 
                 let totalFat = viagensOficiais.reduce((acc, v) => acc + (v.valorFrete || 0), 0);
                 
-                // Cálculo das despesas totais detalhadas
+                // Soma de cada despesa individualmente
                 let totalCombustivel = viagensOficiais.reduce((acc, v) => acc + (v.custoCombustivel || 0), 0);
                 let totalComissoes = viagensOficiais.reduce((acc, v) => acc + (v.comissaoMotorista || 0), 0);
-                let totalExtrasRotas = viagensOficiais.reduce((acc, v) => acc + (v.despesasExtras || 0), 0);
-                let totalManutencoes = dados.caminhoes.reduce((acc, c) => acc + (c.ultimaManutencaoValor || 0), 0);
+                let totalPedagios = viagensOficiais.reduce((acc, v) => acc + (v.pedagio || 0), 0);
+                let totalBalsas = viagensOficiais.reduce((acc, v) => acc + (v.balsa || 0), 0);
+                let totalMultas = viagensOficiais.reduce((acc, v) => acc + (v.multa || 0), 0);
 
-                let despesaTotalGeral = totalCombustivel + totalComissoes + totalExtrasRotas + totalManutencoes;
+                let totalTrocaOleo = dados.caminhoes.reduce((acc, c) => acc + (c.custoTrocaOleoTotal || 0), 0);
+                let totalOutrasManut = dados.caminhoes.reduce((acc, c) => acc + (c.outrasManutencoesTotal || 0), 0);
+
+                let despesaTotalGeral = totalCombustivel + totalComissoes + totalPedagios + totalBalsas + totalMultas + totalTrocaOleo + totalOutrasManut;
                 let lucroLiquidoEmpresa = totalFat - despesaTotalGeral;
 
                 document.getElementById('stat-faturamento').innerText = formatarMoeda(totalFat);
                 document.getElementById('stat-lucro').innerText = formatarMoeda(lucroLiquidoEmpresa);
 
-                // Montar o quadro/planilha de despesas da empresa
+                // Montar o quadro/planilha de despesas da empresa com categorias separadas
                 let tabelaDespesas = document.getElementById('tabela-despesas-resumo');
                 if (tabelaDespesas) {
                     if (despesaTotalGeral === 0) {
                         tabelaDespesas.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhuma despesa registrada.</td></tr>';
                     } else {
-                        let pctCombustivel = ((totalCombustivel / despesaTotalGeral) * 100).toFixed(1);
-                        let pctComissoes = ((totalComissoes / despesaTotalGeral) * 100).toFixed(1);
-                        let pctExtras = ((totalExtrasRotas / despesaTotalGeral) * 100).toFixed(1);
-                        let pctManutencao = ((totalManutencoes / despesaTotalGeral) * 100).toFixed(1);
+                        let pct = (val) => ((val / despesaTotalGeral) * 100).toFixed(1) + '%';
 
                         tabelaDespesas.innerHTML = `
                             <tr>
                                 <td><b>⛽ Combustível (Diesel)</b></td>
                                 <td style="color: var(--danger-color); font-weight: bold;">${formatarMoeda(totalCombustivel)}</td>
-                                <td>${pctCombustivel}%</td>
+                                <td>${pct(totalCombustivel)}</td>
                             </tr>
                             <tr>
                                 <td><b>💼 Salários / Comissões Motoristas</b></td>
                                 <td style="color: var(--warning-color); font-weight: bold;">${formatarMoeda(totalComissoes)}</td>
-                                <td>${pctComissoes}%</td>
+                                <td>${pct(totalComissoes)}</td>
                             </tr>
                             <tr>
-                                <td><b>🚧 Pedágios e Balsas (Em Rota)</b></td>
-                                <td style="color: var(--danger-color); font-weight: bold;">${formatarMoeda(totalExtrasRotas)}</td>
-                                <td>${pctExtras}%</td>
+                                <td><b>🛣️ Pedágios</b></td>
+                                <td style="color: var(--danger-color); font-weight: bold;">${formatarMoeda(totalPedagios)}</td>
+                                <td>${pct(totalPedagios)}</td>
                             </tr>
                             <tr>
-                                <td><b>🔧 Manutenção e Trocas de Óleo</b></td>
-                                <td style="color: var(--warning-color); font-weight: bold;">${formatarMoeda(totalManutencoes)}</td>
-                                <td>${pctManutencao}%</td>
+                                <td><b>⛴️ Balsas</b></td>
+                                <td style="color: var(--danger-color); font-weight: bold;">${formatarMoeda(totalBalsas)}</td>
+                                <td>${pct(totalBalsas)}</td>
+                            </tr>
+                            <tr>
+                                <td><b>🚨 Multas de Trânsito</b></td>
+                                <td style="color: var(--danger-color); font-weight: bold;">${formatarMoeda(totalMultas)}</td>
+                                <td>${pct(totalMultas)}</td>
+                            </tr>
+                            <tr>
+                                <td><b>🛢️ Troca de Óleo</b></td>
+                                <td style="color: var(--warning-color); font-weight: bold;">${formatarMoeda(totalTrocaOleo)}</td>
+                                <td>${pct(totalTrocaOleo)}</td>
+                            </tr>
+                            <tr>
+                                <td><b>🔧 Manutenções e Oficinas</b></td>
+                                <td style="color: var(--warning-color); font-weight: bold;">${formatarMoeda(totalOutrasManut)}</td>
+                                <td>${pct(totalOutrasManut)}</td>
                             </tr>
                             <tr style="background-color: rgba(255,255,255,0.03); border-top: 2px solid var(--border-color);">
                                 <td><b>TOTAL DE DESPESAS</b></td>
@@ -1139,22 +1199,26 @@
                             <tr>
                                 <td><b>${c.marca} ${c.modelo}</b><br><small>Motorista: ${motNome}</small></td>
                                 <td style="font-weight: bold; color: var(--accent-color);">${kmRodadoOleo.toLocaleString()} KM</td>
-                                <td>${statusOleoHtml}<br><small style="color:var(--text-muted)">Última manutenção: ${c.ultimaManutencaoData || 'Nenhuma'} (${formatarMoeda(c.ultimaManutencaoValor || 0)})</small></td>
-                                <td><button class="btn-warning" onclick="realizarManutencaoCaminhao('${c.idDoc}', '${c.marca} ${c.modelo}')"><i class="fa-solid fa-wrench"></i> Registrar Manutenção</button></td>
+                                <td>${statusOleoHtml}<br><small style="color:var(--text-muted)">Óleo Gasto: ${formatarMoeda(c.custoTrocaOleoTotal)} | Manutenções: ${formatarMoeda(c.outrasManutencoesTotal)}</small></td>
+                                <td>
+                                    <button class="btn-warning" style="margin-bottom:4px;" onclick="registrarTrocaOleo('${c.idDoc}', '${c.marca} ${c.modelo}')"><i class="fa-solid fa-oil-can"></i> Óleo</button>
+                                    <button class="btn-danger-soft" onclick="registrarOutraManutencao('${c.idDoc}', '${c.marca} ${c.modelo}')"><i class="fa-solid fa-wrench"></i> Oficina</button>
+                                </td>
                             </tr>`;
                     });
                 }
 
                 let tabelaViagens = document.getElementById('tabela-ultimas-viagens');
                 if (tabelaViagens) {
-                    tabelaViagens.innerHTML = viagensOficiais.length ? '' : '<tr><td colspan="7" class="empty-row">Nenhuma viagem oficializada ainda.</td></tr>';
+                    tabelaViagens.innerHTML = viagensOficiais.length ? '' : '<tr><td colspan="9" class="empty-row">Nenhuma viagem oficializada ainda.</td></tr>';
                     let viagensOrdenadas = [...viagensOficiais].sort((a, b) => (b.timestampChegada || 0) - (a.timestampChegada || 0));
 
                     viagensOrdenadas.forEach(v => {
                         let mot = dados.funcionarios.find(f => String(f.id) === String(v.motoristaId));
                         let motNome = mot ? mot.nome : 'Desconhecido';
-                        // Lucro da viagem desconta combustíveis e extras de rota
-                        let lucroViagem = (v.valorFrete || 0) - (v.comissaoMotorista || 0) - (v.custoCombustivel || 0) - (v.despesasExtras || 0);
+                        
+                        let custoViagemTotal = (v.comissaoMotorista || 0) + (v.custoCombustivel || 0) + (v.pedagio || 0) + (v.balsa || 0) + (v.multa || 0);
+                        let lucroViagem = (v.valorFrete || 0) - custoViagemTotal;
 
                         tabelaViagens.innerHTML += `
                             <tr>
@@ -1163,7 +1227,9 @@
                                 <td style="font-weight: bold; color: var(--accent-color);">${formatarMoeda(v.valorFrete)}</td>
                                 <td style="color: #2ea043;">${formatarMoeda(v.comissaoMotorista)}</td>
                                 <td style="color: #f85149;">-${formatarMoeda(v.custoCombustivel)}</td>
-                                <td style="color: #f85149;">-${formatarMoeda(v.despesasExtras || 0)}</td>
+                                <td style="color: #f85149;">-${formatarMoeda(v.pedagio || 0)}</td>
+                                <td style="color: #f85149;">-${formatarMoeda(v.balsa || 0)}</td>
+                                <td style="color: #f85149;">-${formatarMoeda(v.multa || 0)}</td>
                                 <td style="font-weight: bold; color: #2ea043;">${formatarMoeda(lucroViagem)}</td>
                             </tr>`;
                     });
@@ -1193,11 +1259,20 @@
                         let statusHtml = '';
                         let acaoHtml = '';
 
+                        let totalExtrasRota = (v.pedagio || 0) + (v.balsa || 0) + (v.multa || 0);
+
                         if (v.status === 'pendente_saida') {
                             statusHtml = '<span style="color: var(--warning-color); font-weight:bold;">Aguardando Saída</span>';
                             acaoHtml = `<button class="btn-action" onclick="confirmarSaida('${v.idDoc}')">Confirmar Saída</button>`;
                         } else if (v.status === 'em_andamento') {
-                            statusHtml = `<span style="color: var(--accent-color); font-weight:bold;">Em Trânsito</span><br><button class="btn-warning" style="margin-top:6px; font-size:10px; padding:4px 6px;" onclick="adicionarGastoRota('${v.idDoc}')"><i class="fa-solid fa-road-barrier"></i> + Adicionar Pedágio/Balsa</button>`;
+                            statusHtml = `
+                                <span style="color: var(--accent-color); font-weight:bold;">Em Trânsito</span><br>
+                                <div style="display:flex; gap:4px; margin-top:6px; flex-wrap:wrap;">
+                                    <button class="btn-warning" style="font-size:9px; padding:3px 5px;" onclick="adicionarGastoViagem('${v.idDoc}', 'pedagio')"><i class="fa-solid fa-road"></i> + Pedágio</button>
+                                    <button class="btn-warning" style="font-size:9px; padding:3px 5px;" onclick="adicionarGastoViagem('${v.idDoc}', 'balsa')"><i class="fa-solid fa-ferry"></i> + Balsa</button>
+                                    <button class="btn-danger-soft" style="font-size:9px; padding:3px 5px;" onclick="adicionarGastoViagem('${v.idDoc}', 'multa')"><i class="fa-solid fa-triangle-exclamation"></i> + Multa</button>
+                                </div>
+                            `;
                             acaoHtml = `<button class="btn-action" onclick="confirmarChegada('${v.idDoc}')">Confirmar Chegada</button>`;
                         } else if (v.status === 'concluida') {
                             let tempoDecorrido = agora - (v.timestampChegada || 0);
@@ -1214,7 +1289,10 @@
                             <tr>
                                 <td><b>${v.origem} ➔ ${v.destino}</b><br><small style="color:var(--text-muted)">📍 ${v.pais || 'Brasil'}</small></td>
                                 <td>${v.carga || 'Geral'}<br><small>${v.km} KM</small></td>
-                                <td style="color: var(--accent-color); font-weight: bold;">${formatarMoeda(v.valorFrete)}<br><small style="color:var(--danger-color)">Extras: ${formatarMoeda(v.despesasExtras || 0)}</small></td>
+                                <td style="color: var(--accent-color); font-weight: bold;">
+                                    ${formatarMoeda(v.valorFrete)}<br>
+                                    <small style="color:var(--danger-color)">Pedágio: ${formatarMoeda(v.pedagio)} | Balsa: ${formatarMoeda(v.balsa)} | Multa: ${formatarMoeda(v.multa)}</small>
+                                </td>
                                 <td>${statusHtml}</td>
                                 <td>${acaoHtml}</td>
                             </tr>`;
