@@ -627,7 +627,7 @@
             if (tabelaFunc) {
                 tabelaFunc.innerHTML = dados.funcionarios.length ? '' : '<tr><td colspan="4" class="empty-row">Nenhum motorista cadastrado.</td></tr>';
                 dados.funcionarios.forEach(f => {
-                    let viagensMot = dados.viagens.filter(v => v.motoristaId == f.id);
+                    let viagensMot = dados.viagens.filter(v => String(v.motoristaId) === String(f.id));
                     let totalArrecadadoMot = viagensMot.reduce((sum, v) => sum + (v.valorFrete || 0), 0);
                     let totalComissaoMot = viagensMot.reduce((sum, v) => sum + (v.comissaoMotorista || 0), 0);
 
@@ -664,7 +664,7 @@
             if (tabelaTruck) {
                 tabelaTruck.innerHTML = dados.caminhoes.length ? '' : '<tr><td colspan="2" class="empty-row">Nenhum caminhão.</td></tr>';
                 dados.caminhoes.forEach(c => {
-                    let mot = dados.funcionarios.find(f => f.id == c.motoristaId);
+                    let mot = dados.funcionarios.find(f => String(f.id) === String(c.motoristaId));
                     let motNome = mot ? `<b>${mot.nome}</b>` : '<span style="color:var(--text-muted)">Livre</span>';
                     tabelaTruck.innerHTML += `<tr><td><b>${c.marca} ${c.modelo}</b></td><td>${motNome}</td></tr>`;
                 });
@@ -678,7 +678,7 @@
                 let viagensOrdenadas = [...dados.viagens].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
                 viagensOrdenadas.forEach(v => {
-                    let mot = dados.funcionarios.find(f => f.id == v.motoristaId);
+                    let mot = dados.funcionarios.find(f => String(f.id) === String(v.motoristaId));
                     let motNome = mot ? mot.nome : 'Desconhecido';
                     tabelaViagens.innerHTML += `
                         <tr>
