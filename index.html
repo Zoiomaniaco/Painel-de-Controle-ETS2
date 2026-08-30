@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PAINEL DE CONTROLE - Euro Truck Simulator 2</title>
-    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ff9800">
-    <!-- Google Fonts & FontAwesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -67,41 +65,38 @@
             padding-bottom: 40px;
         }
 
-        /* Sistema de Abas Otimizado para Mobile */
+        /* Sistema de Abas Otimizado para Celular (Ícone em cima, texto embaixo) */
         .nav-tabs {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             margin-bottom: 15px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-            scrollbar-width: none; /* Firefox */
-        }
-
-        .nav-tabs::-webkit-scrollbar {
-            display: none; /* Chrome/Safari */
+            width: 100%;
         }
 
         .nav-tabs button {
             background-color: var(--panel-bg);
             color: var(--text-color);
             border: 1px solid var(--border-color);
-            padding: 10px 14px;
+            padding: 10px 4px;
             cursor: pointer;
             border-radius: 6px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 11px;
             white-space: nowrap;
             transition: all 0.2s ease;
             backdrop-filter: blur(5px);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
+            justify-content: center;
+            gap: 4px;
+            flex: 1;
+            text-align: center;
         }
 
         .nav-tabs button i {
             color: var(--accent-color);
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .nav-tabs button.active {
@@ -315,15 +310,13 @@
     </header>
 
     <div class="container">
-        <!-- Abas de Navegação -->
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab(event, 'painel')"><i class="fa-solid fa-chart-pie"></i> Visão</button>
             <button class="tab-btn" onclick="switchTab(event, 'funcionarios')"><i class="fa-solid fa-users"></i> Motoristas</button>
             <button class="tab-btn" onclick="switchTab(event, 'caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
-            <button class="tab-btn" onclick="switchTab(event, 'viagens')"><i class="fa-solid fa-route"></i> Viagem</button>
+            <button class="tab-btn" onclick="switchTab(event, 'viagens')"><i class="fa-solid fa-route"></i> Viagens</button>
         </div>
 
-        <!-- ABA 1: PAINEL PRINCIPAL -->
         <div id="painel" class="tab-content active">
             <div class="metrics-grid">
                 <div class="metric-card">
@@ -385,7 +378,6 @@
             </div>
         </div>
 
-        <!-- ABA 2: FUNCIONÁRIOS -->
         <div id="funcionarios" class="tab-content">
             <div class="card">
                 <h3><i class="fa-solid fa-user-plus"></i> Novo Motorista</h3>
@@ -422,7 +414,6 @@
             </div>
         </div>
 
-        <!-- ABA 3: CAMINHÕES -->
         <div id="caminhoes" class="tab-content">
             <div class="card">
                 <h3><i class="fa-solid fa-circle-plus"></i> Novo Caminhão</h3>
@@ -461,7 +452,6 @@
             </div>
         </div>
 
-        <!-- ABA 4: REGISTRAR VIAGEM -->
         <div id="viagens" class="tab-content">
             <div class="card">
                 <h3><i class="fa-solid fa-file-invoice-dollar"></i> Lançar Viagem (Comissão 40%)</h3>
@@ -494,7 +484,6 @@
         </div>
     </div>
 
-    <!-- Notificação Flutuante -->
     <div id="toast">Operação realizada!</div>
 
     <script>
