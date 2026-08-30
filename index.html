@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PAINEL DE CONTROLE - Euro Truck Simulator 2</title>
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ff9800">
+    <!-- Google Fonts & FontAwesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -332,6 +334,7 @@
 
     <div class="container">
         
+        <!-- TELA DE LOGIN -->
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
@@ -356,6 +359,7 @@
             </div>
         </div>
 
+        <!-- PAINEL DO PATRÃO -->
         <div id="painel-patrao" style="display: none;">
             <div class="nav-tabs">
                 <button class="tab-btn active" onclick="switchTab(event, 'p-visao')"><i class="fa-solid fa-chart-pie"></i> Visão</button>
@@ -363,6 +367,7 @@
                 <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
             </div>
 
+            <!-- VISÃO GERAL -->
             <div id="p-visao" class="tab-content active">
                 <div class="metrics-grid">
                     <div class="metric-card">
@@ -417,6 +422,7 @@
                 </div>
             </div>
 
+            <!-- MOTORISTAS -->
             <div id="p-motoristas" class="tab-content">
                 <div class="card">
                     <h3><i class="fa-solid fa-user-plus"></i> Novo Motorista</h3>
@@ -456,6 +462,7 @@
                 </div>
             </div>
 
+            <!-- CAMINHÕES -->
             <div id="p-caminhoes" class="tab-content">
                 <div class="card">
                     <h3><i class="fa-solid fa-circle-plus"></i> Novo Caminhão</h3>
@@ -495,12 +502,14 @@
             </div>
         </div>
 
+        <!-- PAINEL DO MOTORISTA -->
         <div id="painel-motorista" style="display: none;">
             <div class="nav-tabs">
                 <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')"><i class="fa-solid fa-wallet"></i> Meu Extrato</button>
                 <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')"><i class="fa-solid fa-plus-circle"></i> Adicionar Viagem</button>
             </div>
 
+            <!-- MEU EXTRATO -->
             <div id="m-extrato" class="tab-content active">
                 <div class="metrics-grid">
                     <div class="metric-card">
@@ -554,6 +563,7 @@
                 </div>
             </div>
 
+            <!-- ADICIONAR VIAGEM PELO MOTORISTA -->
             <div id="m-adicionar" class="tab-content">
                 <div class="card">
                     <h3><i class="fa-solid fa-file-invoice-dollar"></i> Nova Viagem (Motorista)</h3>
@@ -586,6 +596,7 @@
 
     <div id="toast">Operação realizada!</div>
 
+    <!-- Scripts do Firebase v10 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -617,16 +628,22 @@
         onSnapshot(collection(db, "funcionarios"), (snapshot) => {
             dados.funcionarios = snapshot.docs.map(d => ({ idDoc: d.id, ...d.data() }));
             atualizarInterfaceCompleta();
+        }, (error) => {
+            console.error("Erro ao carregar funcionários: ", error);
         });
 
         onSnapshot(collection(db, "caminhoes"), (snapshot) => {
             dados.caminhoes = snapshot.docs.map(d => ({ idDoc: d.id, ...d.data() }));
             atualizarInterfaceCompleta();
+        }, (error) => {
+            console.error("Erro ao carregar caminhões: ", error);
         });
 
         onSnapshot(collection(db, "viagens"), (snapshot) => {
             dados.viagens = snapshot.docs.map(d => ({ idDoc: d.id, ...d.data() }));
             atualizarInterfaceCompleta();
+        }, (error) => {
+            console.error("Erro ao carregar viagens: ", error);
         });
 
         window.mudarTipoAcesso = function() {
@@ -641,7 +658,7 @@
             }
         }
 
-        window.entrarNoSistema = function() {
+        window.entrarNoSistema = async function() {
             let tipo = document.getElementById('tipo-acceso').value;
             let usuarioInput = document.getElementById('login-usuario').value.trim();
             let senhaInput = document.getElementById('login-senha').value.trim();
@@ -653,6 +670,7 @@
                     document.getElementById('main-header').style.display = 'flex';
                     document.getElementById('painel-patrao').style.display = 'block';
                     document.getElementById('header-title').innerText = 'PAINEL DA PATROA - Ieda Daltro';
+                    atualizarInterfaceCompleta();
                     mostrarToast('Bem-vinda, Ieda Daltro!');
                 } else {
                     mostrarToast('Usuário ou senha da Patroa incorretos!', '#f85149');
@@ -661,6 +679,13 @@
                 let motoristaEncontrado = dados.funcionarios.find(f => f.usuario === usuarioInput && f.senha === senhaInput);
 
                 if (motoristaEncontrado) {
+                    try {
+                        // Atualiza o registro do motorista com o timestamp do último login (Online)
+                        await updateDoc(doc(db, "funcionarios", motoristaEncontrado.idDoc), {
+                            ultimoUltimoAcesso: Date.now()
+                        });
+                    } catch(e) {}
+
                     sessaoAtual = { tipo: 'motorista', usuarioObj: motoristaEncontrado };
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('main-header').style.display = 'flex';
@@ -694,7 +719,13 @@
             }
 
             try {
-                await addDoc(collection(db, "funcionarios"), { id: Date.now(), nome, usuario, senha });
+                await addDoc(collection(db, "funcionarios"), { 
+                    id: Date.now(), 
+                    nome, 
+                    usuario, 
+                    senha, 
+                    ultimoUltimoAcesso: 0 
+                });
                 document.getElementById('func-nome').value = '';
                 document.getElementById('func-usuario').value = '';
                 document.getElementById('func-senha').value = '';
@@ -740,7 +771,6 @@
             }
         }
 
-        // MOTORISTA CRIA SUA VIAGEM
         window.motoristaCriarViagem = async function() {
             if (sessaoAtual?.tipo !== 'motorista') return;
 
@@ -761,10 +791,15 @@
             let lucroEmpresa = valorFrete - comissaoMotorista - custoCombustivel;
 
             try {
+                // Atualiza o status online ao mexer no painel
+                await updateDoc(doc(db, "funcionarios", sessaoAtual.usuarioObj.idDoc), {
+                    ultimoUltimoAcesso: Date.now()
+                });
+
                 await addDoc(collection(db, "viagens"), {
                     motoristaId: sessaoAtual.usuarioObj.id,
                     origem, destino, carga, km, valorFrete, custoCombustivel, comissaoMotorista, lucroEmpresa,
-                    status: 'pendente_saida', // pendente_saida -> em_andamento -> concluida
+                    status: 'pendente_saida',
                     timestampCriacao: Date.now(),
                     timestampChegada: null
                 });
@@ -782,9 +817,9 @@
             }
         }
 
-        // CONFIRMAR SAÍDA
         window.confirmarSaida = async function(idDoc) {
             try {
+                await updateDoc(doc(db, "funcionarios", sessaoAtual.usuarioObj.idDoc), { ultimoUltimoAcesso: Date.now() });
                 await updateDoc(doc(db, "viagens", idDoc), { status: 'em_andamento' });
                 mostrarToast('Saída confirmada! Viagem em andamento.');
             } catch(e) {
@@ -792,9 +827,9 @@
             }
         }
 
-        // CONFIRMAR CHEGADA (Dispara o cronômetro de 10 minutos para liberar o saldo)
         window.confirmarChegada = async function(idDoc) {
             try {
+                await updateDoc(doc(db, "funcionarios", sessaoAtual.usuarioObj.idDoc), { ultimoUltimoAcesso: Date.now() });
                 await updateDoc(doc(db, "viagens", idDoc), { 
                     status: 'concluida', 
                     timestampChegada: Date.now() 
@@ -805,15 +840,15 @@
             }
         }
 
-        function atualizarInterfaceCompleta() {
+        window.atualizarInterfaceCompleta = function() {
             let agora = Date.now();
             let dezMinutosMs = 10 * 60 * 1000;
+            let cincoMinutosMs = 5 * 60 * 1000;
 
             if (sessaoAtual?.tipo === 'patrao') {
                 document.getElementById('stat-motoristas').innerText = dados.funcionarios.length;
                 document.getElementById('stat-caminhoes').innerText = dados.caminhoes.length;
 
-                // Considera apenas viagens com chegada concluída E com mais de 10 min (ou seja, lançadas oficialmente no sistema)
                 let viagensOficiais = dados.viagens.filter(v => v.status === 'concluida' && v.timestampChegada && (agora - v.timestampChegada >= dezMinutosMs));
 
                 let totalFat = viagensOficiais.reduce((acc, v) => acc + (v.valorFrete || 0), 0);
@@ -830,9 +865,13 @@
                         let totalArrecadadoMot = viagensMotOficiais.reduce((sum, v) => sum + (v.valorFrete || 0), 0);
                         let totalComissaoMot = viagensMotOficiais.reduce((sum, v) => sum + (v.comissaoMotorista || 0), 0);
 
+                        // Verifica se está online (último acesso nos últimos 5 minutos)
+                        let isOnline = f.ultimoUltimoAcesso && (agora - f.ultimoUltimoAcesso <= cincoMinutosMs);
+                        let corNome = isOnline ? 'color: var(--success-color); font-weight: bold;' : 'color: var(--text-color);';
+
                         tabelaFunc.innerHTML += `
                             <tr>
-                                <td><b>${f.nome}</b></td>
+                                <td><b style="${corNome}">${f.nome} ${isOnline ? '🟢' : ''}</b></td>
                                 <td><code>${f.usuario || '-'}</code></td>
                                 <td style="color: var(--accent-color); font-weight: bold;">${formatarMoeda(totalArrecadadoMot)}</td>
                                 <td style="color: #2ea043; font-weight: bold;">${formatarMoeda(totalComissaoMot)}</td>
@@ -883,8 +922,6 @@
             if (sessaoAtual?.tipo === 'motorista') {
                 let idMot = sessaoAtual.usuarioObj.id;
                 let minhasViagens = dados.viagens.filter(v => String(v.motoristaId) === String(idMot));
-                
-                // Viagens cujos 10 minutos já passaram após a chegada
                 let viagensDisponiveis = minhasViagens.filter(v => v.status === 'concluida' && v.timestampChegada && (agora - v.timestampChegada >= dezMinutosMs));
 
                 let totalArrecadado = minhasViagens.reduce((acc, v) => acc + (v.status === 'concluida' ? (v.valorFrete || 0) : 0), 0);
