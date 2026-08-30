@@ -204,6 +204,17 @@
             font-size: 14px;
         }
 
+        .btn-link {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            text-decoration: underline;
+        }
+
         .btn-delete {
             background: rgba(248, 81, 73, 0.15);
             color: var(--danger-color);
@@ -361,28 +372,52 @@
 
     <div class="container">
         
-        <!-- TELA DE LOGIN -->
+        <!-- TELA DE LOGIN / CADASTRO -->
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="form-group">
-                    <label>Tipo de Acesso</label>
-                    <select id="tipo-acceso" onchange="mudarTipoAcesso()">
-                        <option value="patrao">Patrão (Ieda Daltro)</option>
-                        <option value="motorista">Motorista (Funcionário)</option>
-                    </select>
+                
+                <!-- FORMULÁRIO DE LOGIN -->
+                <div id="form-login-div">
+                    <div class="form-group">
+                        <label>Tipo de Acesso</label>
+                        <select id="tipo-acceso" onchange="mudarTipoAcesso()">
+                            <option value="patrao">Patrão (Ieda Daltro)</option>
+                            <option value="motorista">Motorista (Funcionário)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Usuário</label>
+                        <input type="text" id="login-usuario" placeholder="Ieda Daltro">
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" id="login-senha" placeholder="Sua senha">
+                    </div>
+
+                    <button class="btn-submit" onclick="entrarNoSistema()">Entrar no Sistema</button>
+                    <button class="btn-link" onclick="alternarTelaCadastro(true)">Sou novo motorista? Cadastre-se aqui</button>
                 </div>
 
-                <div class="form-group">
-                    <label>Usuário</label>
-                    <input type="text" id="login-usuario" placeholder="Ieda Daltro">
-                </div>
-                <div class="form-group">
-                    <label>Senha</label>
-                    <input type="password" id="login-senha" placeholder="Sua senha">
-                </div>
+                <!-- FORMULÁRIO DE AUTO-CADASTRO DO MOTORISTA -->
+                <div id="form-cadastro-div" style="display: none;">
+                    <div class="form-group">
+                        <label>Nome / Apelido</label>
+                        <input type="text" id="cad-nome" placeholder="Seu nome completo ou apelido">
+                    </div>
+                    <div class="form-group">
+                        <label>Crie seu Usuário de Login</label>
+                        <input type="text" id="cad-usuario" placeholder="Ex: jeferson123">
+                    </div>
+                    <div class="form-group">
+                        <label>Crie sua Senha</label>
+                        <input type="password" id="cad-senha" placeholder="Sua senha">
+                    </div>
 
-                <button class="btn-submit" onclick="entrarNoSistema()">Entrar no Sistema</button>
+                    <button class="btn-submit" onclick="motoristaAutoCadastrar()">Concluir Cadastro e Entrar</button>
+                    <button class="btn-link" onclick="alternarTelaCadastro(false)">Já tenho conta? Voltar ao Login</button>
+                </div>
             </div>
         </div>
 
@@ -761,6 +796,55 @@
             }
         }
 
+        window.alternarTelaCadastro = function(mostrarCadastro) {
+            if (mostrarCadastro) {
+                document.getElementById('form-login-div').style.display = 'none';
+                document.getElementById('form-cadastro-div').style.display = 'block';
+            } else {
+                document.getElementById('form-cadastro-div').style.display = 'none';
+                document.getElementById('form-login-div').style.display = 'block';
+            }
+        }
+
+        window.motoristaAutoCadastrar = async function() {
+            let nome = document.getElementById('cad-nome').value.trim();
+            let usuario = document.getElementById('cad-usuario').value.trim();
+            let senha = document.getElementById('cad-senha').value.trim();
+
+            if (!nome || !usuario || !senha) {
+                mostrarToast('Preencha todos os campos do cadastro!', '#f85149');
+                return;
+            }
+
+            // Verificar se o usuário já existe
+            let usuarioExiste = dados.funcionarios.some(f => f.usuario === usuario);
+            if (usuarioExiste) {
+                mostrarToast('Este nome de usuário já está em uso. Escolha outro.', '#f85149');
+                return;
+            }
+
+            try {
+                let novoMotoristaObj = {
+                    id: Date.now(),
+                    nome,
+                    usuario,
+                    senha,
+                    ultimoUltimoAcesso: Date.now()
+                };
+
+                let docRef = await addDoc(collection(db, "funcionarios"), novoMotoristaObj);
+                novoMotoristaObj.idDoc = docRef.id;
+
+                sessaoAtual = { tipo: 'motorista', usuarioObj: novoMotoristaObj };
+                localStorage.setItem('ets2_sessao', JSON.stringify(sessaoAtual));
+                
+                ativarSessaoMotorista();
+                mostrarToast('Cadastro realizado com sucesso! Bem-vindo!');
+            } catch (e) {
+                mostrarToast('Erro ao cadastrar: ' + e.message, '#f85149');
+            }
+        }
+
         window.entrarNoSistema = async function() {
             let tipo = document.getElementById('tipo-acceso').value;
             let usuarioInput = document.getElementById('login-usuario').value.trim();
@@ -818,6 +902,8 @@
             document.getElementById('painel-patrao').style.display = 'none';
             document.getElementById('painel-motorista').style.display = 'none';
             document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('form-cadastro-div').style.display = 'none';
+            document.getElementById('form-login-div').style.display = 'block';
             mostrarToast('Sessão encerrada.');
         }
 
@@ -1188,7 +1274,6 @@
                         let motNome = mot ? `<b>${mot.nome}</b>` : '<span style="color:var(--text-muted)">Livre</span>';
                         let kmTotal = c.kmAcumulado || 0;
 
-                        // Lógica baseada estritamente no hodômetro acumulado
                         let statusDesgaste = "";
                         if (kmTotal >= 50000) {
                             statusDesgaste = `<span style="color: var(--danger-color); font-weight:bold;"><i class="fa-solid fa-triangle-exclamation"></i> Revisão Geral / Motor (+50k km)</span>`;
