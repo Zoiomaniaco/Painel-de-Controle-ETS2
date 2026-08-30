@@ -405,6 +405,13 @@
                     </div>
                 </div>
 
+                <!-- BOTÃO DE ZERAR DADOS -->
+                <div style="margin-bottom: 15px;">
+                    <button class="btn-delete" style="width: 100%; padding: 10px; font-size: 13px;" onclick="zerarTodasAsViagens()">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Zerar Todas as Viagens e Faturamento
+                    </button>
+                </div>
+
                 <div class="card">
                     <h3><i class="fa-solid fa-clock-rotate-left"></i> Histórico Detalhado de Viagens</h3>
                     <div class="table-responsive">
@@ -806,6 +813,27 @@
                     mostrarToast('Motorista excluído com sucesso!');
                 } catch (e) {
                     mostrarToast('Erro ao excluir: ' + e.message, '#f85149');
+                }
+            }
+        }
+
+        window.zerarTodasAsViagens = async function() {
+            if (sessaoAtual?.tipo !== 'patrao') {
+                mostrarToast('Apenas a Patroa pode zerar os dados!', '#f85149');
+                return;
+            }
+
+            if (confirm('Tem certeza absoluta que deseja apagar TODAS as viagens e zerar o faturamento e lucros da empresa? Esta ação não pode ser desfeita!')) {
+                try {
+                    const querySnapshot = await getDocs(collection(db, "viagens"));
+                    const promessasDeExclusao = querySnapshot.docs.map(documento => 
+                        deleteDoc(doc(db, "viagens", documento.id))
+                    );
+
+                    await Promise.all(promessasDeExclusao);
+                    mostrarToast('Faturamento e viagens zerados com sucesso!');
+                } catch (e) {
+                    mostrarToast('Erro ao zerar dados: ' + e.message, '#f85149');
                 }
             }
         }
