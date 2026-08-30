@@ -14,8 +14,7 @@
     <style>
         :root {
             --bg-color: rgba(15, 17, 21, 0.92);
-            /* Fundo do painel agora é preto sólido para garantir contraste */
-            --panel-bg: #000000; 
+            --panel-bg: #000000;
             --accent-color: #ff9800;
             --accent-hover: #e68900;
             --text-color: #e6edf3;
@@ -30,7 +29,6 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            /* Mantenha sua imagem de fundo aqui */
             background-image: url('fundo.jpg');
             background-size: cover;
             background-position: center;
@@ -43,7 +41,7 @@
         }
 
         header {
-            background-color: rgba(0,0,0,0.8); /* Header levemente transparente sobre a imagem */
+            background-color: rgba(0,0,0,0.85);
             border-bottom: 2px solid var(--accent-color);
             padding: 15px;
             display: flex;
@@ -65,7 +63,7 @@
             background: rgba(248, 81, 73, 0.15);
             color: var(--danger-color);
             border: 1px solid var(--danger-color);
-            padding: 5px 10px;
+            padding: 6px 12px;
             border-radius: 4px;
             font-size: 11px;
             font-weight: 600;
@@ -89,30 +87,29 @@
         }
 
         .login-card {
-            background-color: var(--panel-bg); /* Fundo preto sólido definido no :root */
+            background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 25px; /* Aumentei um pouco o padding interno */
+            padding: 28px 25px;
             width: 100%;
             max-width: 360px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.7); /* Sombra mais forte para destacar o cartão */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             text-align: center;
         }
 
         .login-card h2 {
             margin-top: 0;
-            /* Aumentei o espaçamento abaixo do título e ícone */
-            margin-bottom: 25px; 
+            margin-bottom: 28px;
             color: var(--accent-color);
-            font-size: 20px; /* Título ligeiramente maior */
+            font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .login-card h2 i {
-            font-size: 24px;
+            font-size: 26px;
         }
 
         .nav-tabs {
@@ -179,11 +176,11 @@
 
         .card h3 i { color: var(--accent-color); }
 
-        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group { margin-bottom: 16px; text-align: left; }
 
         label {
             display: block;
-            margin-bottom: 8px; /* Espaçamento entre o label e o input */
+            margin-bottom: 8px;
             font-size: 13px;
             font-weight: 600;
             color: var(--text-color);
@@ -192,7 +189,7 @@
         input, select {
             width: 100%;
             padding: 12px;
-            background-color: rgba(255, 255, 255, 0.1); /* Input levemente destacado sobre o fundo preto */
+            background-color: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--border-color);
             color: var(--text-color);
             border-radius: 6px;
@@ -200,10 +197,9 @@
             outline: none;
         }
         
-        /* Cor do texto digitado na senha alterada para branco */
         input[type="password"] {
             color: #ffffff;
-            font-family: monospace; /* Deixa os pontinhos da senha mais alinhados */
+            font-family: monospace;
             letter-spacing: 2px;
         }
 
@@ -306,7 +302,7 @@
         }
 
         th {
-            background-color: rgba(13, 17, 23, 0.9);
+            background-color: rgba(13, 17, 23, 0.95);
             color: var(--text-muted);
             font-weight: 600;
             text-transform: uppercase;
@@ -356,7 +352,6 @@
         <!-- TELA DE LOGIN / CADASTRO -->
         <div id="login-screen">
             <div class="login-card">
-                <!-- Título e ícone com espaçamento ajustado no CSS (.login-card h2) -->
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
                 
                 <!-- FORMULÁRIO DE LOGIN -->
@@ -407,4 +402,522 @@
         <div id="painel-patrao" style="display: none;">
             <div class="nav-tabs">
                 <button class="tab-btn active" onclick="switchTab(event, 'p-visao')"><i class="fa-solid fa-chart-pie"></i> Visão</button>
-                <button class="tab-btn" onclick="switchTab(event, 'p-motoristas')"><i class="fa-
+                <button class="tab-btn" onclick="switchTab(event, 'p-motoristas')"><i class="fa-solid fa-users"></i> Motoristas</button>
+                <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
+            </div>
+
+            <!-- Aba Visão Geral -->
+            <div id="p-visao" class="tab-content active">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-wallet"></i></div>
+                        <div class="metric-info">
+                            <h3>Faturamento Total</h3>
+                            <p id="patrao-faturamento">R$ 0,00</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-route"></i></div>
+                        <div class="metric-info">
+                            <h3>Total de Viagens</h3>
+                            <p id="patrao-total-viagens">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-list-check"></i> Últimas Viagens Registradas</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Motorista</th>
+                                    <th>Origem → Destino</th>
+                                    <th>Carga</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-ultimas-viagens">
+                                <tr><td colspan="4" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aba Motoristas -->
+            <div id="p-motoristas" class="tab-content">
+                <div class="card">
+                    <h3><i class="fa-solid fa-user-plus"></i> Cadastrar Novo Motorista</h3>
+                    <div class="form-group">
+                        <label>Nome do Motorista</label>
+                        <input type="text" id="novo-mot-nome" placeholder="Nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label>Usuário de Acesso</label>
+                        <input type="text" id="novo-mot-user" placeholder="usuario123">
+                    </div>
+                    <div class="form-group">
+                        <label>Senha Provisória</label>
+                        <input type="password" id="novo-mot-senha" placeholder="Senha">
+                    </div>
+                    <button class="btn-submit" onclick="cadastrarMotoristaPatrao()">Adicionar Motorista</button>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-users-line"></i> Lista de Motoristas</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Usuário</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-motoristas-patrao">
+                                <tr><td colspan="3" class="empty-row">Nenhum motorista cadastrado.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aba Frota -->
+            <div id="p-caminhoes" class="tab-content">
+                <div class="card">
+                    <h3><i class="fa-solid fa-truck"></i> Cadastrar Caminhão</h3>
+                    <div class="form-group">
+                        <label>Modelo / Nome do Caminhão</label>
+                        <input type="text" id="cam-modelo" placeholder="Ex: Scania R450">
+                    </div>
+                    <div class="form-group">
+                        <label>Placa / ID</label>
+                        <input type="text" id="cam-placa" placeholder="Ex: ETS-2026">
+                    </div>
+                    <button class="btn-submit" onclick="cadastrarCaminhao()">Salvar Caminhão</button>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-warehouse"></i> Frota Ativa</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Modelo</th>
+                                    <th>Placa</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-frota">
+                                <tr><td colspan="3" class="empty-row">Nenhum caminhão cadastrado.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAINEL DO MOTORISTA -->
+        <div id="painel-motorista" style="display: none;">
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')"><i class="fa-solid fa-wallet"></i> Meu Extrato</button>
+                <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')"><i class="fa-solid fa-plus-circle"></i> Adicionar Viagem</button>
+            </div>
+
+            <!-- Meu Extrato -->
+            <div id="m-extrato" class="tab-content active">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-coins"></i></div>
+                        <div class="metric-info">
+                            <h3>Meus Ganhos</h3>
+                            <p id="motorista-meus-ganhos">R$ 0,00</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                        <div class="metric-info">
+                            <h3>Minhas Viagens</h3>
+                            <p id="motorista-total-viagens">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-history"></i> Histórico de Viagens</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Origem → Destino</th>
+                                    <th>Carga</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-minhas-viagens">
+                                <tr><td colspan="3" class="empty-row">Nenhuma viagem registrada.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adicionar Viagem -->
+            <div id="m-adicionar" class="tab-content">
+                <div class="card">
+                    <h3><i class="fa-solid fa-map-location-dot"></i> Registrar Nova Viagem</h3>
+                    <div class="form-group">
+                        <label>Origem</label>
+                        <input type="text" id="viagem-origem" placeholder="Ex: Berlim">
+                    </div>
+                    <div class="form-group">
+                        <label>Destino</label>
+                        <input type="text" id="viagem-destino" placeholder="Ex: Paris">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Carga</label>
+                        <input type="text" id="viagem-carga" placeholder="Ex: Eletrônicos">
+                    </div>
+                    <div class="form-group">
+                        <label>Valor do Frete (R$)</label>
+                        <input type="number" id="viagem-valor" placeholder="0.00">
+                    </div>
+                    <button class="btn-submit" onclick="salvarViagemMotorista()">Enviar Viagem</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="toast">Operação realizada com sucesso!</div>
+
+    <!-- Scripts do Firebase v10 e Lógica da Aplicação -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // **COLOQUE AQUI AS SUAS CREDENCIAIS REAIS DO FIREBASE**
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY_AQUI",
+            authDomain: "SEU_AUTH_DOMAIN_AQUI",
+            projectId: "SEU_PROJECT_ID_AQUI",
+            storageBucket: "SEU_STORAGE_BUCKET_AQUI",
+            messagingSenderId: "SEU_MESSAGING_SENDER_ID_AQUI",
+            appId: "SEU_APP_ID_AQUI"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let dadosLocais = {
+            funcionarios: [],
+            caminhoes: [],
+            viagens: []
+        };
+
+        let sessaoAtual = null;
+
+        window.mudarTipoAcesso = function() {
+            let tipo = document.getElementById('tipo-acceso').value;
+            let inputUsuario = document.getElementById('login-usuario');
+            if (tipo === 'patrao') {
+                inputUsuario.value = '';
+                inputUsuario.placeholder = 'Ieda Daltro';
+            } else {
+                inputUsuario.value = '';
+                inputUsuario.placeholder = 'Seu usuário de motorista';
+            }
+        };
+
+        window.alternarTelaCadastro = function(mostrar) {
+            document.getElementById('form-login-div').style.display = mostrar ? 'none' : 'block';
+            document.getElementById('form-cadastro-div').style.display = mostrar ? 'block' : 'none';
+        };
+
+        window.entrarNoSistema = async function() {
+            let tipo = document.getElementById('tipo-acceso').value;
+            let usuario = document.getElementById('login-usuario').value.trim();
+            let senha = document.getElementById('login-senha').value.trim();
+
+            if (!usuario || !senha) {
+                mostrarToast("Preencha o usuário e a senha!", "error");
+                return;
+            }
+
+            if (tipo === 'patrao') {
+                if ((usuario.toLowerCase() === 'ieda daltro' || usuario.toLowerCase() === 'ieda') && senha === '1234') {
+                    sessaoAtual = { tipo: 'patrao', nome: 'Ieda Daltro' };
+                    iniciarPainelPatrao();
+                } else {
+                    mostrarToast("Credenciais da Patroa incorretas!", "error");
+                }
+            } else {
+                try {
+                    let snapshot = await getDocs(collection(db, "funcionarios"));
+                    let motoristaEncontrado = null;
+                    snapshot.forEach(docSnap => {
+                        let m = docSnap.data();
+                        if (m.usuario.toLowerCase() === usuario.toLowerCase() && m.senha === senha) {
+                            motoristaEncontrado = { id: docSnap.id, ...m };
+                        }
+                    });
+
+                    if (motoristaEncontrado) {
+                        sessaoAtual = { tipo: 'motorista', ...motoristaEncontrado };
+                        iniciarPainelMotorista();
+                    } else {
+                        mostrarToast("Motorista não encontrado ou senha inválida!", "error");
+                    }
+                } catch (e) {
+                    console.error(e);
+                    mostrarToast("Erro ao conectar com o banco de dados.", "error");
+                }
+            }
+        };
+
+        window.motoristaAutoCadastrar = async function() {
+            let nome = document.getElementById('cad-nome').value.trim();
+            let usuario = document.getElementById('cad-usuario').value.trim();
+            let senha = document.getElementById('cad-senha').value.trim();
+
+            if (!nome || !usuario || !senha) {
+                mostrarToast("Preencha todos os campos do cadastro!", "error");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "funcionarios"), { nome, usuario, senha });
+                mostrarToast("Cadastro realizado com sucesso!");
+                document.getElementById('login-usuario').value = usuario;
+                document.getElementById('login-senha').value = senha;
+                document.getElementById('tipo-acceso').value = 'motorista';
+                alternarTelaCadastro(false);
+            } catch (e) {
+                console.error(e);
+                mostrarToast("Erro ao realizar cadastro.", "error");
+            }
+        };
+
+        window.fazerLogout = function() {
+            sessaoAtual = null;
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('painel-patrao').style.display = 'none';
+            document.getElementById('painel-motorista').style.display = 'none';
+            document.getElementById('main-header').style.display = 'none';
+            document.getElementById('login-senha').value = '';
+            mostrarToast("Você saiu do sistema.");
+        };
+
+        window.switchTab = function(evt, tabId) {
+            let container = evt.currentTarget.closest('.container');
+            container.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+            container.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        };
+
+        window.cadastrarMotoristaPatrao = async function() {
+            let nome = document.getElementById('novo-mot-nome').value.trim();
+            let usuario = document.getElementById('novo-mot-user').value.trim();
+            let senha = document.getElementById('novo-mot-senha').value.trim();
+
+            if (!nome || !usuario || !senha) {
+                mostrarToast("Preencha todos os campos!", "error");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "funcionarios"), { nome, usuario, senha });
+                document.getElementById('novo-mot-nome').value = '';
+                document.getElementById('novo-mot-user').value = '';
+                document.getElementById('novo-mot-senha').value = '';
+                mostrarToast("Motorista cadastrado com sucesso!");
+            } catch (e) {
+                mostrarToast("Erro ao cadastrar motorista.", "error");
+            }
+        };
+
+        window.cadastrarCaminhao = async function() {
+            let modelo = document.getElementById('cam-modelo').value.trim();
+            let placa = document.getElementById('cam-placa').value.trim();
+
+            if (!modelo || !placa) {
+                mostrarToast("Preencha todos os campos do caminhão!", "error");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "caminhoes"), { modelo, placa });
+                document.getElementById('cam-modelo').value = '';
+                document.getElementById('cam-placa').value = '';
+                mostrarToast("Caminhão cadastrado com sucesso!");
+            } catch (e) {
+                mostrarToast("Erro ao cadastrar caminhão.", "error");
+            }
+        };
+
+        window.salvarViagemMotorista = async function() {
+            let origem = document.getElementById('viagem-origem').value.trim();
+            let destino = document.getElementById('viagem-destino').value.trim();
+            let carga = document.getElementById('viagem-carga').value.trim();
+            let valor = parseFloat(document.getElementById('viagem-valor').value);
+
+            if (!origem || !destino || !carga || isNaN(valor)) {
+                mostrarToast("Preencha todos os campos corretamente!", "error");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, "viagens"), {
+                    motoristaId: sessaoAtual.id || 'patrao',
+                    motoristaNome: sessaoAtual.nome,
+                    origem,
+                    destino,
+                    carga,
+                    valor,
+                    data: new Date().toISOString()
+                });
+
+                document.getElementById('viagem-origem').value = '';
+                document.getElementById('viagem-destino').value = '';
+                document.getElementById('viagem-carga').value = '';
+                document.getElementById('viagem-valor').value = '';
+                mostrarToast("Viagem registrada com sucesso!");
+            } catch (e) {
+                mostrarToast("Erro ao registrar viagem.", "error");
+            }
+        };
+
+        window.deletarItem = async function(colecao, id) {
+            if (confirm("Deseja realmente excluir este item?")) {
+                try {
+                    await deleteDoc(doc(db, colecao, id));
+                    mostrarToast("Item excluído com sucesso!");
+                } catch (e) {
+                    mostrarToast("Erro ao excluir item.", "error");
+                }
+            }
+        };
+
+        function iniciarPainelPatrao() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('painel-patrao').style.display = 'block';
+            document.getElementById('main-header').style.display = 'flex';
+            document.getElementById('header-title').innerText = "PAINEL DA PATRÔA - IEDA DALTRO";
+            ouvirDados();
+        }
+
+        function iniciarPainelMotorista() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('painel-motorista').style.display = 'block';
+            document.getElementById('main-header').style.display = 'flex';
+            document.getElementById('header-title').innerText = `MOTORISTA: ${sessaoAtual.nome.toUpperCase()}`;
+            ouvirDados();
+        }
+
+        function ouvirDados() {
+            onSnapshot(collection(db, "funcionarios"), snapshot => {
+                dadosLocais.funcionarios = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderizarPatraoMotoristas();
+            });
+
+            onSnapshot(collection(db, "caminhoes"), snapshot => {
+                dadosLocais.caminhoes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderizarPatroCaminhoes();
+            });
+
+            onSnapshot(collection(db, "viagens"), snapshot => {
+                dadosLocais.viagens = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderizarVisaoGeralPatrao();
+                renderizarExtratoMotorista();
+            });
+        }
+
+        function renderizarVisaoGeralPatrao() {
+            let faturamento = dadosLocais.viagens.reduce((acc, v) => acc + (Number(v.valor) || 0), 0);
+            document.getElementById('patrao-faturamento').innerText = `R$ ${faturamento.toFixed(2)}`;
+            document.getElementById('patrao-total-viagens').innerText = dadosLocais.viagens.length;
+
+            let tbody = document.getElementById('tabela-ultimas-viagens');
+            if (dadosLocais.viagens.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = dadosLocais.viagens.map(v => `
+                <tr>
+                    <td>${v.motoristaNome || 'N/D'}</td>
+                    <td>${v.origem} → ${v.destino}</td>
+                    <td>${v.carga}</td>
+                    <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valor).toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarPatraoMotoristas() {
+            let tbody = document.getElementById('tabela-motoristas-patrao');
+            if (dadosLocais.funcionarios.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhum motorista cadastrado.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = dadosLocais.funcionarios.map(m => `
+                <tr>
+                    <td>${m.nome}</td>
+                    <td>${m.usuario}</td>
+                    <td><button onclick="deletarItem('funcionarios', '${m.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarPatroCaminhoes() {
+            let tbody = document.getElementById('tabela-frota');
+            if (dadosLocais.caminhoes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhum caminhão cadastrado.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = dadosLocais.caminhoes.map(c => `
+                <tr>
+                    <td>${c.modelo}</td>
+                    <td>${c.placa}</td>
+                    <td><button onclick="deletarItem('caminhoes', '${c.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarExtratoMotorista() {
+            if (!sessaoAtual || sessaoAtual.tipo !== 'motorista') return;
+
+            let minhasViagens = dadosLocais.viagens.filter(v => v.motoristaId === sessaoAtual.id);
+            let meusGanhos = minhasViagens.reduce((acc, v) => acc + (Number(v.valor) || 0), 0);
+
+            document.getElementById('motorista-meus-ganhos').innerText = `R$ ${meusGanhos.toFixed(2)}`;
+            document.getElementById('motorista-total-viagens').innerText = minhasViagens.length;
+
+            let tbody = document.getElementById('tabela-minhas-viagens');
+            if (minhasViagens.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhuma viagem registrada.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = minhasViagens.map(v => `
+                <tr>
+                    <td>${v.origem} → ${v.destino}</td>
+                    <td>${v.carga}</td>
+                    <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valor).toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function mostrarToast(mensagem, tipo = "success") {
+            let toast = document.getElementById('toast');
+            toast.innerText = mensagem;
+            toast.style.backgroundColor = tipo === "error" ? "var(--danger-color)" : "var(--success-color)";
+            toast.className = "show";
+            setTimeout(() => { toast.className = ""; }, 3000);
+        }
+    </script>
+</body>
+</html>
