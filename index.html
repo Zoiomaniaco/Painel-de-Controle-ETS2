@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PAINEL DE CONTROLE - Euro Truck Simulator 2</title>
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ff9800">
+    <!-- Google Fonts & FontAwesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -65,7 +67,7 @@
             padding-bottom: 40px;
         }
 
-        /* Sistema de Abas Otimizado para Celular (Ícone em cima, texto embaixo) */
+        /* Sistema de Abas Otimizado para Celular */
         .nav-tabs {
             display: flex;
             gap: 4px;
@@ -187,7 +189,7 @@
             background-color: var(--accent-hover);
         }
 
-        /* Cards de Métricas Compactos para Celular */
+        /* Cards de Métricas Compactos */
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -240,7 +242,7 @@
             color: var(--text-color);
         }
 
-        /* Tabelas Otimizadas com Scroll Horizontal */
+        /* Tabelas Otimizadas */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -310,6 +312,7 @@
     </header>
 
     <div class="container">
+        <!-- Abas de Navegação -->
         <div class="nav-tabs">
             <button class="tab-btn active" onclick="switchTab(event, 'painel')"><i class="fa-solid fa-chart-pie"></i> Visão</button>
             <button class="tab-btn" onclick="switchTab(event, 'funcionarios')"><i class="fa-solid fa-users"></i> Motoristas</button>
@@ -317,6 +320,7 @@
             <button class="tab-btn" onclick="switchTab(event, 'viagens')"><i class="fa-solid fa-route"></i> Viagens</button>
         </div>
 
+        <!-- ABA 1: PAINEL PRINCIPAL -->
         <div id="painel" class="tab-content active">
             <div class="metrics-grid">
                 <div class="metric-card">
@@ -358,7 +362,7 @@
             </div>
 
             <div class="card">
-                <h3><i class="fa-solid fa-clock-rotate-left"></i> Últimas Viagens</h3>
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Últimas Viagens (Nuvem)</h3>
                 <div class="table-responsive">
                     <table>
                         <thead>
@@ -371,13 +375,14 @@
                             </tr>
                         </thead>
                         <tbody id="tabela-ultimas-viagens">
-                            <tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>
+                            <tr><td colspan="5" class="empty-row">Carregando da nuvem...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
+        <!-- ABA 2: FUNCIONÁRIOS -->
         <div id="funcionarios" class="tab-content">
             <div class="card">
                 <h3><i class="fa-solid fa-user-plus"></i> Novo Motorista</h3>
@@ -407,13 +412,14 @@
                             </tr>
                         </thead>
                         <tbody id="tabela-funcionarios">
-                            <tr><td colspan="2" class="empty-row">Nenhum motorista.</td></tr>
+                            <tr><td colspan="2" class="empty-row">Carregando...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
+        <!-- ABA 3: CAMINHÕES -->
         <div id="caminhoes" class="tab-content">
             <div class="card">
                 <h3><i class="fa-solid fa-circle-plus"></i> Novo Caminhão</h3>
@@ -445,13 +451,14 @@
                             </tr>
                         </thead>
                         <tbody id="tabela-caminhoes">
-                            <tr><td colspan="2" class="empty-row">Nenhum caminhão.</td></tr>
+                            <tr><td colspan="2" class="empty-row">Carregando...</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
+        <!-- ABA 4: REGISTRAR VIAGEM -->
         <div id="viagens" class="tab-content">
             <div class="card">
                 <h3><i class="fa-solid fa-file-invoice-dollar"></i> Lançar Viagem (Comissão 40%)</h3>
@@ -479,50 +486,54 @@
                     <label>Valor do Frete (R$)</label>
                     <input type="number" id="viagem-valor" placeholder="0.00">
                 </div>
-                <button class="btn-submit" onclick="registrarViagem()">Calcular e Salvar</button>
+                <button class="btn-submit" onclick="registrarViagem()">Calcular e Enviar para Nuvem</button>
             </div>
         </div>
     </div>
 
+    <!-- Notificação Flutuante -->
     <div id="toast">Operação realizada!</div>
 
-    <script>
-        // Registro do Service Worker corrigido para encontrar o sw.js na raiz
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker OK!', reg))
-                    .catch(err => console.log('Erro SW:', err));
-            });
-        }
+    <!-- Scripts do Firebase v10 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        let dados = JSON.parse(localStorage.getItem('ets2_dados')) || {
+        const firebaseConfig = {
+            apiKey: "AIzaSyBHtNp1RY5un_2x3qxRnWreWxFFqfb4LCU",
+            authDomain: "painelets2-aa773.firebaseapp.com",
+            projectId: "painelets2-aa773",
+            storageBucket: "painelets2-aa773.firebasestorage.app",
+            messagingSenderId: "823969900699",
+            appId: "1:823969900699:web:bc784a0abdeea887c6fe3e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let dados = {
             funcionarios: [],
             caminhoes: [],
             viagens: []
         };
 
-        function mostrarToast(mensagem, cor = '#2ea043') {
-            let toast = document.getElementById('toast');
-            toast.innerText = mensagem;
-            toast.style.backgroundColor = cor;
-            toast.className = "show";
-            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
-        }
-
-        function salvarDadosLocal() {
-            localStorage.setItem('ets2_dados', JSON.stringify(dados));
+        // Escutar dados do Firestore em tempo real
+        onSnapshot(collection(db, "funcionarios"), (snapshot) => {
+            dados.funcionarios = snapshot.docs.map(doc => ({ idDoc: doc.id, ...doc.data() }));
             atualizarInterface();
-        }
+        });
 
-        function switchTab(event, tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-tabs button').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
+        onSnapshot(collection(db, "caminhoes"), (snapshot) => {
+            dados.caminhoes = snapshot.docs.map(doc => ({ idDoc: doc.id, ...doc.data() }));
+            atualizarInterface();
+        });
 
-        function cadastrarFuncionario() {
+        onSnapshot(collection(db, "viagens"), (snapshot) => {
+            dados.viagens = snapshot.docs.map(doc => ({ idDoc: doc.id, ...doc.data() }));
+            atualizarInterface();
+        });
+
+        window.cadastrarFuncionario = async function() {
             let nome = document.getElementById('func-nome').value;
             let usuario = document.getElementById('func-usuario').value;
             let senha = document.getElementById('func-senha').value;
@@ -532,16 +543,18 @@
                 return;
             }
 
-            dados.funcionarios.push({id: Date.now(), nome, usuario, senha});
-            document.getElementById('func-nome').value = '';
-            document.getElementById('func-usuario').value = '';
-            document.getElementById('func-senha').value = '';
-            
-            salvarDadosLocal();
-            mostrarToast('Motorista cadastrado!');
+            try {
+                await addDoc(collection(db, "funcionarios"), { id: Date.now(), nome, usuario, senha });
+                document.getElementById('func-nome').value = '';
+                document.getElementById('func-usuario').value = '';
+                document.getElementById('func-senha').value = '';
+                mostrarToast('Motorista salvo na nuvem!');
+            } catch (e) {
+                mostrarToast('Erro ao salvar!', '#f85149');
+            }
         }
 
-        function cadastrarCaminhao() {
+        window.cadastrarCaminhao = async function() {
             let marca = document.getElementById('truck-marca').value;
             let modelo = document.getElementById('truck-modelo').value;
             let motoristaId = document.getElementById('truck-motorista').value;
@@ -551,15 +564,17 @@
                 return;
             }
 
-            dados.caminhoes.push({id: Date.now(), marca, modelo, motoristaId});
-            document.getElementById('truck-marca').value = '';
-            document.getElementById('truck-modelo').value = '';
-
-            salvarDadosLocal();
-            mostrarToast('Caminhão adicionado!');
+            try {
+                await addDoc(collection(db, "caminhoes"), { id: Date.now(), marca, modelo, motoristaId });
+                document.getElementById('truck-marca').value = '';
+                document.getElementById('truck-modelo').value = '';
+                mostrarToast('Caminhão salvo na nuvem!');
+            } catch (e) {
+                mostrarToast('Erro ao salvar!', '#f85149');
+            }
         }
 
-        function registrarViagem() {
+        window.registrarViagem = async function() {
             let motoristaId = document.getElementById('viagem-motorista').value;
             let origem = document.getElementById('viagem-origem').value;
             let destino = document.getElementById('viagem-destino').value;
@@ -577,26 +592,29 @@
             let comissaoMotorista = valorFrete * 0.40;
             let lucroEmpresa = valorFrete - comissaoMotorista - custoCombustivel;
 
-            dados.viagens.push({
-                motoristaId, origem, destino, carga, km, valorFrete, custoCombustivel, comissaoMotorista, lucroEmpresa
-            });
+            try {
+                await addDoc(collection(db, "viagens"), {
+                    motoristaId, origem, destino, carga, km, valorFrete, custoCombustivel, comissaoMotorista, lucroEmpresa, timestamp: Date.now()
+                });
 
-            document.getElementById('viagem-origem').value = '';
-            document.getElementById('viagem-destino').value = '';
-            document.getElementById('viagem-carga').value = '';
-            document.getElementById('viagem-km').value = '';
-            document.getElementById('viagem-valor').value = '';
+                document.getElementById('viagem-origem').value = '';
+                document.getElementById('viagem-destino').value = '';
+                document.getElementById('viagem-carga').value = '';
+                document.getElementById('viagem-km').value = '';
+                document.getElementById('viagem-valor').value = '';
 
-            salvarDadosLocal();
-            mostrarToast(`Viagem salva! Lucro: R$ ${lucroEmpresa.toFixed(0)}`);
+                mostrarToast(`Viagem salva! Lucro: R$ ${lucroEmpresa.toFixed(0)}`);
+            } catch (e) {
+                mostrarToast('Erro ao salvar viagem!', '#f85149');
+            }
         }
 
         function atualizarInterface() {
             document.getElementById('stat-motoristas').innerText = dados.funcionarios.length;
             document.getElementById('stat-caminhoes').innerText = dados.caminhoes.length;
 
-            let totalFat = dados.viagens.reduce((acc, v) => acc + v.valorFrete, 0);
-            let totalLucro = dados.viagens.reduce((acc, v) => acc + v.lucroEmpresa, 0);
+            let totalFat = dados.viagens.reduce((acc, v) => acc + (v.valorFrete || 0), 0);
+            let totalLucro = dados.viagens.reduce((acc, v) => acc + (v.lucroEmpresa || 0), 0);
 
             document.getElementById('stat-faturamento').innerText = `R$ ${totalFat.toFixed(0)}`;
             document.getElementById('stat-lucro').innerText = `R$ ${totalLucro.toFixed(0)}`;
@@ -630,7 +648,11 @@
             // Tabela Viagens
             let tabelaViagens = document.getElementById('tabela-ultimas-viagens');
             tabelaViagens.innerHTML = dados.viagens.length ? '' : '<tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>';
-            dados.viagens.slice(-5).reverse().forEach(v => {
+            
+            // Ordenar por data se houver timestamp
+            let viagensOrdenadas = [...dados.viagens].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+            viagensOrdenadas.slice(0, 5).forEach(v => {
                 let mot = dados.funcionarios.find(f => f.id == v.motoristaId);
                 let motNome = mot ? mot.nome : 'Desconhecido';
                 tabelaViagens.innerHTML += `
@@ -643,8 +665,32 @@
                     </tr>`;
             });
         }
+    </script>
 
-        atualizarInterface();
+    <script>
+        // Registro do Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker OK!', reg))
+                    .catch(err => console.log('Erro SW:', err));
+            });
+        }
+
+        function mostrarToast(mensagem, cor = '#2ea043') {
+            let toast = document.getElementById('toast');
+            toast.innerText = mensagem;
+            toast.style.backgroundColor = cor;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function switchTab(event, tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tabs button').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
     </script>
 </body>
 </html>
