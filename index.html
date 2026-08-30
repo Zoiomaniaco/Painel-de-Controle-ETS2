@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PAINEL DE CONTROLE - Euro Truck Simulator 2</title>
+    <!-- Google Fonts & FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: rgba(15, 17, 21, 0.92);
+            --panel-bg: rgba(22, 27, 34, 0.88);
+            --accent-color: #ff9800;
+            --accent-hover: #e68900;
+            --text-color: #e6edf3;
+            --text-muted: #8b949e;
+            --border-color: #30363d;
+            --success-color: #2ea043;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-image: url('fundo.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-color: #0f1115;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            border-bottom: 2px solid var(--accent-color);
+            padding: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            margin: 0;
+            color: var(--accent-color);
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 12px;
+            padding-bottom: 40px;
+        }
+
+        /* Sistema de Abas Otimizado para Mobile */
+        .nav-tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        .nav-tabs button {
+            background-color: var(--panel-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 10px 14px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .nav-tabs button i {
+            color: var(--accent-color);
+            font-size: 14px;
+        }
+
+        .nav-tabs button.active {
+            background-color: var(--accent-color);
+            color: #000;
+            border-color: var(--accent-color);
+        }
+
+        .nav-tabs button.active i {
+            color: #000;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .card h3 i {
+            color: var(--accent-color);
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background-color: rgba(13, 17, 23, 0.85);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-color);
+        }
+
+        button.btn-submit {
+            background-color: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        button.btn-submit:active {
+            background-color: var(--accent-hover);
+        }
+
+        /* Cards de Métricas Compactos para Celular */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .metric-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .metric-icon {
+            width: 32px;
+            height: 32px;
+            background-color: rgba(255, 152, 0, 0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--accent-color);
+        }
+
+        .metric-info h3 {
+            margin: 0;
+            font-size: 11px;
+            color: var(--text-muted);
+            border: none;
+            padding: 0;
+        }
+
+        .metric-info p {
+            margin: 2px 0 0 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        /* Tabelas Otimizadas com Scroll Horizontal */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: left;
+            min-width: 300px;
+        }
+
+        th, td {
+            padding: 10px 10px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: rgba(13, 17, 23, 0.6);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .empty-row {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 15px;
+        }
+
+        /* Notificação Flutuante (Toast) */
+        #toast {
+            visibility: hidden;
+            min-width: 220px;
+            background-color: var(--success-color);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 12px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transition: visibility 0.2s, opacity 0.2s ease-in-out;
+            opacity: 0;
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>PAINEL DE CONTROLE - ETS2</h1>
+    </header>
+
+    <div class="container">
+        <!-- Abas de Navegação -->
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'painel')"><i class="fa-solid fa-chart-pie"></i> Visão</button>
+            <button class="tab-btn" onclick="switchTab(event, 'funcionarios')"><i class="fa-solid fa-users"></i> Motoristas</button>
+            <button class="tab-btn" onclick="switchTab(event, 'caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
+            <button class="tab-btn" onclick="switchTab(event, 'viagens')"><i class="fa-solid fa-route"></i> Viagem</button>
+        </div>
+
+        <!-- ABA 1: PAINEL PRINCIPAL -->
+        <div id="painel" class="tab-content active">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon"><i class="fa-solid fa-id-card"></i></div>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Motoristas</h3>
+                        <p id="stat-motoristas">0</p>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon"><i class="fa-solid fa-truck"></i></div>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Caminhões</h3>
+                        <p id="stat-caminhoes">0</p>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon"><i class="fa-solid fa-wallet"></i></div>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Faturamento</h3>
+                        <p id="stat-faturamento">R$ 0</p>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Lucro Líq.</h3>
+                        <p id="stat-lucro">R$ 0</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Últimas Viagens</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Motorista</th>
+                                <th>Rota</th>
+                                <th>Frete</th>
+                                <th>Combustível</th>
+                                <th>Lucro</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-ultimas-viagens">
+                            <tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 2: FUNCIONÁRIOS -->
+        <div id="funcionarios" class="tab-content">
+            <div class="card">
+                <h3><i class="fa-solid fa-user-plus"></i> Novo Motorista</h3>
+                <div class="form-group">
+                    <label>Nome / Apelido</label>
+                    <input type="text" id="func-nome" placeholder="Ex: João Silva">
+                </div>
+                <div class="form-group">
+                    <label>Usuário de Login</label>
+                    <input type="text" id="func-usuario" placeholder="Ex: joao123">
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="func-senha" placeholder="Sua senha">
+                </div>
+                <button class="btn-submit" onclick="cadastrarFuncionario()">Cadastrar Motorista</button>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-address-book"></i> Motoristas Cadastrados</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Usuário</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-funcionarios">
+                            <tr><td colspan="2" class="empty-row">Nenhum motorista.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 3: CAMINHÕES -->
+        <div id="caminhoes" class="tab-content">
+            <div class="card">
+                <h3><i class="fa-solid fa-circle-plus"></i> Novo Caminhão</h3>
+                <div class="form-group">
+                    <label>Marca</label>
+                    <input type="text" id="truck-marca" placeholder="Ex: Scania">
+                </div>
+                <div class="form-group">
+                    <label>Modelo</label>
+                    <input type="text" id="truck-modelo" placeholder="Ex: R500">
+                </div>
+                <div class="form-group">
+                    <label>Atribuir a Motorista</label>
+                    <select id="truck-motorista">
+                        <option value="">Livre na Garagem</option>
+                    </select>
+                </div>
+                <button class="btn-submit" onclick="cadastrarCaminhao()">Salvar Caminhão</button>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-warehouse"></i> Frota na Garagem</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Veículo</th>
+                                <th>Motorista</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-caminhoes">
+                            <tr><td colspan="2" class="empty-row">Nenhum caminhão.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 4: REGISTRAR VIAGEM -->
+        <div id="viagens" class="tab-content">
+            <div class="card">
+                <h3><i class="fa-solid fa-file-invoice-dollar"></i> Lançar Viagem (Comissão 40%)</h3>
+                <div class="form-group">
+                    <label>Motorista</label>
+                    <select id="viagem-motorista"></select>
+                </div>
+                <div class="form-group">
+                    <label>Origem</label>
+                    <input type="text" id="viagem-origem" placeholder="Ex: Berlim">
+                </div>
+                <div class="form-group">
+                    <label>Destino</label>
+                    <input type="text" id="viagem-destino" placeholder="Ex: Paris">
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Carga</label>
+                    <input type="text" id="viagem-carga" placeholder="Ex: Maquinário">
+                </div>
+                <div class="form-group">
+                    <label>KM Rodados</label>
+                    <input type="number" id="viagem-km" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Valor do Frete (R$)</label>
+                    <input type="number" id="viagem-valor" placeholder="0.00">
+                </div>
+                <button class="btn-submit" onclick="registrarViagem()">Calcular e Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notificação Flutuante -->
+    <div id="toast">Operação realizada!</div>
+
+    <script>
+        let dados = JSON.parse(localStorage.getItem('ets2_dados')) || {
+            funcionarios: [],
+            caminhoes: [],
+            viagens: []
+        };
+
+        function mostrarToast(mensagem, cor = '#2ea043') {
+            let toast = document.getElementById('toast');
+            toast.innerText = mensagem;
+            toast.style.backgroundColor = cor;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function salvarDadosLocal() {
+            localStorage.setItem('ets2_dados', JSON.stringify(dados));
+            atualizarInterface();
+        }
+
+        function switchTab(event, tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tabs button').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        function cadastrarFuncionario() {
+            let nome = document.getElementById('func-nome').value;
+            let usuario = document.getElementById('func-usuario').value;
+            let senha = document.getElementById('func-senha').value;
+
+            if(!nome || !usuario || !senha) {
+                mostrarToast('Preencha todos os campos!', '#f85149');
+                return;
+            }
+
+            dados.funcionarios.push({id: Date.now(), nome, usuario, senha});
+            document.getElementById('func-nome').value = '';
+            document.getElementById('func-usuario').value = '';
+            document.getElementById('func-senha').value = '';
+            
+            salvarDadosLocal();
+            mostrarToast('Motorista cadastrado!');
+        }
+
+        function cadastrarCaminhao() {
+            let marca = document.getElementById('truck-marca').value;
+            let modelo = document.getElementById('truck-modelo').value;
+            let motoristaId = document.getElementById('truck-motorista').value;
+
+            if(!marca || !modelo) {
+                mostrarToast('Preencha marca e modelo!', '#f85149');
+                return;
+            }
+
+            dados.caminhoes.push({id: Date.now(), marca, modelo, motoristaId});
+            document.getElementById('truck-marca').value = '';
+            document.getElementById('truck-modelo').value = '';
+
+            salvarDadosLocal();
+            mostrarToast('Caminhão adicionado!');
+        }
+
+        function registrarViagem() {
+            let motoristaId = document.getElementById('viagem-motorista').value;
+            let origem = document.getElementById('viagem-origem').value;
+            let destino = document.getElementById('viagem-destino').value;
+            let carga = document.getElementById('viagem-carga').value;
+            let km = parseFloat(document.getElementById('viagem-km').value) || 0;
+            let valorFrete = parseFloat(document.getElementById('viagem-valor').value) || 0;
+
+            if(!motoristaId || !origem || !destino || valorFrete <= 0 || km <= 0) {
+                mostrarToast('Preencha KM e Frete corretamente (> 0).', '#f85149');
+                return;
+            }
+
+            let litrosGastos = km / 2.5;
+            let custoCombustivel = litrosGastos * 5.00;
+            let comissaoMotorista = valorFrete * 0.40;
+            let lucroEmpresa = valorFrete - comissaoMotorista - custoCombustivel;
+
+            dados.viagens.push({
+                motoristaId, origem, destino, carga, km, valorFrete, custoCombustivel, comissaoMotorista, lucroEmpresa
+            });
+
+            document.getElementById('viagem-origem').value = '';
+            document.getElementById('viagem-destino').value = '';
+            document.getElementById('viagem-carga').value = '';
+            document.getElementById('viagem-km').value = '';
+            document.getElementById('viagem-valor').value = '';
+
+            salvarDadosLocal();
+            mostrarToast(`Viagem salva! Lucro: R$ ${lucroEmpresa.toFixed(0)}`);
+        }
+
+        function atualizarInterface() {
+            document.getElementById('stat-motoristas').innerText = dados.funcionarios.length;
+            document.getElementById('stat-caminhoes').innerText = dados.caminhoes.length;
+
+            let totalFat = dados.viagens.reduce((acc, v) => acc + v.valorFrete, 0);
+            let totalLucro = dados.viagens.reduce((acc, v) => acc + v.lucroEmpresa, 0);
+
+            document.getElementById('stat-faturamento').innerText = `R$ ${totalFat.toFixed(0)}`;
+            document.getElementById('stat-lucro').innerText = `R$ ${totalLucro.toFixed(0)}`;
+
+            // Tabela Motoristas
+            let tabelaFunc = document.getElementById('tabela-funcionarios');
+            tabelaFunc.innerHTML = dados.funcionarios.length ? '' : '<tr><td colspan="2" class="empty-row">Nenhum motorista.</td></tr>';
+            dados.funcionarios.forEach(f => {
+                tabelaFunc.innerHTML += `<tr><td><b>${f.nome}</b></td><td><code>${f.usuario}</code></td></tr>`;
+            });
+
+            let selectFuncTruck = document.getElementById('truck-motorista');
+            let selectFuncViagem = document.getElementById('viagem-motorista');
+            selectFuncTruck.innerHTML = '<option value="">Livre na Garagem</option>';
+            selectFuncViagem.innerHTML = '<option value="">Selecione</option>';
+
+            dados.funcionarios.forEach(f => {
+                selectFuncTruck.innerHTML += `<option value="${f.id}">${f.nome}</option>`;
+                selectFuncViagem.innerHTML += `<option value="${f.id}">${f.nome}</option>`;
+            });
+
+            // Tabela Caminhões
+            let tabelaTruck = document.getElementById('tabela-caminhoes');
+            tabelaTruck.innerHTML = dados.caminhoes.length ? '' : '<tr><td colspan="2" class="empty-row">Nenhum caminhão.</td></tr>';
+            dados.caminhoes.forEach(c => {
+                let mot = dados.funcionarios.find(f => f.id == c.motoristaId);
+                let motNome = mot ? `<b>${mot.nome}</b>` : '<span style="color:var(--text-muted)">Livre</span>';
+                tabelaTruck.innerHTML += `<tr><td><b>${c.marca} ${c.modelo}</b></td><td>${motNome}</td></tr>`;
+            });
+
+            // Tabela Viagens
+            let tabelaViagens = document.getElementById('tabela-ultimas-viagens');
+            tabelaViagens.innerHTML = dados.viagens.length ? '' : '<tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>';
+            dados.viagens.slice(-5).reverse().forEach(v => {
+                let mot = dados.funcionarios.find(f => f.id == v.motoristaId);
+                let motNome = mot ? mot.nome : 'Desconhecido';
+                tabelaViagens.innerHTML += `
+                    <tr>
+                        <td><b>${motNome}</b></td>
+                        <td>${v.origem} ➔ ${v.destino}</td>
+                        <td>R$ ${v.valorFrete.toFixed(0)}</td>
+                        <td style="color: #f85149;">-R$ ${v.custoCombustivel.toFixed(0)}</td>
+                        <td style="color: #2ea043; font-weight: bold;">R$ ${v.lucroEmpresa.toFixed(0)}</td>
+                    </tr>`;
+            });
+        }
+
+        atualizarInterface();
+    </script>
+</body>
+</html>

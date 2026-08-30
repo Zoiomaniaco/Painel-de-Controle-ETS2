@@ -1,0 +1,9 @@
+{
+  "short_name": "J&I ETS2",
+  "name": "J&I Transportes — Diário ETS2",
+  "start_url": "./index.html",
+  "background_color": "#0b1220",
+  "theme_color": "#111827",
+  "display": "standalone",
+  "orientation": "portrait"
+}
