@@ -636,7 +636,6 @@
 
         let sessaoAtual = null;
 
-        // Tabela de conversão do preço do litro do diesel por país no ETS 2 (Simulado em moeda interna proporcional)
         const precosDieselPorPais = {
             "Alemanha": 5.80,
             "Áustria": 5.60,
@@ -656,6 +655,23 @@
 
         onSnapshot(collection(db, "funcionarios"), (snapshot) => {
             dados.funcionarios = snapshot.docs.map(d => ({ idDoc: d.id, ...d.data() }));
+            
+            // Se já houver sessão salva de motorista, valida se ele ainda existe na base
+            let sessaoSalva = localStorage.getItem('ets2_sessao');
+            if (sessaoSalva && !sessaoAtual) {
+                let dadosSessao = JSON.parse(sessaoSalva);
+                if (dadosSessao.tipo === 'patrao') {
+                    ativarSessaoPatrao();
+                } else if (dadosSessao.tipo === 'motorista') {
+                    let motoristaAtualizado = dados.funcionarios.find(f => f.id === dadosSessao.usuarioObj.id);
+                    if (motoristaAtualizado) {
+                        sessaoAtual = { tipo: 'motorista', usuarioObj: motoristaAtualizado };
+                        ativarSessaoMotorista();
+                    } else {
+                        fazerLogout();
+                    }
+                }
+            }
             atualizarInterfaceCompleta();
         }, (error) => {
             console.error("Erro ao carregar funcionários: ", error);
@@ -695,11 +711,8 @@
             if (tipo === 'patrao') {
                 if (usuarioInput.toLowerCase() === 'ieda daltro' && senhaInput === '87022263') {
                     sessaoAtual = { tipo: 'patrao' };
-                    document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('main-header').style.display = 'flex';
-                    document.getElementById('painel-patrao').style.display = 'block';
-                    document.getElementById('header-title').innerText = 'PAINEL DA PATROA - Ieda Daltro';
-                    atualizarInterfaceCompleta();
+                    localStorage.setItem('ets2_sessao', JSON.stringify(sessaoAtual));
+                    ativarSessaoPatrao();
                     mostrarToast('Bem-vinda, Ieda Daltro!');
                 } else {
                     mostrarToast('Usuário ou senha da Patroa incorretos!', '#f85149');
@@ -715,11 +728,8 @@
                     } catch(e) {}
 
                     sessaoAtual = { tipo: 'motorista', usuarioObj: motoristaEncontrado };
-                    document.getElementById('login-screen').style.display = 'none';
-                    document.getElementById('main-header').style.display = 'flex';
-                    document.getElementById('painel-motorista').style.display = 'block';
-                    document.getElementById('header-title').innerText = `MOTORISTA: ${motoristaEncontrado.nome}`;
-                    atualizarInterfaceCompleta();
+                    localStorage.setItem('ets2_sessao', JSON.stringify(sessaoAtual));
+                    ativarSessaoMotorista();
                     mostrarToast('Login efetuado com sucesso!');
                 } else {
                     mostrarToast('Usuário ou senha do motorista incorretos!', '#f85149');
@@ -727,8 +737,25 @@
             }
         }
 
+        function ativarSessaoPatrao() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-header').style.display = 'flex';
+            document.getElementById('painel-patrao').style.display = 'block';
+            document.getElementById('header-title').innerText = 'PAINEL DA PATROA - Ieda Daltro';
+            atualizarInterfaceCompleta();
+        }
+
+        function ativarSessaoMotorista() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-header').style.display = 'flex';
+            document.getElementById('painel-motorista').style.display = 'block';
+            document.getElementById('header-title').innerText = `MOTORISTA: ${sessaoAtual.usuarioObj.nome}`;
+            atualizarInterfaceCompleta();
+        }
+
         window.fazerLogout = function() {
             sessaoAtual = null;
+            localStorage.removeItem('ets2_sessao');
             document.getElementById('main-header').style.display = 'none';
             document.getElementById('painel-patrao').style.display = 'none';
             document.getElementById('painel-motorista').style.display = 'none';
@@ -814,7 +841,6 @@
                 return;
             }
 
-            // Cálculo automatizado do combustível baseado no preço do litro do país selecionado (Média de 3 km/l do caminhão)
             let precoLitro = precosDieselPorPais[pais] || 5.00;
             let litrosGastos = km / 3.0; 
             let custoCombustivel = litrosGastos * precoLitro;
