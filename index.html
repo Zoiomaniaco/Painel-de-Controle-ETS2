@@ -21,11 +21,10 @@
             --text-muted: #8b949e;
             --border-color: #30363d;
             --success-color: #2ea043;
+            --danger-color: #f85149;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -44,8 +43,9 @@
             background-color: var(--panel-bg);
             border-bottom: 2px solid var(--accent-color);
             padding: 15px;
-            text-align: center;
-            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -54,10 +54,19 @@
         header h1 {
             margin: 0;
             color: var(--accent-color);
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
-            letter-spacing: 0.5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .btn-logout {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
         }
 
         .container {
@@ -67,7 +76,33 @@
             padding-bottom: 40px;
         }
 
-        /* Sistema de Abas Otimizado para Celular */
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            padding: 15px;
+        }
+
+        .login-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        .login-card h2 {
+            margin-top: 0;
+            color: var(--accent-color);
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
         .nav-tabs {
             display: flex;
             gap: 4px;
@@ -84,9 +119,6 @@
             border-radius: 6px;
             font-weight: 600;
             font-size: 11px;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-            backdrop-filter: blur(5px);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -107,17 +139,10 @@
             border-color: var(--accent-color);
         }
 
-        .nav-tabs button.active i {
-            color: #000;
-        }
+        .nav-tabs button.active i { color: #000; }
 
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
         .card {
             background-color: var(--panel-bg);
@@ -126,7 +151,6 @@
             padding: 16px;
             margin-bottom: 15px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-            backdrop-filter: blur(10px);
         }
 
         .card h3 {
@@ -141,13 +165,9 @@
             padding-bottom: 8px;
         }
 
-        .card h3 i {
-            color: var(--accent-color);
-        }
+        .card h3 i { color: var(--accent-color); }
 
-        .form-group {
-            margin-bottom: 12px;
-        }
+        .form-group { margin-bottom: 12px; text-align: left; }
 
         label {
             display: block;
@@ -168,9 +188,7 @@
             outline: none;
         }
 
-        input:focus, select:focus {
-            border-color: var(--accent-color);
-        }
+        input:focus, select:focus { border-color: var(--accent-color); }
 
         button.btn-submit {
             background-color: var(--accent-color);
@@ -185,11 +203,17 @@
             font-size: 14px;
         }
 
-        button.btn-submit:active {
-            background-color: var(--accent-hover);
+        .btn-delete {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 600;
         }
 
-        /* Cards de Métricas Compactos */
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -202,17 +226,9 @@
             border: 1px solid var(--border-color);
             padding: 12px;
             border-radius: 8px;
-            backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
             gap: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-
-        .metric-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
         }
 
         .metric-icon {
@@ -242,11 +258,9 @@
             color: var(--text-color);
         }
 
-        /* Tabelas Otimizadas */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
         }
 
         table {
@@ -269,7 +283,6 @@
             font-weight: 600;
             text-transform: uppercase;
             font-size: 10px;
-            letter-spacing: 0.5px;
         }
 
         .empty-row {
@@ -278,7 +291,6 @@
             padding: 15px;
         }
 
-        /* Notificação Flutuante (Toast) */
         #toast {
             visibility: hidden;
             min-width: 220px;
@@ -298,209 +310,281 @@
             transition: visibility 0.2s, opacity 0.2s ease-in-out;
             opacity: 0;
         }
-
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-        }
+        #toast.show { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>PAINEL DE CONTROLE - ETS2</h1>
+    <header id="main-header" style="display: none;">
+        <h1 id="header-title">PAINEL - ETS2</h1>
+        <button class="btn-logout" onclick="fazerLogout()"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
     </header>
 
     <div class="container">
-        <!-- Abas de Navegação -->
-        <div class="nav-tabs">
-            <button class="tab-btn active" onclick="switchTab(event, 'painel')"><i class="fa-solid fa-chart-pie"></i> Visão</button>
-            <button class="tab-btn" onclick="switchTab(event, 'funcionarios')"><i class="fa-solid fa-users"></i> Motoristas</button>
-            <button class="tab-btn" onclick="switchTab(event, 'caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
-            <button class="tab-btn" onclick="switchTab(event, 'viagens')"><i class="fa-solid fa-route"></i> Viagens</button>
-        </div>
-
-        <!-- ABA 1: PAINEL PRINCIPAL -->
-        <div id="painel" class="tab-content active">
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <div class="metric-icon"><i class="fa-solid fa-id-card"></i></div>
-                    </div>
-                    <div class="metric-info">
-                        <h3>Motoristas</h3>
-                        <p id="stat-motoristas">0</p>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <div class="metric-icon"><i class="fa-solid fa-truck"></i></div>
-                    </div>
-                    <div class="metric-info">
-                        <h3>Caminhões</h3>
-                        <p id="stat-caminhoes">0</p>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <div class="metric-icon"><i class="fa-solid fa-wallet"></i></div>
-                    </div>
-                    <div class="metric-info">
-                        <h3>Faturamento Bruto</h3>
-                        <p id="stat-faturamento">R$ 0</p>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <div class="metric-icon"><i class="fa-solid fa-chart-line"></i></div>
-                    </div>
-                    <div class="metric-info">
-                        <h3>Lucro Empresa</h3>
-                        <p id="stat-lucro">R$ 0</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3><i class="fa-solid fa-clock-rotate-left"></i> Histórico Detalhado de Viagens</h3>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Motorista</th>
-                                <th>Rota</th>
-                                <th>Frete (Arrecadado)</th>
-                                <th>Comissão (40%)</th>
-                                <th>Combustível</th>
-                                <th>Lucro Líquido</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-ultimas-viagens">
-                            <tr><td colspan="6" class="empty-row">Carregando da nuvem...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ABA 2: FUNCIONÁRIOS -->
-        <div id="funcionarios" class="tab-content">
-            <div class="card">
-                <h3><i class="fa-solid fa-user-plus"></i> Novo Motorista</h3>
+        
+        <!-- TELA DE LOGIN -->
+        <div id="login-screen">
+            <div class="login-card">
+                <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
                 <div class="form-group">
-                    <label>Nome / Apelido</label>
-                    <input type="text" id="func-nome" placeholder="Ex: João Silva">
+                    <label>Tipo de Acesso</label>
+                    <select id="tipo-acceso" onchange="mudarTipoAcesso()">
+                        <option value="patrao">Patrão (Ieda Daltro)</option>
+                        <option value="motorista">Motorista (Funcionário)</option>
+                    </select>
                 </div>
+
                 <div class="form-group">
-                    <label>Usuário de Login</label>
-                    <input type="text" id="func-usuario" placeholder="Ex: joao123">
+                    <label>Usuário</label>
+                    <input type="text" id="login-usuario" placeholder="Seu usuário">
                 </div>
                 <div class="form-group">
                     <label>Senha</label>
-                    <input type="password" id="func-senha" placeholder="Sua senha">
+                    <input type="password" id="login-senha" placeholder="Sua senha">
                 </div>
-                <button class="btn-submit" onclick="cadastrarFuncionario()">Cadastrar Motorista</button>
+
+                <button class="btn-submit" onclick="entrarNoSistema()">Entrar no Sistema</button>
+            </div>
+        </div>
+
+        <!-- PAINEL DO PATRÃO -->
+        <div id="painel-patrao" style="display: none;">
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab(event, 'p-visao')"><i class="fa-solid fa-chart-pie"></i> Visão</button>
+                <button class="tab-btn" onclick="switchTab(event, 'p-motoristas')"><i class="fa-solid fa-users"></i> Motoristas</button>
+                <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
+                <button class="tab-btn" onclick="switchTab(event, 'p-viagens')"><i class="fa-solid fa-route"></i> Viagens</button>
+            </div>
+
+            <!-- VISÃO GERAL -->
+            <div id="p-visao" class="tab-content active">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-id-card"></i></div>
+                        <div class="metric-info">
+                            <h3>Motoristas</h3>
+                            <p id="stat-motoristas">0</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-truck"></i></div>
+                        <div class="metric-info">
+                            <h3>Caminhões</h3>
+                            <p id="stat-caminhoes">0</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-wallet"></i></div>
+                        <div class="metric-info">
+                            <h3>Faturamento Bruto</h3>
+                            <p id="stat-faturamento">R$ 0,00</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-chart-line"></i></div>
+                        <div class="metric-info">
+                            <h3>Lucro Empresa</h3>
+                            <p id="stat-lucro">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Histórico Detalhado de Viagens</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Motorista</th>
+                                    <th>Rota</th>
+                                    <th>Frete</th>
+                                    <th>Comissão</th>
+                                    <th>Combustível</th>
+                                    <th>Lucro</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-ultimas-viagens">
+                                <tr><td colspan="6" class="empty-row">Nenhuma viagem registrada.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MOTORISTAS -->
+            <div id="p-motoristas" class="tab-content">
+                <div class="card">
+                    <h3><i class="fa-solid fa-user-plus"></i> Novo Motorista</h3>
+                    <div class="form-group">
+                        <label>Nome / Apelido</label>
+                        <input type="text" id="func-nome" placeholder="Ex: João Silva">
+                    </div>
+                    <div class="form-group">
+                        <label>Usuário de Login</label>
+                        <input type="text" id="func-usuario" placeholder="Ex: joao123">
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" id="func-senha" placeholder="Sua senha">
+                    </div>
+                    <button class="btn-submit" onclick="cadastrarFuncionario()">Cadastrar Motorista</button>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-address-book"></i> Motoristas Cadastrados</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Motorista</th>
+                                    <th>Usuário</th>
+                                    <th>Arrecadado</th>
+                                    <th>Comissão</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-funcionarios">
+                                <tr><td colspan="5" class="empty-row">Nenhum motorista cadastrado.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CAMINHÕES -->
+            <div id="p-caminhoes" class="tab-content">
+                <div class="card">
+                    <h3><i class="fa-solid fa-circle-plus"></i> Novo Caminhão</h3>
+                    <div class="form-group">
+                        <label>Marca</label>
+                        <input type="text" id="truck-marca" placeholder="Ex: Scania">
+                    </div>
+                    <div class="form-group">
+                        <label>Modelo</label>
+                        <input type="text" id="truck-modelo" placeholder="Ex: R500">
+                    </div>
+                    <div class="form-group">
+                        <label>Atribuir a Motorista</label>
+                        <select id="truck-motorista">
+                            <option value="">Livre na Garagem</option>
+                        </select>
+                    </div>
+                    <button class="btn-submit" onclick="cadastrarCaminhao()">Salvar Caminhão</button>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-warehouse"></i> Frota na Garagem</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Veículo</th>
+                                    <th>Motorista</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-caminhoes">
+                                <tr><td colspan="2" class="empty-row">Nenhum caminhão.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- REGISTRAR VIAGEM -->
+            <div id="p-viagens" class="tab-content">
+                <div class="card">
+                    <h3><i class="fa-solid fa-file-invoice-dollar"></i> Lançar Viagem</h3>
+                    <div class="form-group">
+                        <label>Motorista</label>
+                        <select id="viagem-motorista"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Origem</label>
+                        <input type="text" id="viagem-origem" placeholder="Ex: Berlim">
+                    </div>
+                    <div class="form-group">
+                        <label>Destino</label>
+                        <input type="text" id="viagem-destino" placeholder="Ex: Paris">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Carga</label>
+                        <input type="text" id="viagem-carga" placeholder="Ex: Maquinário">
+                    </div>
+                    <div class="form-group">
+                        <label>KM Rodados</label>
+                        <input type="number" id="viagem-km" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Valor do Frete (R$)</label>
+                        <input type="number" id="viagem-valor" placeholder="0.00">
+                    </div>
+                    <button class="btn-submit" onclick="registrarViagem()">Salvar Viagem</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAINEL DO MOTORISTA -->
+        <div id="painel-motorista" style="display: none;">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="fa-solid fa-wallet"></i></div>
+                    <div class="metric-info">
+                        <h3>Total Arrecadado</h3>
+                        <p id="mot-stat-arrecadado">R$ 0,00</p>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+                    <div class="metric-info">
+                        <h3>Meu Salário (Comissão)</h3>
+                        <p id="mot-stat-salario">R$ 0,00</p>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="fa-solid fa-route"></i></div>
+                    <div class="metric-info">
+                        <h3>Total de Viagens</h3>
+                        <p id="mot-stat-viagens">0</p>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon"><i class="fa-solid fa-road"></i></div>
+                    <div class="metric-info">
+                        <h3>Quilometragem Total</h3>
+                        <p id="mot-stat-km">0 KM</p>
+                    </div>
+                </div>
             </div>
 
             <div class="card">
-                <h3><i class="fa-solid fa-address-book"></i> Motoristas & Extrato de Fretes</h3>
+                <h3><i class="fa-solid fa-list-check"></i> Minhas Viagens Realizadas</h3>
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th>Motorista</th>
-                                <th>Usuário</th>
-                                <th>Total Arrecadado</th>
-                                <th>Comissão (40%)</th>
+                                <th>Rota</th>
+                                <th>Carga</th>
+                                <th>KM</th>
+                                <th>Frete</th>
+                                <th>Minha Comissão</th>
                             </tr>
                         </thead>
-                        <tbody id="tabela-funcionarios">
-                            <tr><td colspan="4" class="empty-row">Carregando...</td></tr>
+                        <tbody id="tabela-motorista-viagens">
+                            <tr><td colspan="5" class="empty-row">Nenhuma viagem encontrada.</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- ABA 3: CAMINHÕES -->
-        <div id="caminhoes" class="tab-content">
-            <div class="card">
-                <h3><i class="fa-solid fa-circle-plus"></i> Novo Caminhão</h3>
-                <div class="form-group">
-                    <label>Marca</label>
-                    <input type="text" id="truck-marca" placeholder="Ex: Scania">
-                </div>
-                <div class="form-group">
-                    <label>Modelo</label>
-                    <input type="text" id="truck-modelo" placeholder="Ex: R500">
-                </div>
-                <div class="form-group">
-                    <label>Atribuir a Motorista</label>
-                    <select id="truck-motorista">
-                        <option value="">Livre na Garagem</option>
-                    </select>
-                </div>
-                <button class="btn-submit" onclick="cadastrarCaminhao()">Salvar Caminhão</button>
-            </div>
-
-            <div class="card">
-                <h3><i class="fa-solid fa-warehouse"></i> Frota na Garagem</h3>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Veículo</th>
-                                <th>Motorista</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-caminhoes">
-                            <tr><td colspan="2" class="empty-row">Carregando...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ABA 4: REGISTRAR VIAGEM -->
-        <div id="viagens" class="tab-content">
-            <div class="card">
-                <h3><i class="fa-solid fa-file-invoice-dollar"></i> Lançar Viagem (Comissão 40%)</h3>
-                <div class="form-group">
-                    <label>Motorista</label>
-                    <select id="viagem-motorista"></select>
-                </div>
-                <div class="form-group">
-                    <label>Origem</label>
-                    <input type="text" id="viagem-origem" placeholder="Ex: Berlim">
-                </div>
-                <div class="form-group">
-                    <label>Destino</label>
-                    <input type="text" id="viagem-destino" placeholder="Ex: Paris">
-                </div>
-                <div class="form-group">
-                    <label>Tipo de Carga</label>
-                    <input type="text" id="viagem-carga" placeholder="Ex: Maquinário">
-                </div>
-                <div class="form-group">
-                    <label>KM Rodados</label>
-                    <input type="number" id="viagem-km" placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label>Valor do Frete (Arrecadado R$)</label>
-                    <input type="number" id="viagem-valor" placeholder="0.00">
-                </div>
-                <button class="btn-submit" onclick="registrarViagem()">Calcular e Enviar para Nuvem</button>
-            </div>
-        </div>
     </div>
 
-    <!-- Notificação Flutuante -->
     <div id="toast">Operação realizada!</div>
 
     <!-- Scripts do Firebase v10 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBHtNp1RY5un_2x3qxRnWreWxFFqfb4LCU",
@@ -520,26 +604,103 @@
             viagens: []
         };
 
-        // Escutar dados do Firestore em tempo real
+        let sessaoAtual = null;
+
+        window.formatarMoeda = function(valor) {
+            return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Limpeza Automática dos dados antigos solicitados
+        async function limparDadosAntigos() {
+            try {
+                let colViagens = await getDocs(collection(db, "viagens"));
+                colViagens.forEach(async (d) => { await deleteDoc(doc(db, "viagens", d.id)); });
+
+                let colFunc = await getDocs(collection(db, "funcionarios"));
+                colFunc.forEach(async (d) => { await deleteDoc(doc(db, "funcionarios", d.id)); });
+
+                let colTruck = await getDocs(collection(db, "caminhoes"));
+                colTruck.forEach(async (d) => { await deleteDoc(doc(db, "caminhoes", d.id)); });
+            } catch(e) {
+                console.log("Erro na limpeza:", e);
+            }
+        }
+        // Executa a limpeza ao carregar o script pela primeira vez
+        limparDadosAntigos();
+
         onSnapshot(collection(db, "funcionarios"), (snapshot) => {
-            dados.funcionarios = snapshot.docs.map(doc => ({ idDoc: doc.id, ...doc.data() }));
-            atualizarInterface();
+            dados.funcionarios = snapshot.docs.map(d => ({ idDoc: d.id, ...d.data() }));
+            atualizarInterfaceCompleta();
         });
 
         onSnapshot(collection(db, "caminhoes"), (snapshot) => {
-            dados.caminhoes = snapshot.docs.map(doc => ({ idDoc: doc.id, ...doc.data() }));
-            atualizarInterface();
+            dados.caminhoes = snapshot.docs.map(d => ({ idDoc: d.id, ...d.data() }));
+            atualizarInterfaceCompleta();
         });
 
         onSnapshot(collection(db, "viagens"), (snapshot) => {
-            dados.viagens = snapshot.docs.map(doc => ({ idDoc: doc.id, ...doc.data() }));
-            atualizarInterface();
+            dados.viagens = snapshot.docs.map(d => ({ idDoc: d.id, ...d.data() }));
+            atualizarInterfaceCompleta();
         });
 
+        window.mudarTipoAcesso = function() {
+            let tipo = document.getElementById('tipo-acceso').value;
+            let inputUsuario = document.getElementById('login-usuario');
+            if (tipo === 'patrao') {
+                inputUsuario.value = '';
+                inputUsuario.placeholder = 'Ieda Daltro';
+            } else {
+                inputUsuario.value = '';
+                inputUsuario.placeholder = 'Seu usuário';
+            }
+        }
+
+        window.entrarNoSistema = function() {
+            let tipo = document.getElementById('tipo-acceso').value;
+            let usuarioInput = document.getElementById('login-usuario').value.trim();
+            let senhaInput = document.getElementById('login-senha').value.trim();
+            
+            if (tipo === 'patrao') {
+                if (usuarioInput.toLowerCase() === 'ieda daltro' && senhaInput === '87022263') {
+                    sessaoAtual = { tipo: 'patrao' };
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('main-header').style.display = 'flex';
+                    document.getElementById('painel-patrao').style.display = 'block';
+                    document.getElementById('header-title').innerText = 'PAINEL DA PATROA - Ieda Daltro';
+                    mostrarToast('Bem-vinda, Ieda Daltro!');
+                } else {
+                    mostrarToast('Usuário ou senha da Patroa incorretos!', '#f85149');
+                }
+            } else {
+                let motoristaEncontrado = dados.funcionarios.find(f => f.usuario === usuarioInput && f.senha === senhaInput);
+
+                if (motoristaEncontrado) {
+                    sessaoAtual = { tipo: 'motorista', usuarioObj: motoristaEncontrado };
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('main-header').style.display = 'flex';
+                    document.getElementById('painel-motorista').style.display = 'block';
+                    document.getElementById('header-title').innerText = `MOTORISTA: ${motoristaEncontrado.nome}`;
+                    atualizarInterfaceCompleta();
+                    mostrarToast('Login efetuado com sucesso!');
+                } else {
+                    mostrarToast('Usuário ou senha do motorista incorretos!', '#f85149');
+                }
+            }
+        }
+
+        window.fazerLogout = function() {
+            sessaoAtual = null;
+            document.getElementById('main-header').style.display = 'none';
+            document.getElementById('painel-patrao').style.display = 'none';
+            document.getElementById('painel-motorista').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+            mostrarToast('Sessão encerrada.');
+        }
+
         window.cadastrarFuncionario = async function() {
-            let nome = document.getElementById('func-nome').value;
-            let usuario = document.getElementById('func-usuario').value;
-            let senha = document.getElementById('func-senha').value;
+            let nome = document.getElementById('func-nome').value.trim();
+            let usuario = document.getElementById('func-usuario').value.trim();
+            let senha = document.getElementById('func-senha').value.trim();
 
             if(!nome || !usuario || !senha) {
                 mostrarToast('Preencha todos os campos!', '#f85149');
@@ -553,13 +714,29 @@
                 document.getElementById('func-senha').value = '';
                 mostrarToast('Motorista salvo na nuvem!');
             } catch (e) {
-                mostrarToast('Erro ao salvar!', '#f85149');
+                mostrarToast('Erro ao salvar: ' + e.message, '#f85149');
+            }
+        }
+
+        window.excluirMotorista = async function(idDoc, nomeMotorista) {
+            if (sessaoAtual?.tipo !== 'patrao') {
+                mostrarToast('Apenas a Patroa pode excluir motoristas!', '#f85149');
+                return;
+            }
+
+            if (confirm(`Tem certeza que deseja excluir o motorista ${nomeMotorista}?`)) {
+                try {
+                    await deleteDoc(doc(db, "funcionarios", idDoc));
+                    mostrarToast('Motorista excluído com sucesso!');
+                } catch (e) {
+                    mostrarToast('Erro ao excluir: ' + e.message, '#f85149');
+                }
             }
         }
 
         window.cadastrarCaminhao = async function() {
-            let marca = document.getElementById('truck-marca').value;
-            let modelo = document.getElementById('truck-modelo').value;
+            let marca = document.getElementById('truck-marca').value.trim();
+            let modelo = document.getElementById('truck-modelo').value.trim();
             let motoristaId = document.getElementById('truck-motorista').value;
 
             if(!marca || !modelo) {
@@ -579,14 +756,14 @@
 
         window.registrarViagem = async function() {
             let motoristaId = document.getElementById('viagem-motorista').value;
-            let origem = document.getElementById('viagem-origem').value;
-            let destino = document.getElementById('viagem-destino').value;
-            let carga = document.getElementById('viagem-carga').value;
+            let origem = document.getElementById('viagem-origem').value.trim();
+            let destino = document.getElementById('viagem-destino').value.trim();
+            let carga = document.getElementById('viagem-carga').value.trim();
             let km = parseFloat(document.getElementById('viagem-km').value) || 0;
             let valorFrete = parseFloat(document.getElementById('viagem-valor').value) || 0;
 
             if(!motoristaId || !origem || !destino || valorFrete <= 0 || km <= 0) {
-                mostrarToast('Preencha KM e Frete corretamente (> 0).', '#f85149');
+                mostrarToast('Preencha KM e Frete corretamente.', '#f85149');
                 return;
             }
 
@@ -606,101 +783,127 @@
                 document.getElementById('viagem-km').value = '';
                 document.getElementById('viagem-valor').value = '';
 
-                mostrarToast(`Viagem salva! Arrecadado: R$ ${valorFrete.toFixed(0)}`);
+                mostrarToast('Viagem salva!');
             } catch (e) {
                 mostrarToast('Erro ao salvar viagem!', '#f85149');
             }
         }
 
-        function atualizarInterface() {
-            document.getElementById('stat-motoristas').innerText = dados.funcionarios.length;
-            document.getElementById('stat-caminhoes').innerText = dados.caminhoes.length;
+        function atualizarInterfaceCompleta() {
+            if (sessaoAtual?.tipo === 'patrao') {
+                document.getElementById('stat-motoristas').innerText = dados.funcionarios.length;
+                document.getElementById('stat-caminhoes').innerText = dados.caminhoes.length;
 
-            let totalFat = dados.viagens.reduce((acc, v) => acc + (v.valorFrete || 0), 0);
-            let totalLucro = dados.viagens.reduce((acc, v) => acc + (v.lucroEmpresa || 0), 0);
+                let totalFat = dados.viagens.reduce((acc, v) => acc + (v.valorFrete || 0), 0);
+                let totalLucro = dados.viagens.reduce((acc, v) => acc + (v.lucroEmpresa || 0), 0);
 
-            document.getElementById('stat-faturamento').innerText = `R$ ${totalFat.toFixed(0)}`;
-            document.getElementById('stat-lucro').innerText = `R$ ${totalLucro.toFixed(0)}`;
+                document.getElementById('stat-faturamento').innerText = formatarMoeda(totalFat);
+                document.getElementById('stat-lucro').innerText = formatarMoeda(totalLucro);
 
-            // Tabela Motoristas
-            let tabelaFunc = document.getElementById('tabela-funcionarios');
-            if (tabelaFunc) {
-                tabelaFunc.innerHTML = dados.funcionarios.length ? '' : '<tr><td colspan="4" class="empty-row">Nenhum motorista cadastrado.</td></tr>';
-                dados.funcionarios.forEach(f => {
-                    let viagensMot = dados.viagens.filter(v => String(v.motoristaId) === String(f.id));
-                    let totalArrecadadoMot = viagensMot.reduce((sum, v) => sum + (v.valorFrete || 0), 0);
-                    let totalComissaoMot = viagensMot.reduce((sum, v) => sum + (v.comissaoMotorista || 0), 0);
+                let tabelaFunc = document.getElementById('tabela-funcionarios');
+                if (tabelaFunc) {
+                    tabelaFunc.innerHTML = dados.funcionarios.length ? '' : '<tr><td colspan="5" class="empty-row">Nenhum motorista cadastrado.</td></tr>';
+                    dados.funcionarios.forEach(f => {
+                        let viagensMot = dados.viagens.filter(v => String(v.motoristaId) === String(f.id));
+                        let totalArrecadadoMot = viagensMot.reduce((sum, v) => sum + (v.valorFrete || 0), 0);
+                        let totalComissaoMot = viagensMot.reduce((sum, v) => sum + (v.comissaoMotorista || 0), 0);
 
-                    tabelaFunc.innerHTML += `
-                        <tr>
-                            <td><b>${f.nome}</b></td>
-                            <td><code>${f.usuario || '-'}</code></td>
-                            <td style="color: var(--accent-color); font-weight: bold;">R$ ${totalArrecadadoMot.toFixed(0)}</td>
-                            <td style="color: #2ea043; font-weight: bold;">R$ ${totalComissaoMot.toFixed(0)}</td>
-                        </tr>`;
-                });
-            }
+                        tabelaFunc.innerHTML += `
+                            <tr>
+                                <td><b>${f.nome}</b></td>
+                                <td><code>${f.usuario || '-'}</code></td>
+                                <td style="color: var(--accent-color); font-weight: bold;">${formatarMoeda(totalArrecadadoMot)}</td>
+                                <td style="color: #2ea043; font-weight: bold;">${formatarMoeda(totalComissaoMot)}</td>
+                                <td><button class="btn-delete" onclick="excluirMotorista('${f.idDoc}', '${f.nome}')"><i class="fa-solid fa-trash"></i> Excluir</button></td>
+                            </tr>`;
+                    });
+                }
 
-            // Preencher Selects de Motoristas
-            let selectFuncTruck = document.getElementById('truck-motorista');
-            let selectFuncViagem = document.getElementById('viagem-motorista');
-            
-            if (selectFuncTruck) {
-                selectFuncTruck.innerHTML = '<option value="">Livre na Garagem</option>';
-                dados.funcionarios.forEach(f => {
-                    selectFuncTruck.innerHTML += `<option value="${f.id}">${f.nome}</option>`;
-                });
-            }
-
-            if (selectFuncViagem) {
-                selectFuncViagem.innerHTML = '<option value="">Selecione</option>';
-                dados.funcionarios.forEach(f => {
-                    selectFuncViagem.innerHTML += `<option value="${f.id}">${f.nome}</option>`;
-                });
-            }
-
-            // Tabela Caminhões
-            let tabelaTruck = document.getElementById('tabela-caminhoes');
-            if (tabelaTruck) {
-                tabelaTruck.innerHTML = dados.caminhoes.length ? '' : '<tr><td colspan="2" class="empty-row">Nenhum caminhão.</td></tr>';
-                dados.caminhoes.forEach(c => {
-                    let mot = dados.funcionarios.find(f => String(f.id) === String(c.motoristaId));
-                    let motNome = mot ? `<b>${mot.nome}</b>` : '<span style="color:var(--text-muted)">Livre</span>';
-                    tabelaTruck.innerHTML += `<tr><td><b>${c.marca} ${c.modelo}</b></td><td>${motNome}</td></tr>`;
-                });
-            }
-
-            // Tabela Viagens Detalhada
-            let tabelaViagens = document.getElementById('tabela-ultimas-viagens');
-            if (tabelaViagens) {
-                tabelaViagens.innerHTML = dados.viagens.length ? '' : '<tr><td colspan="6" class="empty-row">Nenhuma viagem registrada.</td></tr>';
+                let selectFuncTruck = document.getElementById('truck-motorista');
+                let selectFuncViagem = document.getElementById('viagem-motorista');
                 
-                let viagensOrdenadas = [...dados.viagens].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                if (selectFuncTruck) {
+                    selectFuncTruck.innerHTML = '<option value="">Livre na Garagem</option>';
+                    dados.funcionarios.forEach(f => {
+                        selectFuncTruck.innerHTML += `<option value="${f.id}">${f.nome}</option>`;
+                    });
+                }
 
-                viagensOrdenadas.forEach(v => {
-                    let mot = dados.funcionarios.find(f => String(f.id) === String(v.motoristaId));
-                    let motNome = mot ? mot.nome : 'Desconhecido';
-                    tabelaViagens.innerHTML += `
-                        <tr>
-                            <td><b>${motNome}</b></td>
-                            <td>${v.origem} ➔ ${v.destino}</td>
-                            <td style="font-weight: bold; color: var(--accent-color);">R$ ${v.valorFrete.toFixed(0)}</td>
-                            <td style="color: #2ea043;">R$ ${v.comissaoMotorista.toFixed(0)}</td>
-                            <td style="color: #f85149;">-R$ ${v.custoCombustivel.toFixed(0)}</td>
-                            <td style="font-weight: bold; color: #2ea043;">R$ ${v.lucroEmpresa.toFixed(0)}</td>
-                        </tr>`;
-                });
+                if (selectFuncViagem) {
+                    selectFuncViagem.innerHTML = '<option value="">Selecione</option>';
+                    dados.funcionarios.forEach(f => {
+                        selectFuncViagem.innerHTML += `<option value="${f.id}">${f.nome}</option>`;
+                    });
+                }
+
+                let tabelaTruck = document.getElementById('tabela-caminhoes');
+                if (tabelaTruck) {
+                    tabelaTruck.innerHTML = dados.caminhoes.length ? '' : '<tr><td colspan="2" class="empty-row">Nenhum caminhão.</td></tr>';
+                    dados.caminhoes.forEach(c => {
+                        let mot = dados.funcionarios.find(f => String(f.id) === String(c.motoristaId));
+                        let motNome = mot ? `<b>${mot.nome}</b>` : '<span style="color:var(--text-muted)">Livre</span>';
+                        tabelaTruck.innerHTML += `<tr><td><b>${c.marca} ${c.modelo}</b></td><td>${motNome}</td></tr>`;
+                    });
+                }
+
+                let tabelaViagens = document.getElementById('tabela-ultimas-viagens');
+                if (tabelaViagens) {
+                    tabelaViagens.innerHTML = dados.viagens.length ? '' : '<tr><td colspan="6" class="empty-row">Nenhuma viagem registrada.</td></tr>';
+                    let viagensOrdenadas = [...dados.viagens].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                    viagensOrdenadas.forEach(v => {
+                        let mot = dados.funcionarios.find(f => String(f.id) === String(v.motoristaId));
+                        let motNome = mot ? mot.nome : 'Desconhecido';
+                        tabelaViagens.innerHTML += `
+                            <tr>
+                                <td><b>${motNome}</b></td>
+                                <td>${v.origem} ➔ ${v.destino}</td>
+                                <td style="font-weight: bold; color: var(--accent-color);">${formatarMoeda(v.valorFrete)}</td>
+                                <td style="color: #2ea043;">${formatarMoeda(v.comissaoMotorista)}</td>
+                                <td style="color: #f85149;">-${formatarMoeda(v.custoCombustivel)}</td>
+                                <td style="font-weight: bold; color: #2ea043;">${formatarMoeda(v.lucroEmpresa)}</td>
+                            </tr>`;
+                    });
+                }
+            }
+
+            if (sessaoAtual?.tipo === 'motorista') {
+                let idMot = sessaoAtual.usuarioObj.id;
+                let minhasViagens = dados.viagens.filter(v => String(v.motoristaId) === String(idMot));
+                
+                let totalArrecadado = minhasViagens.reduce((acc, v) => acc + (v.valorFrete || 0), 0);
+                let totalSalario = minhasViagens.reduce((acc, v) => acc + (v.comissaoMotorista || 0), 0);
+                let totalKm = minhasViagens.reduce((acc, v) => acc + (v.km || 0), 0);
+
+                document.getElementById('mot-stat-arrecadado').innerText = formatarMoeda(totalArrecadado);
+                document.getElementById('mot-stat-salario').innerText = formatarMoeda(totalSalario);
+                document.getElementById('mot-stat-viagens').innerText = minhasViagens.length;
+                document.getElementById('mot-stat-km').innerText = totalKm + " KM";
+
+                let tabelaMotViagens = document.getElementById('tabela-motorista-viagens');
+                if (tabelaMotViagens) {
+                    tabelaMotViagens.innerHTML = minhasViagens.length ? '' : '<tr><td colspan="5" class="empty-row">Nenhuma viagem registrada em seu nome.</td></tr>';
+                    let ordenadas = [...minhasViagens].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                    ordenadas.forEach(v => {
+                        tabelaMotViagens.innerHTML += `
+                            <tr>
+                                <td>${v.origem} ➔ ${v.destino}</td>
+                                <td>${v.carga || 'Geral'}</td>
+                                <td>${v.km} KM</td>
+                                <td style="color: var(--accent-color); font-weight: bold;">${formatarMoeda(v.valorFrete)}</td>
+                                <td style="color: #2ea043; font-weight: bold;">${formatarMoeda(v.comissaoMotorista)}</td>
+                            </tr>`;
+                    });
+                }
             }
         }
     </script>
 
     <script>
-        // Registro do Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('Service Worker OK!', reg))
-                    .catch(err => console.log('Erro SW:', err));
+                navigator.serviceWorker.register('sw.js').catch(err => {});
             });
         }
 
