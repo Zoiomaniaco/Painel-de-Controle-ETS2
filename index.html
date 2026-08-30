@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PAINEL DE CONTROLE - Euro Truck Simulator 2</title>
-    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#ff9800">
-    <!-- Google Fonts & FontAwesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -22,6 +20,7 @@
             --border-color: #30363d;
             --success-color: #2ea043;
             --danger-color: #f85149;
+            --warning-color: #d29922;
         }
 
         * { box-sizing: border-box; }
@@ -214,6 +213,17 @@
             font-weight: 600;
         }
 
+        .btn-action {
+            background: rgba(46, 160, 67, 0.2);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -322,7 +332,6 @@
 
     <div class="container">
         
-        <!-- TELA DE LOGIN -->
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
@@ -336,7 +345,7 @@
 
                 <div class="form-group">
                     <label>Usuário</label>
-                    <input type="text" id="login-usuario" placeholder="Seu usuário">
+                    <input type="text" id="login-usuario" placeholder="Ieda Daltro">
                 </div>
                 <div class="form-group">
                     <label>Senha</label>
@@ -347,16 +356,13 @@
             </div>
         </div>
 
-        <!-- PAINEL DO PATRÃO -->
         <div id="painel-patrao" style="display: none;">
             <div class="nav-tabs">
                 <button class="tab-btn active" onclick="switchTab(event, 'p-visao')"><i class="fa-solid fa-chart-pie"></i> Visão</button>
                 <button class="tab-btn" onclick="switchTab(event, 'p-motoristas')"><i class="fa-solid fa-users"></i> Motoristas</button>
                 <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
-                <button class="tab-btn" onclick="switchTab(event, 'p-viagens')"><i class="fa-solid fa-route"></i> Viagens</button>
             </div>
 
-            <!-- VISÃO GERAL -->
             <div id="p-visao" class="tab-content active">
                 <div class="metrics-grid">
                     <div class="metric-card">
@@ -411,7 +417,6 @@
                 </div>
             </div>
 
-            <!-- MOTORISTAS -->
             <div id="p-motoristas" class="tab-content">
                 <div class="card">
                     <h3><i class="fa-solid fa-user-plus"></i> Novo Motorista</h3>
@@ -451,7 +456,6 @@
                 </div>
             </div>
 
-            <!-- CAMINHÕES -->
             <div id="p-caminhoes" class="tab-content">
                 <div class="card">
                     <h3><i class="fa-solid fa-circle-plus"></i> Novo Caminhão</h3>
@@ -489,90 +493,91 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- REGISTRAR VIAGEM -->
-            <div id="p-viagens" class="tab-content">
-                <div class="card">
-                    <h3><i class="fa-solid fa-file-invoice-dollar"></i> Lançar Viagem</h3>
-                    <div class="form-group">
-                        <label>Motorista</label>
-                        <select id="viagem-motorista"></select>
+        <div id="painel-motorista" style="display: none;">
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')"><i class="fa-solid fa-wallet"></i> Meu Extrato</button>
+                <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')"><i class="fa-solid fa-plus-circle"></i> Adicionar Viagem</button>
+            </div>
+
+            <div id="m-extrato" class="tab-content active">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-wallet"></i></div>
+                        <div class="metric-info">
+                            <h3>Total Arrecadado</h3>
+                            <p id="mot-stat-arrecadado">R$ 0,00</p>
+                        </div>
                     </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+                        <div class="metric-info">
+                            <h3>Salário Recebido (Disponível)</h3>
+                            <p id="mot-stat-salario">R$ 0,00</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-route"></i></div>
+                        <div class="metric-info">
+                            <h3>Total de Viagens</h3>
+                            <p id="mot-stat-viagens">0</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-road"></i></div>
+                        <div class="metric-info">
+                            <h3>Quilometragem Total</h3>
+                            <p id="mot-stat-km">0 KM</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-list-check"></i> Minhas Viagens e Confirmações</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Rota</th>
+                                    <th>Carga / KM</th>
+                                    <th>Frete</th>
+                                    <th>Status / Liberação</th>
+                                    <th>Ações de Viagem</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-motorista-viagens">
+                                <tr><td colspan="5" class="empty-row">Nenhuma viagem encontrada.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="m-adicionar" class="tab-content">
+                <div class="card">
+                    <h3><i class="fa-solid fa-file-invoice-dollar"></i> Nova Viagem (Motorista)</h3>
                     <div class="form-group">
                         <label>Origem</label>
-                        <input type="text" id="viagem-origem" placeholder="Ex: Berlim">
+                        <input type="text" id="m-viagem-origem" placeholder="Ex: Berlim">
                     </div>
                     <div class="form-group">
                         <label>Destino</label>
-                        <input type="text" id="viagem-destino" placeholder="Ex: Paris">
+                        <input type="text" id="m-viagem-destino" placeholder="Ex: Paris">
                     </div>
                     <div class="form-group">
                         <label>Tipo de Carga</label>
-                        <input type="text" id="viagem-carga" placeholder="Ex: Maquinário">
+                        <input type="text" id="m-viagem-carga" placeholder="Ex: Maquinário">
                     </div>
                     <div class="form-group">
-                        <label>KM Rodados</label>
-                        <input type="number" id="viagem-km" placeholder="0">
+                        <label>KM da Viagem</label>
+                        <input type="number" id="m-viagem-km" placeholder="0">
                     </div>
                     <div class="form-group">
                         <label>Valor do Frete (R$)</label>
-                        <input type="number" id="viagem-valor" placeholder="0.00">
+                        <input type="number" id="m-viagem-valor" placeholder="0.00">
                     </div>
-                    <button class="btn-submit" onclick="registrarViagem()">Salvar Viagem</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- PAINEL DO MOTORISTA -->
-        <div id="painel-motorista" style="display: none;">
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-icon"><i class="fa-solid fa-wallet"></i></div>
-                    <div class="metric-info">
-                        <h3>Total Arrecadado</h3>
-                        <p id="mot-stat-arrecadado">R$ 0,00</p>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon"><i class="fa-solid fa-sack-dollar"></i></div>
-                    <div class="metric-info">
-                        <h3>Meu Salário (Comissão)</h3>
-                        <p id="mot-stat-salario">R$ 0,00</p>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon"><i class="fa-solid fa-route"></i></div>
-                    <div class="metric-info">
-                        <h3>Total de Viagens</h3>
-                        <p id="mot-stat-viagens">0</p>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon"><i class="fa-solid fa-road"></i></div>
-                    <div class="metric-info">
-                        <h3>Quilometragem Total</h3>
-                        <p id="mot-stat-km">0 KM</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3><i class="fa-solid fa-list-check"></i> Minhas Viagens Realizadas</h3>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Rota</th>
-                                <th>Carga</th>
-                                <th>KM</th>
-                                <th>Frete</th>
-                                <th>Minha Comissão</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-motorista-viagens">
-                            <tr><td colspan="5" class="empty-row">Nenhuma viagem encontrada.</td></tr>
-                        </tbody>
-                    </table>
+                    <button class="btn-submit" onclick="motoristaCriarViagem()">Registrar e Iniciar Rota</button>
                 </div>
             </div>
         </div>
@@ -581,10 +586,9 @@
 
     <div id="toast">Operação realizada!</div>
 
-    <!-- Scripts do Firebase v10 -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBHtNp1RY5un_2x3qxRnWreWxFFqfb4LCU",
@@ -609,24 +613,6 @@
         window.formatarMoeda = function(valor) {
             return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
-
-        // Limpeza Automática dos dados antigos solicitados
-        async function limparDadosAntigos() {
-            try {
-                let colViagens = await getDocs(collection(db, "viagens"));
-                colViagens.forEach(async (d) => { await deleteDoc(doc(db, "viagens", d.id)); });
-
-                let colFunc = await getDocs(collection(db, "funcionarios"));
-                colFunc.forEach(async (d) => { await deleteDoc(doc(db, "funcionarios", d.id)); });
-
-                let colTruck = await getDocs(collection(db, "caminhoes"));
-                colTruck.forEach(async (d) => { await deleteDoc(doc(db, "caminhoes", d.id)); });
-            } catch(e) {
-                console.log("Erro na limpeza:", e);
-            }
-        }
-        // Executa a limpeza ao carregar o script pela primeira vez
-        limparDadosAntigos();
 
         onSnapshot(collection(db, "funcionarios"), (snapshot) => {
             dados.funcionarios = snapshot.docs.map(d => ({ idDoc: d.id, ...d.data() }));
@@ -754,16 +740,18 @@
             }
         }
 
-        window.registrarViagem = async function() {
-            let motoristaId = document.getElementById('viagem-motorista').value;
-            let origem = document.getElementById('viagem-origem').value.trim();
-            let destino = document.getElementById('viagem-destino').value.trim();
-            let carga = document.getElementById('viagem-carga').value.trim();
-            let km = parseFloat(document.getElementById('viagem-km').value) || 0;
-            let valorFrete = parseFloat(document.getElementById('viagem-valor').value) || 0;
+        // MOTORISTA CRIA SUA VIAGEM
+        window.motoristaCriarViagem = async function() {
+            if (sessaoAtual?.tipo !== 'motorista') return;
 
-            if(!motoristaId || !origem || !destino || valorFrete <= 0 || km <= 0) {
-                mostrarToast('Preencha KM e Frete corretamente.', '#f85149');
+            let origem = document.getElementById('m-viagem-origem').value.trim();
+            let destino = document.getElementById('m-viagem-destino').value.trim();
+            let carga = document.getElementById('m-viagem-carga').value.trim();
+            let km = parseFloat(document.getElementById('m-viagem-km').value) || 0;
+            let valorFrete = parseFloat(document.getElementById('m-viagem-valor').value) || 0;
+
+            if(!origem || !destino || valorFrete <= 0 || km <= 0) {
+                mostrarToast('Preencha todos os dados corretamente.', '#f85149');
                 return;
             }
 
@@ -774,28 +762,62 @@
 
             try {
                 await addDoc(collection(db, "viagens"), {
-                    motoristaId, origem, destino, carga, km, valorFrete, custoCombustivel, comissaoMotorista, lucroEmpresa, timestamp: Date.now()
+                    motoristaId: sessaoAtual.usuarioObj.id,
+                    origem, destino, carga, km, valorFrete, custoCombustivel, comissaoMotorista, lucroEmpresa,
+                    status: 'pendente_saida', // pendente_saida -> em_andamento -> concluida
+                    timestampCriacao: Date.now(),
+                    timestampChegada: null
                 });
 
-                document.getElementById('viagem-origem').value = '';
-                document.getElementById('viagem-destino').value = '';
-                document.getElementById('viagem-carga').value = '';
-                document.getElementById('viagem-km').value = '';
-                document.getElementById('viagem-valor').value = '';
+                document.getElementById('m-viagem-origem').value = '';
+                document.getElementById('m-viagem-destino').value = '';
+                document.getElementById('m-viagem-carga').value = '';
+                document.getElementById('m-viagem-km').value = '';
+                document.getElementById('m-viagem-valor').value = '';
 
-                mostrarToast('Viagem salva!');
+                mostrarToast('Viagem criada! Confirme a saída.');
+                switchTab({ currentTarget: document.querySelectorAll('.nav-tabs')[1].children[0] }, 'm-extrato');
             } catch (e) {
-                mostrarToast('Erro ao salvar viagem!', '#f85149');
+                mostrarToast('Erro ao registrar viagem!', '#f85149');
+            }
+        }
+
+        // CONFIRMAR SAÍDA
+        window.confirmarSaida = async function(idDoc) {
+            try {
+                await updateDoc(doc(db, "viagens", idDoc), { status: 'em_andamento' });
+                mostrarToast('Saída confirmada! Viagem em andamento.');
+            } catch(e) {
+                mostrarToast('Erro ao confirmar saída.', '#f85149');
+            }
+        }
+
+        // CONFIRMAR CHEGADA (Dispara o cronômetro de 10 minutos para liberar o saldo)
+        window.confirmarChegada = async function(idDoc) {
+            try {
+                await updateDoc(doc(db, "viagens", idDoc), { 
+                    status: 'concluida', 
+                    timestampChegada: Date.now() 
+                });
+                mostrarToast('Chegada confirmada! Saldo liberará em 10 minutos.');
+            } catch(e) {
+                mostrarToast('Erro ao confirmar chegada.', '#f85149');
             }
         }
 
         function atualizarInterfaceCompleta() {
+            let agora = Date.now();
+            let dezMinutosMs = 10 * 60 * 1000;
+
             if (sessaoAtual?.tipo === 'patrao') {
                 document.getElementById('stat-motoristas').innerText = dados.funcionarios.length;
                 document.getElementById('stat-caminhoes').innerText = dados.caminhoes.length;
 
-                let totalFat = dados.viagens.reduce((acc, v) => acc + (v.valorFrete || 0), 0);
-                let totalLucro = dados.viagens.reduce((acc, v) => acc + (v.lucroEmpresa || 0), 0);
+                // Considera apenas viagens com chegada concluída E com mais de 10 min (ou seja, lançadas oficialmente no sistema)
+                let viagensOficiais = dados.viagens.filter(v => v.status === 'concluida' && v.timestampChegada && (agora - v.timestampChegada >= dezMinutosMs));
+
+                let totalFat = viagensOficiais.reduce((acc, v) => acc + (v.valorFrete || 0), 0);
+                let totalLucro = viagensOficiais.reduce((acc, v) => acc + (v.lucroEmpresa || 0), 0);
 
                 document.getElementById('stat-faturamento').innerText = formatarMoeda(totalFat);
                 document.getElementById('stat-lucro').innerText = formatarMoeda(totalLucro);
@@ -804,9 +826,9 @@
                 if (tabelaFunc) {
                     tabelaFunc.innerHTML = dados.funcionarios.length ? '' : '<tr><td colspan="5" class="empty-row">Nenhum motorista cadastrado.</td></tr>';
                     dados.funcionarios.forEach(f => {
-                        let viagensMot = dados.viagens.filter(v => String(v.motoristaId) === String(f.id));
-                        let totalArrecadadoMot = viagensMot.reduce((sum, v) => sum + (v.valorFrete || 0), 0);
-                        let totalComissaoMot = viagensMot.reduce((sum, v) => sum + (v.comissaoMotorista || 0), 0);
+                        let viagensMotOficiais = viagensOficiais.filter(v => String(v.motoristaId) === String(f.id));
+                        let totalArrecadadoMot = viagensMotOficiais.reduce((sum, v) => sum + (v.valorFrete || 0), 0);
+                        let totalComissaoMot = viagensMotOficiais.reduce((sum, v) => sum + (v.comissaoMotorista || 0), 0);
 
                         tabelaFunc.innerHTML += `
                             <tr>
@@ -820,19 +842,10 @@
                 }
 
                 let selectFuncTruck = document.getElementById('truck-motorista');
-                let selectFuncViagem = document.getElementById('viagem-motorista');
-                
                 if (selectFuncTruck) {
                     selectFuncTruck.innerHTML = '<option value="">Livre na Garagem</option>';
                     dados.funcionarios.forEach(f => {
                         selectFuncTruck.innerHTML += `<option value="${f.id}">${f.nome}</option>`;
-                    });
-                }
-
-                if (selectFuncViagem) {
-                    selectFuncViagem.innerHTML = '<option value="">Selecione</option>';
-                    dados.funcionarios.forEach(f => {
-                        selectFuncViagem.innerHTML += `<option value="${f.id}">${f.nome}</option>`;
                     });
                 }
 
@@ -848,8 +861,8 @@
 
                 let tabelaViagens = document.getElementById('tabela-ultimas-viagens');
                 if (tabelaViagens) {
-                    tabelaViagens.innerHTML = dados.viagens.length ? '' : '<tr><td colspan="6" class="empty-row">Nenhuma viagem registrada.</td></tr>';
-                    let viagensOrdenadas = [...dados.viagens].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    tabelaViagens.innerHTML = viagensOficiais.length ? '' : '<tr><td colspan="6" class="empty-row">Nenhuma viagem oficializada ainda.</td></tr>';
+                    let viagensOrdenadas = [...viagensOficiais].sort((a, b) => (b.timestampChegada || 0) - (a.timestampChegada || 0));
 
                     viagensOrdenadas.forEach(v => {
                         let mot = dados.funcionarios.find(f => String(f.id) === String(v.motoristaId));
@@ -871,28 +884,51 @@
                 let idMot = sessaoAtual.usuarioObj.id;
                 let minhasViagens = dados.viagens.filter(v => String(v.motoristaId) === String(idMot));
                 
-                let totalArrecadado = minhasViagens.reduce((acc, v) => acc + (v.valorFrete || 0), 0);
-                let totalSalario = minhasViagens.reduce((acc, v) => acc + (v.comissaoMotorista || 0), 0);
+                // Viagens cujos 10 minutos já passaram após a chegada
+                let viagensDisponiveis = minhasViagens.filter(v => v.status === 'concluida' && v.timestampChegada && (agora - v.timestampChegada >= dezMinutosMs));
+
+                let totalArrecadado = minhasViagens.reduce((acc, v) => acc + (v.status === 'concluida' ? (v.valorFrete || 0) : 0), 0);
+                let totalSalarioDisponivel = viagensDisponiveis.reduce((acc, v) => acc + (v.comissaoMotorista || 0), 0);
                 let totalKm = minhasViagens.reduce((acc, v) => acc + (v.km || 0), 0);
 
                 document.getElementById('mot-stat-arrecadado').innerText = formatarMoeda(totalArrecadado);
-                document.getElementById('mot-stat-salario').innerText = formatarMoeda(totalSalario);
+                document.getElementById('mot-stat-salario').innerText = formatarMoeda(totalSalarioDisponivel);
                 document.getElementById('mot-stat-viagens').innerText = minhasViagens.length;
                 document.getElementById('mot-stat-km').innerText = totalKm + " KM";
 
                 let tabelaMotViagens = document.getElementById('tabela-motorista-viagens');
                 if (tabelaMotViagens) {
-                    tabelaMotViagens.innerHTML = minhasViagens.length ? '' : '<tr><td colspan="5" class="empty-row">Nenhuma viagem registrada em seu nome.</td></tr>';
-                    let ordenadas = [...minhasViagens].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+                    tabelaMotViagens.innerHTML = minhasViagens.length ? '' : '<tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>';
+                    let ordenadas = [...minhasViagens].sort((a, b) => (b.timestampCriacao || 0) - (a.timestampCriacao || 0));
 
                     ordenadas.forEach(v => {
+                        let statusHtml = '';
+                        let acaoHtml = '';
+
+                        if (v.status === 'pendente_saida') {
+                            statusHtml = '<span style="color: var(--warning-color); font-weight:bold;">Aguardando Saída</span>';
+                            acaoHtml = `<button class="btn-action" onclick="confirmarSaida('${v.idDoc}')">Confirmar Saída</button>`;
+                        } else if (v.status === 'em_andamento') {
+                            statusHtml = '<span style="color: var(--accent-color); font-weight:bold;">Em Trânsito</span>';
+                            acaoHtml = `<button class="btn-action" onclick="confirmarChegada('${v.idDoc}')">Confirmar Chegada</button>`;
+                        } else if (v.status === 'concluida') {
+                            let tempoDecorrido = agora - (v.timestampChegada || 0);
+                            if (tempoDecorrido < dezMinutosMs) {
+                                let minutosRestantes = Math.ceil((dezMinutosMs - tempoDecorrido) / 60000);
+                                statusHtml = `<span style="color: var(--warning-color);">Liberando em ${minutosRestantes} min</span>`;
+                            } else {
+                                statusHtml = '<span style="color: var(--success-color); font-weight:bold;"><i class="fa-solid fa-check"></i> Salário Disponível</span>';
+                            }
+                            acaoHtml = '<span style="color: var(--text-muted); font-size:10px;">Concluída</span>';
+                        }
+
                         tabelaMotViagens.innerHTML += `
                             <tr>
-                                <td>${v.origem} ➔ ${v.destino}</td>
-                                <td>${v.carga || 'Geral'}</td>
-                                <td>${v.km} KM</td>
-                                <td style="color: var(--accent-color); font-weight: bold;">${formatarMoeda(v.valorFrete)}</td>
-                                <td style="color: #2ea043; font-weight: bold;">${formatarMoeda(v.comissaoMotorista)}</td>
+                                <td><b>${v.origem} ➔ ${v.destino}</b></td>
+                                <td>${v.carga || 'Geral'}<br><small>${v.km} KM</small></td>
+                                <td style="color: var(--accent-color); font-weight: bold;">${formatarMoeda(v.valorFrete)}<br><small>Comissão: ${formatarMoeda(v.comissaoMotorista)}</small></td>
+                                <td>${statusHtml}</td>
+                                <td>${acaoHtml}</td>
                             </tr>`;
                     });
                 }
@@ -916,8 +952,9 @@
         }
 
         function switchTab(event, tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-tabs button').forEach(el => el.classList.remove('active'));
+            let parentContainer = event.currentTarget.closest('.container');
+            parentContainer.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            parentContainer.querySelectorAll('.nav-tabs button').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
             event.currentTarget.classList.add('active');
         }
