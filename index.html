@@ -532,6 +532,10 @@
                         <input type="text" id="truck-modelo" placeholder="Ex: R500">
                     </div>
                     <div class="form-group">
+                        <label>KM Inicial do Hodômetro (Opcional)</label>
+                        <input type="number" id="truck-km-inicial" placeholder="0" value="0">
+                    </div>
+                    <div class="form-group">
                         <label>Atribuir a Motorista (Fixo)</label>
                         <select id="truck-motorista">
                             <option value="">Livre na Garagem</option>
@@ -541,14 +545,15 @@
                 </div>
 
                 <div class="card">
-                    <h3><i class="fa-solid fa-warehouse"></i> Frota & Manutenção</h3>
+                    <h3><i class="fa-solid fa-warehouse"></i> Frota & Desgaste Acumulado</h3>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top:0;">* Alertas automáticos baseados no hodômetro: Óleo (10k km), Freios/Suspensão (30k km), Motor/Revisão (50k km).</p>
                     <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Veículo / Motorista</th>
-                                    <th>KM Rodado</th>
-                                    <th>Status Manutenção / Óleo</th>
+                                    <th>Hodômetro Atual</th>
+                                    <th>Status de Desgaste / Manutenção</th>
                                     <th>Ações</th>
                                 </tr>
                             </thead>
@@ -883,6 +888,7 @@
         window.cadastrarCaminhao = async function() {
             let marca = document.getElementById('truck-marca').value.trim();
             let modelo = document.getElementById('truck-modelo').value.trim();
+            let kmInicial = parseFloat(document.getElementById('truck-km-inicial').value) || 0;
             let motoristaId = document.getElementById('truck-motorista').value;
 
             if(!marca || !modelo) {
@@ -896,13 +902,14 @@
                     marca, 
                     modelo, 
                     motoristaId,
-                    kmTrocaOleo: 0,
+                    kmAcumulado: kmInicial,
                     custoTrocaOleoTotal: 0,
                     outrasManutencoesTotal: 0,
                     ultimaManutencaoData: ''
                 });
                 document.getElementById('truck-marca').value = '';
                 document.getElementById('truck-modelo').value = '';
+                document.getElementById('truck-km-inicial').value = '0';
                 mostrarToast('Caminhão salvo na nuvem!');
             } catch (e) {
                 mostrarToast('Erro ao salvar!', '#f85149');
@@ -921,7 +928,6 @@
                 let novoTotalOleo = (caminhao.custoTrocaOleoTotal || 0) + valorGasto;
 
                 await updateDoc(doc(db, "caminhoes", idDoc), {
-                    kmTrocaOleo: 0,
                     custoTrocaOleoTotal: novoTotalOleo,
                     ultimaManutencaoData: new Date().toLocaleDateString('pt-BR')
                 });
@@ -934,7 +940,7 @@
         window.registrarOutraManutencao = async function(idDoc, marcaModelo) {
             if (sessaoAtual?.tipo !== 'patrao') return;
 
-            let custoInput = prompt(`Qual foi o custo de OUTRAS MANUTENÇÕES (peças, oficina, batidas) para ${marcaModelo}? (Ex: 1500)`, "1000");
+            let custoInput = prompt(`Qual foi o custo da MANUTENÇÃO (Freios, Suspensão, Motor ou Geral) para ${marcaModelo}? (Ex: 1500)`, "1000");
             if (custoInput === null) return;
             let valorGasto = parseFloat(custoInput) || 0;
 
@@ -1011,7 +1017,6 @@
             }
         }
 
-        // Funções para o motorista adicionar Pedágio, Balsa ou Multa separadamente
         window.adicionarGastoViagem = async function(idDoc, tipoGasto) {
             let tituloMsg = "";
             if (tipoGasto === 'pedagio') tituloMsg = "Digite o valor do Pedágio gasto:";
@@ -1047,9 +1052,9 @@
 
                     let caminhaoDoMotorista = dados.caminhoes.find(c => String(c.motoristaId) === String(motoristaViagemId));
                     if (caminhaoDoMotorista) {
-                        let novoKmOleo = (caminhaoDoMotorista.kmTrocaOleo || 0) + kmViagem;
+                        let novoKmAcumulado = (caminhaoDoMotorista.kmAcumulado || 0) + kmViagem;
                         await updateDoc(doc(db, "caminhoes", caminhaoDoMotorista.idDoc), {
-                            kmTrocaOleo: novoKmOleo
+                            kmAcumulado: novoKmAcumulado
                         });
                     }
                 }
@@ -1059,7 +1064,7 @@
                     status: 'concluida', 
                     timestampChegada: Date.now() 
                 });
-                mostrarToast('Chegada confirmada! Despesas deduzidas e KM contabilizada.');
+                mostrarToast('Chegada confirmada! Despesas deduzidas e Hodômetro atualizado.');
             } catch(e) {
                 mostrarToast('Erro ao confirmar chegada.', '#f85149');
             }
@@ -1078,7 +1083,6 @@
 
                 let totalFat = viagensOficiais.reduce((acc, v) => acc + (v.valorFrete || 0), 0);
                 
-                // Soma de cada despesa individualmente
                 let totalCombustivel = viagensOficiais.reduce((acc, v) => acc + (v.custoCombustivel || 0), 0);
                 let totalComissoes = viagensOficiais.reduce((acc, v) => acc + (v.comissaoMotorista || 0), 0);
                 let totalPedagios = viagensOficiais.reduce((acc, v) => acc + (v.pedagio || 0), 0);
@@ -1094,7 +1098,6 @@
                 document.getElementById('stat-faturamento').innerText = formatarMoeda(totalFat);
                 document.getElementById('stat-lucro').innerText = formatarMoeda(lucroLiquidoEmpresa);
 
-                // Montar o quadro/planilha de despesas da empresa com categorias separadas
                 let tabelaDespesas = document.getElementById('tabela-despesas-resumo');
                 if (tabelaDespesas) {
                     if (despesaTotalGeral === 0) {
@@ -1134,7 +1137,7 @@
                                 <td>${pct(totalTrocaOleo)}</td>
                             </tr>
                             <tr>
-                                <td><b>🔧 Manutenções e Oficinas</b></td>
+                                <td><b>🔧 Manutenções / Oficinas</b></td>
                                 <td style="color: var(--warning-color); font-weight: bold;">${formatarMoeda(totalOutrasManut)}</td>
                                 <td>${pct(totalOutrasManut)}</td>
                             </tr>
@@ -1183,23 +1186,25 @@
                     dados.caminhoes.forEach(c => {
                         let mot = dados.funcionarios.find(f => String(f.id) === String(c.motoristaId));
                         let motNome = mot ? `<b>${mot.nome}</b>` : '<span style="color:var(--text-muted)">Livre</span>';
-                        let kmRodadoOleo = c.kmTrocaOleo || 0;
-                        let limiteTroca = 15000;
-                        
-                        let statusOleoHtml = '';
-                        if (kmRodadoOleo >= limiteTroca) {
-                            statusOleoHtml = `<span style="color: var(--danger-color); font-weight:bold;"><i class="fa-solid fa-triangle-exclamation"></i> Troca Urgente!</span>`;
-                        } else if (kmRodadoOleo >= (limiteTroca - 2500)) {
-                            statusOleoHtml = `<span style="color: var(--warning-color); font-weight:bold;">Próximo da Troca</span>`;
+                        let kmTotal = c.kmAcumulado || 0;
+
+                        // Lógica baseada estritamente no hodômetro acumulado
+                        let statusDesgaste = "";
+                        if (kmTotal >= 50000) {
+                            statusDesgaste = `<span style="color: var(--danger-color); font-weight:bold;"><i class="fa-solid fa-triangle-exclamation"></i> Revisão Geral / Motor (+50k km)</span>`;
+                        } else if (kmTotal >= 30000) {
+                            statusDesgaste = `<span style="color: var(--warning-color); font-weight:bold;"><i class="fa-solid fa-triangle-exclamation"></i> Freios / Suspensão (+30k km)</span>`;
+                        } else if (kmTotal >= 10000) {
+                            statusDesgaste = `<span style="color: var(--warning-color); font-weight:bold;"><i class="fa-solid fa-oil-can"></i> Troca de Óleo (+10k km)</span>`;
                         } else {
-                            statusOleoHtml = `<span style="color: var(--success-color);">Óleo OK</span>`;
+                            statusDesgaste = `<span style="color: var(--success-color);"><i class="fa-solid fa-check"></i> Desgaste Normal</span>`;
                         }
 
                         tabelaTruck.innerHTML += `
                             <tr>
                                 <td><b>${c.marca} ${c.modelo}</b><br><small>Motorista: ${motNome}</small></td>
-                                <td style="font-weight: bold; color: var(--accent-color);">${kmRodadoOleo.toLocaleString()} KM</td>
-                                <td>${statusOleoHtml}<br><small style="color:var(--text-muted)">Óleo Gasto: ${formatarMoeda(c.custoTrocaOleoTotal)} | Manutenções: ${formatarMoeda(c.outrasManutencoesTotal)}</small></td>
+                                <td style="font-weight: bold; color: var(--accent-color);">${kmTotal.toLocaleString()} KM</td>
+                                <td>${statusDesgaste}<br><small style="color:var(--text-muted)">Óleo Gasto: ${formatarMoeda(c.custoTrocaOleoTotal)} | Manutenções: ${formatarMoeda(c.outrasManutencoesTotal)}</small></td>
                                 <td>
                                     <button class="btn-warning" style="margin-bottom:4px;" onclick="registrarTrocaOleo('${c.idDoc}', '${c.marca} ${c.modelo}')"><i class="fa-solid fa-oil-can"></i> Óleo</button>
                                     <button class="btn-danger-soft" onclick="registrarOutraManutencao('${c.idDoc}', '${c.marca} ${c.modelo}')"><i class="fa-solid fa-wrench"></i> Oficina</button>
