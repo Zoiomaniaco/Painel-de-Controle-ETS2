@@ -1,6 +1,6 @@
 {
   "name": "Painel de Controle ETS2",
-  "short_name": "ETS2 Painel",
+  "short_name": "ETS2",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f1115",
