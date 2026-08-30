@@ -1,10 +1,12 @@
-const CACHE_NAME = 'ji-ets2-v2';
-const ASSETS = ['./', './index.html', './manifest.json'];
-
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
+self.addEventListener('install', (event) => {
+    self.skipWaiting();
 });
 
-self.addEventListener('fetch', (e) => {
-  e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
+self.addEventListener('activate', (event) => {
+    event.waitUntil(clients.claim());
+});
+
+self.addEventListener('fetch', (event) => {
+    // Modo online padrão para garantir que os dados funcionem sem erros
+    event.respondWith(fetch(event.request).catch(() => caches.match(event.request)));
 });
