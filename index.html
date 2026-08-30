@@ -273,6 +273,8 @@
         .table-responsive {
             width: 100%;
             overflow-x: auto;
+            max-height: 350px;
+            overflow-y: auto;
         }
 
         table {
@@ -290,11 +292,14 @@
         }
 
         th {
-            background-color: rgba(13, 17, 23, 0.6);
+            background-color: rgba(13, 17, 23, 0.9);
             color: var(--text-muted);
             font-weight: 600;
             text-transform: uppercase;
             font-size: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .empty-row {
@@ -656,7 +661,6 @@
         onSnapshot(collection(db, "funcionarios"), (snapshot) => {
             dados.funcionarios = snapshot.docs.map(d => ({ idDoc: d.id, ...d.data() }));
             
-            // Se já houver sessão salva de motorista, valida se ele ainda existe na base
             let sessaoSalva = localStorage.getItem('ets2_sessao');
             if (sessaoSalva && !sessaoAtual) {
                 let dadosSessao = JSON.parse(sessaoSalva);
