@@ -226,6 +226,17 @@
             font-weight: 600;
         }
 
+        .btn-warning {
+            background: rgba(210, 153, 34, 0.2);
+            color: var(--warning-color);
+            border: 1px solid var(--warning-color);
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -487,7 +498,7 @@
                         <input type="text" id="truck-modelo" placeholder="Ex: R500">
                     </div>
                     <div class="form-group">
-                        <label>Atribuir a Motorista</label>
+                        <label>Atribuir a Motorista (Fixo)</label>
                         <select id="truck-motorista">
                             <option value="">Livre na Garagem</option>
                         </select>
@@ -496,17 +507,20 @@
                 </div>
 
                 <div class="card">
-                    <h3><i class="fa-solid fa-warehouse"></i> Frota na Garagem</h3>
+                    <h3><i class="fa-solid fa-warehouse"></i> Frota & Manutenção (Troca de Óleo)</h3>
+                    <p style="font-size: 11px; color: var(--text-muted); margin-top:0;">* Alerta de troca de óleo acende automaticamente a cada 15.000 KM rodados.</p>
                     <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Veículo</th>
-                                    <th>Motorista</th>
+                                    <th>Veículo / Motorista</th>
+                                    <th>KM Rodado</th>
+                                    <th>Status Manutenção</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-caminhoes">
-                                <tr><td colspan="2" class="empty-row">Nenhum caminhão.</td></tr>
+                                <tr><td colspan="4" class="empty-row">Nenhum caminhão.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -684,22 +698,16 @@
                 }
             }
             atualizarInterfaceCompleta();
-        }, (error) => {
-            console.error("Erro ao carregar funcionários: ", error);
         });
 
         onSnapshot(collection(db, "caminhoes"), (snapshot) => {
             dados.caminhoes = snapshot.docs.map(d => ({ idDoc: d.id, ...d.data() }));
             atualizarInterfaceCompleta();
-        }, (error) => {
-            console.error("Erro ao carregar caminhões: ", error);
         });
 
         onSnapshot(collection(db, "viagens"), (snapshot) => {
             dados.viagens = snapshot.docs.map(d => ({ idDoc: d.id, ...d.data() }));
             atualizarInterfaceCompleta();
-        }, (error) => {
-            console.error("Erro ao carregar viagens: ", error);
         });
 
         window.mudarTipoAcesso = function() {
@@ -849,12 +857,39 @@
             }
 
             try {
-                await addDoc(collection(db, "caminhoes"), { id: Date.now(), marca, modelo, motoristaId });
+                await addDoc(collection(db, "caminhoes"), { 
+                    id: Date.now(), 
+                    marca, 
+                    modelo, 
+                    motoristaId,
+                    kmTrocaOleo: 0 // Controla o KM rodado desde a última troca
+                });
                 document.getElementById('truck-marca').value = '';
                 document.getElementById('truck-modelo').value = '';
                 mostrarToast('Caminhão salvo na nuvem!');
             } catch (e) {
                 mostrarToast('Erro ao salvar!', '#f85149');
+            }
+        }
+
+        window.realizarManutencaoCaminhao = async function(idDoc, marcaModelo) {
+            if (sessaoAtual?.tipo !== 'patrao') return;
+
+            let custoManutencao = prompt(`Qual foi o custo da troca de óleo / manutenção para o caminhão ${marcaModelo}? (Ex: 1200)`, "1000");
+            if (custoManutencao === null) return;
+            
+            let valorGasto = parseFloat(custoManutencao) || 0;
+
+            try {
+                // Reseta o contador de KM da troca de óleo e registra a despesa guardando no próprio caminhão
+                await updateDoc(doc(db, "caminhoes", idDoc), {
+                    kmTrocaOleo: 0,
+                    ultimaManutencaoValor: valorGasto,
+                    ultimaManutencaoData: new Date().toLocaleDateString('pt-BR')
+                });
+                mostrarToast(`Manutenção registrada! Gasto de ${formatarMoeda(valorGasto)} computado.`);
+            } catch (e) {
+                mostrarToast('Erro ao registrar manutenção.', '#f85149');
             }
         }
 
@@ -918,12 +953,27 @@
 
         window.confirmarChegada = async function(idDoc) {
             try {
+                let viagemRef = dados.viagens.find(v => v.idDoc === idDoc);
+                if (viagemRef) {
+                    let kmViagem = viagemRef.km || 0;
+                    let motoristaViagemId = viagemRef.motoristaId;
+
+                    // Encontra o caminhão fixo atribuído a este motorista para somar o KM automaticamente
+                    let caminhaoDoMotorista = dados.caminhoes.find(c => String(c.motoristaId) === String(motoristaViagemId));
+                    if (caminhaoDoMotorista) {
+                        let novoKmOleo = (caminhaoDoMotorista.kmTrocaOleo || 0) + kmViagem;
+                        await updateDoc(doc(db, "caminhoes", caminhaoDoMotorista.idDoc), {
+                            kmTrocaOleo: novoKmOleo
+                        });
+                    }
+                }
+
                 await updateDoc(doc(db, "funcionarios", sessaoAtual.usuarioObj.idDoc), { ultimoUltimoAcesso: Date.now() });
                 await updateDoc(doc(db, "viagens", idDoc), { 
                     status: 'concluida', 
                     timestampChegada: Date.now() 
                 });
-                mostrarToast('Chegada confirmada! Saldo liberará em 10 minutos.');
+                mostrarToast('Chegada confirmada! Quilometragem contabilizada no caminhão.');
             } catch(e) {
                 mostrarToast('Erro ao confirmar chegada.', '#f85149');
             }
@@ -941,10 +991,13 @@
                 let viagensOficiais = dados.viagens.filter(v => v.status === 'concluida' && v.timestampChegada && (agora - v.timestampChegada >= dezMinutosMs));
 
                 let totalFat = viagensOficiais.reduce((acc, v) => acc + (v.valorFrete || 0), 0);
-                let totalLucro = viagensOficiais.reduce((acc, v) => acc + (v.lucroEmpresa || 0), 0);
+                // Subtrai dos lucros da empresa eventuais manutenções registradas nos caminhões
+                let totalManutencoes = dados.caminhoes.reduce((acc, c) => acc + (c.ultimaManutencaoValor || 0), 0);
+                let totalLucroBruto = viagensOficiais.reduce((acc, v) => acc + (v.lucroEmpresa || 0), 0);
+                let totalLucroLiquido = totalLucroBruto - totalManutencoes;
 
                 document.getElementById('stat-faturamento').innerText = formatarMoeda(totalFat);
-                document.getElementById('stat-lucro').innerText = formatarMoeda(totalLucro);
+                document.getElementById('stat-lucro').innerText = formatarMoeda(totalLucroLiquido);
 
                 let tabelaFunc = document.getElementById('tabela-funcionarios');
                 if (tabelaFunc) {
@@ -978,11 +1031,29 @@
 
                 let tabelaTruck = document.getElementById('tabela-caminhoes');
                 if (tabelaTruck) {
-                    tabelaTruck.innerHTML = dados.caminhoes.length ? '' : '<tr><td colspan="2" class="empty-row">Nenhum caminhão.</td></tr>';
+                    tabelaTruck.innerHTML = dados.caminhoes.length ? '' : '<tr><td colspan="4" class="empty-row">Nenhum caminhão.</td></tr>';
                     dados.caminhoes.forEach(c => {
                         let mot = dados.funcionarios.find(f => String(f.id) === String(c.motoristaId));
                         let motNome = mot ? `<b>${mot.nome}</b>` : '<span style="color:var(--text-muted)">Livre</span>';
-                        tabelaTruck.innerHTML += `<tr><td><b>${c.marca} ${c.modelo}</b></td><td>${motNome}</td></tr>`;
+                        let kmRodadoOleo = c.kmTrocaOleo || 0;
+                        let limiteTroca = 15000; // Limite padrão de 15 mil km para troca de óleo
+                        
+                        let statusOleoHtml = '';
+                        if (kmRodadoOleo >= limiteTroca) {
+                            statusOleoHtml = `<span style="color: var(--danger-color); font-weight:bold;"><i class="fa-solid fa-triangle-exclamation"></i> Troca Urgente!</span>`;
+                        } else if (kmRodadoOleo >= (limiteTroca - 2500)) {
+                            statusOleoHtml = `<span style="color: var(--warning-color); font-weight:bold;">Próximo da Troca</span>`;
+                        } else {
+                            statusOleoHtml = `<span style="color: var(--success-color);">Óleo OK</span>`;
+                        }
+
+                        tabelaTruck.innerHTML += `
+                            <tr>
+                                <td><b>${c.marca} ${c.modelo}</b><br><small>Motorista: ${motNome}</small></td>
+                                <td style="font-weight: bold; color: var(--accent-color);">${kmRodadoOleo.toLocaleString()} KM</td>
+                                <td>${statusOleoHtml}<br><small style="color:var(--text-muted)">Última manutenção: ${c.ultimaManutencaoData || 'Nenhuma'} (${formatarMoeda(c.ultimaManutencaoValor || 0)})</small></td>
+                                <td><button class="btn-warning" onclick="realizarManutencaoCaminhao('${c.idDoc}', '${c.marca} ${c.modelo}')"><i class="fa-solid fa-wrench"></i> Registrar Manutenção</button></td>
+                            </tr>`;
                     });
                 }
 
