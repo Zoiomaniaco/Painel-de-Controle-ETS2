@@ -24,6 +24,7 @@
             --border-color: #374151;      /* Bordas discretas e elegantes */
             --success-color: #10b981;     /* Verde moderno */
             --danger-color: #ef4444;      /* Vermelho claro de alerta */
+            --warning-color: #f59e0b;     /* Amarelo/Laranja de aviso */
             --input-bg: #111827;
         }
 
@@ -248,6 +249,13 @@
             background-color: var(--accent-hover);
         }
 
+        button.btn-danger {
+            background-color: var(--danger-color);
+        }
+        button.btn-danger:hover {
+            background-color: #dc2626;
+        }
+
         .btn-link {
             background: none;
             border: none;
@@ -466,7 +474,7 @@
                     <div class="metric-card">
                         <div class="metric-icon"><i class="fa-solid fa-wallet"></i></div>
                         <div class="metric-info">
-                            <h3>Faturamento</h3>
+                            <h3>Faturamento Líquido</h3>
                             <p id="patrao-faturamento">R$ 0,00</p>
                         </div>
                     </div>
@@ -488,11 +496,13 @@
                                     <th>Motorista</th>
                                     <th>Origem → Destino</th>
                                     <th>Carga</th>
-                                    <th>Valor</th>
+                                    <th>Bruto</th>
+                                    <th>Descontos</th>
+                                    <th>Líquido</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-ultimas-viagens">
-                                <tr><td colspan="4" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
+                                <tr><td colspan="6" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -577,6 +587,7 @@
             <div class="nav-tabs">
                 <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')"><i class="fa-solid fa-wallet"></i> Meu Extrato</button>
                 <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')"><i class="fa-solid fa-circle-plus"></i> Nova Viagem</button>
+                <button class="tab-btn" onclick="switchTab(event, 'm-andamento')"><i class="fa-solid fa-road"></i> Viagem Ativa</button>
             </div>
 
             <!-- Meu Extrato -->
@@ -585,7 +596,7 @@
                     <div class="metric-card">
                         <div class="metric-icon"><i class="fa-solid fa-coins"></i></div>
                         <div class="metric-info">
-                            <h3>Meus Ganhos</h3>
+                            <h3>Meus Ganhos (Líquidos)</h3>
                             <p id="motorista-meus-ganhos">R$ 0,00</p>
                         </div>
                     </div>
@@ -604,13 +615,15 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Origem → Destino</th>
+                                    <th>Rota</th>
                                     <th>Carga</th>
-                                    <th>Valor</th>
+                                    <th>Bruto</th>
+                                    <th>Descontos</th>
+                                    <th>Líquido</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-minhas-viagens">
-                                <tr><td colspan="3" class="empty-row">Nenhuma viagem registrada.</td></tr>
+                                <tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -620,7 +633,7 @@
             <!-- Adicionar Viagem -->
             <div id="m-adicionar" class="tab-content">
                 <div class="card">
-                    <h3><i class="fa-solid fa-map-location-dot"></i> Registrar Nova Viagem</h3>
+                    <h3><i class="fa-solid fa-map-location-dot"></i> Iniciar Nova Viagem</h3>
                     <div class="form-group">
                         <label>Origem</label>
                         <input type="text" id="viagem-origem" placeholder="Ex: Berlim">
@@ -637,7 +650,61 @@
                         <label>Valor do Frete (R$)</label>
                         <input type="number" id="viagem-valor" placeholder="0.00">
                     </div>
-                    <button class="btn-submit" onclick="salvarViagemMotorista()">Enviar Viagem</button>
+                    <button class="btn-submit" onclick="iniciarViagemMotorista()">Iniciar Viagem</button>
+                </div>
+            </div>
+
+            <!-- Viagem Ativa & Lançamento de Gastos -->
+            <div id="m-andamento" class="tab-content">
+                <div id="sem-viagem-ativa" class="card" style="text-align: center; padding: 30px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 32px; color: var(--warning-color); margin-bottom: 12px;"></i>
+                    <p style="color: var(--text-muted); margin: 0;">Você não possui nenhuma viagem em andamento no momento. Inicie uma nova viagem para poder lançar pedágios ou balsa.</p>
+                </div>
+
+                <div id="com-viagem-ativa" style="display: none;">
+                    <div class="card" style="border-color: var(--accent-color);">
+                        <h3><i class="fa-solid fa-truck-ramp-box"></i> Viagem em Andamento</h3>
+                        <p style="margin: 6px 0;"><strong>Rota:</strong> <span id="ativa-rota"></span></p>
+                        <p style="margin: 6px 0;"><strong>Carga:</strong> <span id="ativa-carga"></span></p>
+                        <p style="margin: 6px 0;"><strong>Valor Bruto:</strong> <span id="ativa-valor"></span></p>
+                        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 12px 0;">
+                        <p style="margin: 6px 0; color: var(--warning-color);"><strong>Total de Gastos (Pedágio/Balsa):</strong> <span id="ativa-gastos">R$ 0,00</span></p>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fa-solid fa-receipt"></i> Lançar Gasto na Viagem</h3>
+                        <div class="form-group">
+                            <label>Descrição do Gasto (Ex: Pedágio Rodovia A1 / Balsa)</label>
+                            <input type="text" id="gasto-descricao" placeholder="Ex: Pedágio">
+                        </div>
+                        <div class="form-group">
+                            <label>Valor do Gasto (R$)</label>
+                            <input type="number" id="gasto-valor" placeholder="0.00">
+                        </div>
+                        <button class="btn-submit" onclick="adicionarGastoViagem()"><i class="fa-solid fa-plus"></i> Adicionar Gasto</button>
+                    </div>
+
+                    <div class="card">
+                        <h3><i class="fa-solid fa-list-check"></i> Gastos Lançados nesta Viagem</h3>
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Descrição</th>
+                                        <th>Valor</th>
+                                        <th style="text-align: right;">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabela-gastos-ativos">
+                                    <tr><td colspan="3" class="empty-row">Nenhum gasto lançado.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <button class="btn-submit btn-danger" onclick="finalizarViagemMotorista()" style="padding: 16px; font-size: 15px; margin-top: 10px;">
+                        <i class="fa-solid fa-flag-checkered"></i> Finalizar Viagem e Descontar da Empresa
+                    </button>
                 </div>
             </div>
         </div>
@@ -646,7 +713,7 @@
 
     <div id="toast">Operação realizada com sucesso!</div>
 
-    <!-- Lógica da Aplicação sem Firebase (Local Storage) -->
+    <!-- Lógica da Aplicação (Local Storage) -->
     <script>
         let sessaoAtual = null;
 
@@ -654,7 +721,8 @@
             return {
                 funcionarios: JSON.parse(localStorage.getItem('ets2_funcionarios')) || [],
                 caminhoes: JSON.parse(localStorage.getItem('ets2_caminhoes')) || [],
-                viagens: JSON.parse(localStorage.getItem('ets2_viagens')) || []
+                viagens: JSON.parse(localStorage.getItem('ets2_viagens')) || [],
+                viagensAtivas: JSON.parse(localStorage.getItem('ets2_viagens_ativas')) || {}
             };
         }
 
@@ -662,6 +730,7 @@
             localStorage.setItem('ets2_funcionarios', JSON.stringify(dados.funcionarios));
             localStorage.setItem('ets2_caminhoes', JSON.stringify(dados.caminhoes));
             localStorage.setItem('ets2_viagens', JSON.stringify(dados.viagens));
+            localStorage.setItem('ets2_viagens_ativas', JSON.stringify(dados.viagensAtivas));
         }
 
         window.mudarTipoAcesso = function() {
@@ -803,7 +872,8 @@
             atualizarTelas();
         };
 
-        window.salvarViagemMotorista = function() {
+        // Iniciar Viagem (Coloca na aba Viagem Ativa)
+        window.iniciarViagemMotorista = function() {
             let origem = document.getElementById('viagem-origem').value.trim();
             let destino = document.getElementById('viagem-destino').value.trim();
             let carga = document.getElementById('viagem-carga').value.trim();
@@ -815,26 +885,116 @@
             }
 
             let dados = carregarDados();
-            let novaViagem = {
+            if (dados.viagensAtivas[sessaoAtual.id]) {
+                mostrarToast("Você já tem uma viagem em andamento!", "error");
+                return;
+            }
+
+            dados.viagensAtivas[sessaoAtual.id] = {
                 id: 'vig_' + Date.now(),
-                motoristaId: sessaoAtual.id || 'patrao',
+                motoristaId: sessaoAtual.id,
                 motoristaNome: sessaoAtual.nome,
                 origem,
                 destino,
                 carga,
-                valor,
-                data: new Date().toISOString()
+                valorBruto: valor,
+                gastos: [],
+                dataInicio: new Date().toISOString()
             };
 
-            dados.viagens.push(novaViagem);
             salvarDados(dados);
 
+            // Limpa inputs
             document.getElementById('viagem-origem').value = '';
             document.getElementById('viagem-destino').value = '';
             document.getElementById('viagem-carga').value = '';
             document.getElementById('viagem-valor').value = '';
             
-            mostrarToast("Viagem registrada com sucesso!");
+            mostrarToast("Viagem iniciada! Vá para a aba 'Viagem Ativa'.");
+            
+            // Simula clique na aba de viagem ativa
+            let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
+            switchTab({ currentTarget: botoesTab[2] }, 'm-andamento');
+            atualizarTelas();
+        };
+
+        // Adicionar gasto (pedágio/balsa) na viagem ativa
+        window.adicionarGastoViagem = function() {
+            let descricao = document.getElementById('gasto-descricao').value.trim();
+            let valorGasto = parseFloat(document.getElementById('gasto-valor').value);
+
+            if (!descricao || isNaN(valorGasto) || valorGasto <= 0) {
+                mostrarToast("Informe uma descrição e um valor válido para o gasto!", "error");
+                return;
+            }
+
+            let dados = carregarDados();
+            let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
+
+            if (!viagemAtiva) {
+                mostrarToast("Nenhuma viagem ativa encontrada.", "error");
+                return;
+            }
+
+            viagemAtiva.gastos.push({
+                id: 'gst_' + Date.now(),
+                descricao,
+                valor: valorGasto
+            });
+
+            salvarDados(dados);
+
+            document.getElementById('gasto-descricao').value = '';
+            document.getElementById('gasto-valor').value = '';
+
+            mostrarToast("Gasto adicionado com sucesso!");
+            atualizarTelas();
+        };
+
+        // Deletar gasto individual da viagem ativa
+        window.deletarGastoAtivo = function(gastoId) {
+            let dados = carregarDados();
+            let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
+            if (viagemAtiva) {
+                viagemAtiva.gastos = viagemAtiva.gastos.filter(g => g.id !== gastoId);
+                salvarDados(dados);
+                mostrarToast("Gasto removido.");
+                atualizarTelas();
+            }
+        };
+
+        // Finalizar viagem ativa (Desconta os gastos automaticamente do valor bruto e envia para o histórico)
+        window.finalizarViagemMotorista = function() {
+            if (!confirm("Deseja finalizar esta viagem? Os gastos informados serão descontados automaticamente do valor total.")) return;
+
+            let dados = carregarDados();
+            let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
+
+            if (!viagemAtiva) {
+                mostrarToast("Nenhuma viagem ativa para finalizar.", "error");
+                return;
+            }
+
+            // Calcula total de gastos
+            let totalGastos = viagemAtiva.gastos.reduce((acc, g) => acc + g.valor, 0);
+            let valorLiquido = viagemAtiva.valorBruto - totalGastos;
+
+            let viagemFinalizada = {
+                ...viagemAtiva,
+                totalGastos,
+                valorLiquido: valorLiquido < 0 ? 0 : valorLiquido,
+                dataFim: new Date().toISOString()
+            };
+
+            dados.viagens.push(viagemFinalizada);
+            delete dados.viagensAtivas[sessaoAtual.id];
+            salvarDados(dados);
+
+            mostrarToast("Viagem finalizada e descontos aplicados com sucesso!");
+            
+            // Retorna para o extrato
+            let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
+            switchTab({ currentTarget: botoesTab[0] }, 'm-extrato');
             atualizarTelas();
         };
 
@@ -872,20 +1032,22 @@
             let dados = carregarDados();
             
             if (sessaoAtual && sessaoAtual.tipo === 'patrao') {
-                let faturamento = dados.viagens.reduce((acc, v) => acc + (Number(v.valor) || 0), 0);
-                document.getElementById('patrao-faturamento').innerText = `R$ ${faturamento.toFixed(2)}`;
+                let faturamentoLiquido = dados.viagens.reduce((acc, v) => acc + (Number(v.valorLiquido) || 0), 0);
+                document.getElementById('patrao-faturamento').innerText = `R$ ${faturamentoLiquido.toFixed(2)}`;
                 document.getElementById('patrao-total-viagens').innerText = dados.viagens.length;
 
                 let tbodyViagens = document.getElementById('tabela-ultimas-viagens');
                 if (dados.viagens.length === 0) {
-                    tbodyViagens.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>';
+                    tbodyViagens.innerHTML = '<tr><td colspan="6" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>';
                 } else {
                     tbodyViagens.innerHTML = dados.viagens.slice().reverse().map(v => `
                         <tr>
                             <td><strong>${v.motoristaNome || 'N/D'}</strong></td>
                             <td>${v.origem} → ${v.destino}</td>
                             <td>${v.carga}</td>
-                            <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valor).toFixed(2)}</td>
+                            <td>R$ ${Number(v.valorBruto).toFixed(2)}</td>
+                            <td style="color: var(--danger-color);">R$ ${(Number(v.totalGastos) || 0).toFixed(2)}</td>
+                            <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valorLiquido).toFixed(2)}</td>
                         </tr>
                     `).join('');
                 }
@@ -918,21 +1080,57 @@
             }
 
             if (sessaoAtual && sessaoAtual.tipo === 'motorista') {
-                let minhasViagens = dados.viagens.filter(v => v.motoristaId === sessaoAtual.id);
-                let meusGanhos = minhasViagens.reduce((acc, v) => acc + (Number(v.valor) || 0), 0);
+                // Atualiza painel de viagem ativa
+                let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
+                let divSemViagem = document.getElementById('sem-viagem-ativa');
+                let divComViagem = document.getElementById('com-viagem-ativa');
 
-                document.getElementById('motorista-meus-ganhos').innerText = `R$ ${meusGanhos.toFixed(2)}`;
+                if (viagemAtiva) {
+                    divSemViagem.style.display = 'none';
+                    divComViagem.style.display = 'block';
+
+                    document.getElementById('ativa-rota').innerText = `${viagemAtiva.origem} → ${viagemAtiva.destino}`;
+                    document.getElementById('ativa-carga').innerText = viagemAtiva.carga;
+                    document.getElementById('ativa-valor').innerText = `R$ ${Number(viagemAtiva.valorBruto).toFixed(2)}`;
+
+                    let totalGastosAtuais = viagemAtiva.gastos.reduce((acc, g) => acc + g.valor, 0);
+                    document.getElementById('ativa-gastos').innerText = `R$ ${totalGastosAtuais.toFixed(2)}`;
+
+                    let tbodyGastos = document.getElementById('tabela-gastos-ativos');
+                    if (viagemAtiva.gastos.length === 0) {
+                        tbodyGastos.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhum gasto lançado.</td></tr>';
+                    } else {
+                        tbodyGastos.innerHTML = viagemAtiva.gastos.map(g => `
+                            <tr>
+                                <td>${g.descricao}</td>
+                                <td style="color: var(--danger-color);">R$ ${g.valor.toFixed(2)}</td>
+                                <td style="text-align: right;"><button onclick="deletarGastoAtivo('${g.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size: 14px;"><i class="fa-solid fa-trash"></i></button></td>
+                            </tr>
+                        `).join('');
+                    }
+                } else {
+                    divSemViagem.style.display = 'block';
+                    divComViagem.style.display = 'none';
+                }
+
+                // Extrato do motorista
+                let minhasViagens = dados.viagens.filter(v => v.motoristaId === sessaoAtual.id);
+                let meusGanhosLiquidos = minhasViagens.reduce((acc, v) => acc + (Number(v.valorLiquido) || 0), 0);
+
+                document.getElementById('motorista-meus-ganhos').innerText = `R$ ${meusGanhosLiquidos.toFixed(2)}`;
                 document.getElementById('motorista-total-viagens').innerText = minhasViagens.length;
 
                 let tbodyMinhasViagens = document.getElementById('tabela-minhas-viagens');
                 if (minhasViagens.length === 0) {
-                    tbodyMinhasViagens.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhuma viagem registrada.</td></tr>';
+                    tbodyMinhasViagens.innerHTML = '<tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>';
                 } else {
                     tbodyMinhasViagens.innerHTML = minhasViagens.slice().reverse().map(v => `
                         <tr>
                             <td>${v.origem} → ${v.destino}</td>
                             <td>${v.carga}</td>
-                            <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valor).toFixed(2)}</td>
+                            <td>R$ ${Number(v.valorBruto).toFixed(2)}</td>
+                            <td style="color: var(--danger-color);">R$ ${(Number(v.totalGastos) || 0).toFixed(2)}</td>
+                            <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valorLiquido).toFixed(2)}</td>
                         </tr>
                     `).join('');
                 }
