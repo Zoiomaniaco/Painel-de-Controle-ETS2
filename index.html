@@ -138,7 +138,6 @@
             margin-bottom: 24px;
         }
 
-        /* Área de Informações do Aplicativo na Tela Inicial */
         .app-info-card {
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
@@ -403,8 +402,10 @@
         .center-btn-container {
             display: flex;
             justify-content: center;
+            gap: 12px;
             margin-top: 16px;
             margin-bottom: 16px;
+            flex-wrap: wrap;
         }
 
         .btn-funcionarios-patrao {
@@ -426,6 +427,28 @@
         .btn-funcionarios-patrao:hover {
             background-color: var(--accent-color);
             border-color: var(--accent-color);
+            color: #ffffff;
+        }
+
+        .btn-zerar-valores {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-zerar-valores:hover {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-color: var(--danger-color);
             color: #ffffff;
         }
 
@@ -554,7 +577,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.01</div>
+                <div class="app-version-badge">Versão 1.02</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -707,10 +730,13 @@
                     </div>
                 </div>
 
-                <!-- Botão Centralizado de Funcionários -->
+                <!-- Botões de Ações do Patrão (Funcionários & Zerar Valores) -->
                 <div class="center-btn-container">
                     <button class="btn-funcionarios-patrao" onclick="abrirModalFuncionarios()">
                         <i class="fa-solid fa-users"></i> Funcionários
+                    </button>
+                    <button class="btn-zerar-valores" onclick="confirmarZerarValores()">
+                        <i class="fa-solid fa-rotate-left"></i> Zerar Todos os Valores
                     </button>
                 </div>
             </div>
@@ -1102,6 +1128,17 @@
             document.getElementById('modal-funcionarios').style.display = 'none';
         };
 
+        window.confirmarZerarValores = function() {
+            if (confirm("⚠️ ATENÇÃO:\nDeseja realmente zerar todos os valores, histórico de viagens e quilometragens? Os cadastros de caminhões e funcionários serão mantidos.")) {
+                let dados = carregarDados();
+                dados.viagens = [];
+                dados.viagensAtivas = {};
+                salvarDados(dados);
+                mostrarToast("Todos os valores e relatórios foram zerados!");
+                atualizarTelas();
+            }
+        };
+
         function atualizarTabelaModalFuncionarios() {
             let dados = carregarDados();
             let tbody = document.getElementById('tabela-modal-funcionarios');
@@ -1477,7 +1514,6 @@
                     }).join('');
                 }
 
-                // Cálculo da quilometragem total por caminhão com base nas viagens finalizadas
                 let kmPorCaminhao = {};
                 dados.viagens.forEach(v => {
                     if (v.caminhaoId) {
