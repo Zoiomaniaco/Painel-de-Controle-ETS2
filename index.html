@@ -687,9 +687,10 @@
 
         <!-- PAINEL DO PATRÃO -->
         <div id="painel-patrao" style="display: none;">
-            <div class="nav-tabs" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="nav-tabs" style="grid-template-columns: repeat(3, 1fr);">
                 <button class="tab-btn active" onclick="switchTab(event, 'p-visao')"><i class="fa-solid fa-chart-pie"></i> Visão Geral</button>
-                <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota & Manutenção</button>
+                <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
+                <button class="tab-btn" onclick="switchTab(event, 'p-rotas')"><i class="fa-solid fa-map-location-dot"></i> Rotas (ETS2)</button>
             </div>
 
             <!-- Aba Visão Geral -->
@@ -838,6 +839,52 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Aba Banco de Dados de Rotas (ETS2) -->
+            <div id="p-rotas" class="tab-content">
+                <div class="card">
+                    <h3><i class="fa-solid fa-route"></i> Banco de Dados de Rotas (ETS2)</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+                        Cadastre as rotas oficiais e quilometragens exatas. Quando os motoristas informarem a origem e o destino, o KM será preenchido automaticamente.
+                    </p>
+                    
+                    <form id="route-form" onsubmit="salvarRotaPatrao(event)">
+                        <input type="hidden" id="route-id">
+                        <div class="form-group">
+                            <label>Cidade de Origem</label>
+                            <input type="text" id="route-origin" placeholder="Ex: Berlim" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Cidade de Destino</label>
+                            <input type="text" id="route-destination" placeholder="Ex: Paris" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Distância Oficial (KM)</label>
+                            <input type="number" id="route-km" placeholder="Ex: 1054" required min="1">
+                        </div>
+                        <button type="submit" class="btn-submit">Salvar Rota no Banco</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-list"></i> Rotas Cadastradas</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Origem</th>
+                                    <th>Destino</th>
+                                    <th>KM</th>
+                                    <th style="text-align: right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-rotas-cadastradas">
+                                <tr><td colspan="4" class="empty-row">Nenhuma rota cadastrada.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- PAINEL DO MOTORISTA (FUNCIONÁRIO) -->
@@ -889,7 +936,6 @@
             <!-- Adicionar Viagem -->
             <div id="m-adicionar" class="tab-content">
                 <div class="card">
-                    <!-- Título atualizado conforme o pedido -->
                     <h3><i class="fa-solid fa-map-location-dot"></i> Cadastrar Nova Viagem</h3>
                     <div class="form-group">
                         <label>País de Origem</label>
@@ -925,15 +971,16 @@
                     </div>
                     <div class="form-group">
                         <label>Cidade de Origem</label>
-                        <input type="text" id="viagem-origem" placeholder="Ex: Berlim" oninput="calcularDistanciaAutomatica()">
+                        <input type="text" id="viagem-origem" placeholder="Ex: Berlim" oninput="verificarDistanciaBancoRotas()">
                     </div>
                     <div class="form-group">
                         <label>Cidade de Destino</label>
-                        <input type="text" id="viagem-destino" placeholder="Ex: Paris" oninput="calcularDistanciaAutomatica()">
+                        <input type="text" id="viagem-destino" placeholder="Ex: Paris" oninput="verificarDistanciaBancoRotas()">
                     </div>
                     <div class="form-group">
                         <label>Distância (KM)</label>
                         <input type="number" id="viagem-km" placeholder="0">
+                        <small id="rota-status-msg" style="color: var(--success-color); font-size: 10px; display: none; margin-top: 4px;"><i class="fa-solid fa-check"></i> KM preenchido automaticamente pelo banco do Patrão.</small>
                     </div>
                     <div class="form-group">
                         <label>Caminhão Utilizado</label>
@@ -1085,7 +1132,8 @@
                 funcionarios: JSON.parse(localStorage.getItem('ets2_funcionarios')) || [],
                 caminhoes: JSON.parse(localStorage.getItem('ets2_caminhoes')) || [],
                 viagens: JSON.parse(localStorage.getItem('ets2_viagens')) || [],
-                viagensAtivas: JSON.parse(localStorage.getItem('ets2_viagens_ativas')) || {}
+                viagensAtivas: JSON.parse(localStorage.getItem('ets2_viagens_ativas')) || {},
+                rotas: JSON.parse(localStorage.getItem('ets2_rotas_database')) || []
             };
         }
 
@@ -1094,6 +1142,7 @@
             localStorage.setItem('ets2_caminhoes', JSON.stringify(dados.caminhoes));
             localStorage.setItem('ets2_viagens', JSON.stringify(dados.viagens));
             localStorage.setItem('ets2_viagens_ativas', JSON.stringify(dados.viagensAtivas));
+            localStorage.setItem('ets2_rotas_database', JSON.stringify(dados.rotas));
         }
 
         window.mudarTipoAcesso = function() {
@@ -1194,7 +1243,7 @@
         };
 
         window.confirmarZerarValores = function() {
-            if (confirm("⚠️ ATENÇÃO:\nDeseja realmente zerar todos os valores, histórico de viagens e quilometragens? Os cadastros de caminhões e funcionários serão mantidos.")) {
+            if (confirm("⚠️ ATENÇÃO:\nDeseja realmente zerar todos os valores, histórico de viagens e quilometragens? Os cadastros de caminhões, rotas e funcionários serão mantidos.")) {
                 let dados = carregarDados();
                 dados.viagens = [];
                 dados.viagensAtivas = {};
@@ -1315,13 +1364,96 @@
             }
         };
 
-        window.calcularDistanciaAutomatica = function() {
-            let origem = document.getElementById('viagem-origem').value.trim();
-            let destino = document.getElementById('viagem-destino').value.trim();
-            if (origem.length > 1 && destino.length > 1) {
+        // Funções do Banco de Dados de Rotas (Patrão & Motorista)
+        window.salvarRotaPatrao = function(e) {
+            e.preventDefault();
+            let id = document.getElementById('route-id').value;
+            let origin = document.getElementById('route-origin').value.trim();
+            let destination = document.getElementById('route-destination').value.trim();
+            let km = parseFloat(document.getElementById('route-km').value);
+
+            let dados = carregarDados();
+            if (id) {
+                dados.rotas = dados.rotas.map(r => r.id == id ? { id, origin, destination, km } : r);
+            } else {
+                dados.rotas.push({ id: 'rt_' + Date.now(), origin, destination, km });
+            }
+
+            salvarDados(dados);
+            document.getElementById('route-form').reset();
+            document.getElementById('route-id').value = '';
+            mostrarToast("Rota salva no banco de dados com sucesso!");
+            atualizarTabelasRotas();
+        };
+
+        function atualizarTabelasRotas() {
+            let dados = carregarDados();
+            let tbody = document.getElementById('tabela-rotas-cadastradas');
+            if (!tbody) return;
+
+            if (dados.rotas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhuma rota cadastrada no banco.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = dados.rotas.map(r => `
+                <tr>
+                    <td><strong>${r.origin}</strong></td>
+                    <td><strong>${r.destination}</strong></td>
+                    <td>${r.km} KM</td>
+                    <td style="text-align: right;">
+                        <button onclick="editarRotaPatrao('${r.id}')" style="background:none; border:none; color:var(--accent-color); cursor:pointer; margin-right:8px;"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="excluirRotaPatrao('${r.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.editarRotaPatrao = function(id) {
+            let dados = carregarDados();
+            let r = dados.rotas.find(item => item.id === id);
+            if (r) {
+                document.getElementById('route-id').value = r.id;
+                document.getElementById('route-origin').value = r.origin;
+                document.getElementById('route-destination').value = r.destination;
+                document.getElementById('route-km').value = r.km;
+            }
+        };
+
+        window.excluirRotaPatrao = function(id) {
+            if (confirm("Deseja excluir esta rota do banco de dados?")) {
+                let dados = carregarDados();
+                dados.rotas = dados.rotas.filter(r => r.id !== id);
+                salvarDados(dados);
+                atualizarTabelasRotas();
+                mostrarToast("Rota excluída.");
+            }
+        };
+
+        window.verificarDistanciaBancoRotas = function() {
+            let origem = document.getElementById('viagem-origem').value.trim().toLowerCase();
+            let destino = document.getElementById('viagem-destino').value.trim().toLowerCase();
+            let kmInput = document.getElementById('viagem-km');
+            let msg = document.getElementById('rota-status-msg');
+
+            if (!origem || !destino) {
+                msg.style.display = 'none';
+                return;
+            }
+
+            let dados = carregarDados();
+            let rotaEncontrada = dados.rotas.find(r => 
+                r.origin.toLowerCase() === origem && r.destination.toLowerCase() === destino
+            );
+
+            if (rotaEncontrada) {
+                kmInput.value = rotaEncontrada.km;
+                msg.style.display = 'block';
+            } else {
+                msg.style.display = 'none';
+                // Fallback automático caso não ache no banco customizado
                 let baseHash = (origem + destino).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                let kmEstimado = 300 + (baseHash % 1400);
-                document.getElementById('viagem-km').value = kmEstimado;
+                kmInput.value = 300 + (baseHash % 1400);
             }
         };
 
@@ -1495,6 +1627,7 @@
             document.getElementById('painel-patrao').style.display = 'block';
             document.getElementById('main-header').style.display = 'flex';
             document.getElementById('header-title').innerText = "PAINEL DO PATRÃO";
+            atualizarTabelasRotas();
             atualizarTelas();
         }
 
