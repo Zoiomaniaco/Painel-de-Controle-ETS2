@@ -579,7 +579,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.04 (Com Gráfico & Descanso)</div>
+                <div class="app-version-badge">Versão 1.05 (Combustível Manual & Descanso)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -859,8 +859,20 @@
                 <div class="card">
                     <h3><i class="fa-solid fa-map-location-dot"></i> Iniciar Nova Viagem</h3>
                     <div class="form-group">
-                        <label>País da Viagem</label>
-                        <select id="viagem-pais" onchange="recalcularCombustivelManual()"></select>
+                        <label>País / Região da Viagem</label>
+                        <select id="viagem-pais">
+                            <option value="Alemanha">Alemanha (Germany)</option>
+                            <option value="França">França (France)</option>
+                            <option value="Países Baixos">Países Baixos (Netherlands)</option>
+                            <option value="Reino Unido">Reino Unido (UK)</option>
+                            <option value="Polônia">Polônia (Poland)</option>
+                            <option value="Itália">Itália (Italy)</option>
+                            <option value="Espanha">Espanha (Spain)</option>
+                            <option value="Áustria">Áustria (Austria)</option>
+                            <option value="Suíça">Suíça (Switzerland)</option>
+                            <option value="Bélgica">Bélgica (Belgium)</option>
+                            <option value="Outro">Outro País / Mapa Base</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Cidade de Origem</label>
@@ -872,7 +884,7 @@
                     </div>
                     <div class="form-group">
                         <label>Distância (KM)</label>
-                        <input type="number" id="viagem-km" placeholder="0" oninput="recalcularCombustivelManual()">
+                        <input type="number" id="viagem-km" placeholder="0">
                     </div>
                     <div class="form-group">
                         <label>Caminhão Utilizado</label>
@@ -887,11 +899,6 @@
                     <div class="form-group">
                         <label>Valor do Frete Bruto (R$)</label>
                         <input type="number" id="viagem-valor" placeholder="0.00">
-                    </div>
-                    <div class="form-group" style="background: rgba(59,130,246,0.05); padding: 12px; border-radius: 6px; border: 1px dashed var(--accent-color);">
-                        <label style="color: var(--accent-color); font-weight: 600;"><i class="fa-solid fa-gas-pump"></i> Desconto Automático de Combustível</label>
-                        <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0;" id="pais-preco-info">Baseado no país selecionado</p>
-                        <p style="font-size: 16px; font-weight: 700; margin: 6px 0 0 0;" id="prev-combustivel">R$ 0,00</p>
                     </div>
                     <button class="btn-submit" onclick="iniciarViagemMotorista()">Iniciar Viagem</button>
                 </div>
@@ -911,7 +918,6 @@
                         <p style="margin: 6px 0;"><strong>Caminhão:</strong> <span id="ativa-caminhao"></span></p>
                         <p style="margin: 6px 0;"><strong>Carga:</strong> <span id="ativa-carga"></span></p>
                         <p style="margin: 6px 0;"><strong>Valor Bruto:</strong> <span id="ativa-valor"></span></p>
-                        <p style="margin: 6px 0; color: var(--warning-color);"><strong>Combustível Automático:</strong> <span id="ativa-combustivel">R$ 0,00</span></p>
                     </div>
 
                     <!-- Bloco de Parada de Descanso / Alimentação -->
@@ -932,21 +938,22 @@
                     </div>
 
                     <div class="card">
-                        <h3><i class="fa-solid fa-receipt"></i> Lançar Despesa Extra na Viagem</h3>
+                        <h3><i class="fa-solid fa-receipt"></i> Lançar Despesa / Abastecimento na Viagem</h3>
                         <div class="form-group">
                             <label>Tipo de Gasto</label>
                             <select id="gasto-tipo">
-                                <option value="Pedágio">Pedágio</option>
-                                <option value="Balsa">Balsa</option>
-                                <option value="Multa">Multa</option>
+                                <option value="Combustível">⛽ Abastecimento (Combustível)</option>
+                                <option value="Pedágio">🛣️ Pedágio</option>
+                                <option value="Balsa">⛴️ Balsa</option>
+                                <option value="Multa">⚠️ Multa</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Descrição do Gasto</label>
-                            <input type="text" id="gasto-descricao" placeholder="Ex: Pedágio Rodovia">
+                            <label>Descrição do Gasto (Ex: Posto / Rodovia)</label>
+                            <input type="text" id="gasto-descricao" placeholder="Ex: Posto de Gasolina na Rodovia">
                         </div>
                         <div class="form-group">
-                            <label>Valor (R$)</label>
+                            <label>Valor Gasto (R$)</label>
                             <input type="number" id="gasto-valor" placeholder="0.00">
                         </div>
                         <button class="btn-submit" onclick="adicionarGastoViagem()"><i class="fa-solid fa-plus"></i> Adicionar Despesa</button>
@@ -1017,36 +1024,8 @@
     <div id="toast">Operação realizada com sucesso!</div>
 
     <script>
-        const PRECOS_COMBUSTIVEL_PAISES = [
-            { nome: "Alemanha (Germany)", precoLitro: 9.10 },
-            { nome: "França (France)", precoLitro: 8.60 },
-            { nome: "Países Baixos (Netherlands)", precoLitro: 9.30 },
-            { nome: "Reino Unido (UK)", precoLitro: 8.40 },
-            { nome: "Polônia (Poland)", precoLitro: 7.20 },
-            { nome: "Itália (Italy)", precoLitro: 8.10 },
-            { nome: "Espanha (Spain)", precoLitro: 7.40 },
-            { nome: "Áustria (Austria)", precoLitro: 8.50 },
-            { nome: "Suíça (Switzerland)", precoLitro: 9.00 },
-            { nome: "Bélgica (Belgium)", precoLitro: 8.90 }
-        ];
-
-        const CONSUMO_LITROS_POR_KM = 0.32; 
-
         let sessaoAtual = null;
         let meuGraficoInstance = null;
-
-        window.onload = function() {
-            carregarSelectPaises();
-        };
-
-        function carregarSelectPaises() {
-            let select = document.getElementById('viagem-pais');
-            if (!select) return;
-            select.innerHTML = PRECOS_COMBUSTIVEL_PAISES.map(p => 
-                `<option value="${p.precoLitro}" data-nome="${p.nome}">${p.nome} (Diesel: R$ ${p.precoLitro.toFixed(2)}/L)</option>`
-            ).join('');
-            recalcularCombustivelManual();
-        }
 
         function carregarDados() {
             return {
@@ -1289,27 +1268,11 @@
                 let baseHash = (origem + destino).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
                 let kmEstimado = 300 + (baseHash % 1400);
                 document.getElementById('viagem-km').value = kmEstimado;
-                recalcularCombustivelManual();
             }
         };
 
-        window.recalcularCombustivelManual = function() {
-            let km = parseFloat(document.getElementById('viagem-km').value) || 0;
-            let selectPais = document.getElementById('viagem-pais');
-            if (!selectPais || selectPais.options.length === 0) return;
-            
-            let precoLitro = parseFloat(selectPais.value) || 0;
-            let litrosConsumidos = km * CONSUMO_LITROS_POR_KM;
-            let custoCombustivel = litrosConsumidos * precoLitro;
-
-            document.getElementById('prev-combustivel').innerText = `R$ ${custoCombustivel.toFixed(2)} (${litrosConsumidos.toFixed(0)} L)`;
-        };
-
         window.iniciarViagemMotorista = function() {
-            let selectPais = document.getElementById('viagem-pais');
-            let paisNome = selectPais.options[selectPais.selectedIndex].getAttribute('data-nome');
-            let precoLitro = parseFloat(selectPais.value);
-
+            let pais = document.getElementById('viagem-pais').value;
             let origem = document.getElementById('viagem-origem').value.trim();
             let destino = document.getElementById('viagem-destino').value.trim();
             let km = parseFloat(document.getElementById('viagem-km').value);
@@ -1330,13 +1293,11 @@
                 return;
             }
 
-            let custoCombustivel = km * CONSUMO_LITROS_POR_KM * precoLitro;
-
             dados.viagensAtivas[sessaoAtual.id] = {
                 id: 'vig_' + Date.now(),
                 motoristaId: sessaoAtual.id,
                 motoristaNome: sessaoAtual.nome,
-                pais: paisNome,
+                pais,
                 origem,
                 destino,
                 km,
@@ -1344,7 +1305,6 @@
                 caminhao: caminhaoNome,
                 carga,
                 valorBruto: valor,
-                custoCombustivel,
                 gastosExtras: [],
                 dataInicio: new Date().toISOString()
             };
@@ -1398,11 +1358,17 @@
             let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
             if (!viagemAtiva) return;
 
-            viagemAtiva.gastosExtras.push({ id: 'gst_' + Date.now(), tipo, descricao: descricao || tipo, valor: valorGasto });
+            viagemAtiva.gastosExtras.push({ 
+                id: 'gst_' + Date.now(), 
+                tipo, 
+                descricao: descricao || (tipo === 'Combustível' ? 'Abastecimento' : tipo), 
+                valor: valorGasto 
+            });
             salvarDados(dados);
 
             document.getElementById('gasto-descricao').value = '';
             document.getElementById('gasto-valor').value = '';
+            mostrarToast("Despesa adicionada com sucesso!");
             atualizarTelas();
         };
 
@@ -1427,14 +1393,15 @@
             let dataFim = new Date();
             let tempoMinutos = Math.round((dataFim - new Date(viagemAtiva.dataInicio)) / 60000);
 
+            let custoCombustivel = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Combustível').reduce((acc, g) => acc + g.valor, 0);
             let totalPedagios = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Pedágio').reduce((acc, g) => acc + g.valor, 0);
             let totalBalsas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Balsa').reduce((acc, g) => acc + g.valor, 0);
             let totalMultas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Multa').reduce((acc, g) => acc + g.valor, 0);
             let totalAlimentacao = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Alimentação').reduce((acc, g) => acc + g.valor, 0);
-            let totalGastosExtras = totalPedagios + totalBalsas + totalMultas + totalAlimentacao;
+            let totalGastosExtras = totalPedagios + totalBalsas + totalMultas + totalAlimentacao + custoCombustivel;
 
             let salarioMotorista = viagemAtiva.valorBruto * 0.14;
-            let caixaEmpresa = viagemAtiva.valorBruto - salarioMotorista - viagemAtiva.custoCombustivel - totalGastosExtras;
+            let caixaEmpresa = viagemAtiva.valorBruto - salarioMotorista - totalGastosExtras;
 
             let caminhao = dados.caminhoes.find(c => c.id === viagemAtiva.caminhaoId);
             if (caminhao) {
@@ -1446,6 +1413,7 @@
             dados.viagens.push({
                 ...viagemAtiva,
                 salarioMotorista,
+                custoCombustivel,
                 totalPedagios,
                 totalBalsas,
                 totalMultas,
@@ -1503,7 +1471,6 @@
                 document.getElementById('patrao-balsas').innerText = `R$ ${totalBalsasGeral.toFixed(2)}`;
                 document.getElementById('patrao-alimentacao').innerText = `R$ ${totalAlimentacaoGeral.toFixed(2)}`;
 
-                // Renderizar ou atualizar Gráfico Chart.js
                 renderizarGraficoPatrao({
                     faturamento: faturamentoEmpresa,
                     combustivel: totalCombustivelGeral,
@@ -1596,7 +1563,6 @@
                     document.getElementById('ativa-caminhao').innerText = viagemAtiva.caminhao;
                     document.getElementById('ativa-carga').innerText = viagemAtiva.carga;
                     document.getElementById('ativa-valor').innerText = `R$ ${Number(viagemAtiva.valorBruto).toFixed(2)}`;
-                    document.getElementById('ativa-combustivel').innerText = `R$ ${Number(viagemAtiva.custoCombustivel).toFixed(2)}`;
 
                     let tbodyGastos = document.getElementById('tabela-gastos-ativos');
                     tbodyGastos.innerHTML = viagemAtiva.gastosExtras.length === 0 ? '<tr><td colspan="4" class="empty-row">Nenhuma despesa.</td></tr>' :
