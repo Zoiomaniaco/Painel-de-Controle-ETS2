@@ -486,7 +486,7 @@
                             <thead>
                                 <tr>
                                     <th>Motorista</th>
-                                    <th>Rota</th>
+                                    <th>País / Rota</th>
                                     <th>KM</th>
                                     <th>Bruto</th>
                                     <th>Combustível</th>
@@ -610,7 +610,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Rota</th>
+                                    <th>País / Rota</th>
                                     <th>KM</th>
                                     <th>Bruto</th>
                                     <th>Descontos</th>
@@ -630,6 +630,12 @@
                 <div class="card">
                     <h3><i class="fa-solid fa-map-location-dot"></i> Iniciar Nova Viagem</h3>
                     <div class="form-group">
+                        <label>País da Viagem (Tabela ETS2)</label>
+                        <select id="viagem-pais" onchange="recalcularCombustivelManual()">
+                            <!-- Preenchido via JS -->
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>Cidade de Origem</label>
                         <input type="text" id="viagem-origem" placeholder="Ex: Berlim" oninput="calcularDistanciaAutomatica()">
                     </div>
@@ -638,7 +644,7 @@
                         <input type="text" id="viagem-destino" placeholder="Ex: Paris" oninput="calcularDistanciaAutomatica()">
                     </div>
                     <div class="form-group">
-                        <label>Distância Estimada (KM) - <small style="color:var(--accent-color);">Calculada automáticamente</small></label>
+                        <label>Distância (KM)</label>
                         <input type="number" id="viagem-km" placeholder="0" oninput="recalcularCombustivelManual()">
                     </div>
                     <div class="form-group">
@@ -657,7 +663,7 @@
                     </div>
                     <div class="form-group" style="background: rgba(59,130,246,0.05); padding: 12px; border-radius: 6px; border: 1px dashed var(--accent-color);">
                         <label style="color: var(--accent-color); font-weight: 600;"><i class="fa-solid fa-gas-pump"></i> Desconto Automático de Combustível</label>
-                        <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0;">Estimado base (R$ 1.80 por KM rodado)</p>
+                        <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0;" id="pais-preco-info">Baseado no país selecionado</p>
                         <p style="font-size: 16px; font-weight: 700; margin: 6px 0 0 0;" id="prev-combustivel">R$ 0,00</p>
                     </div>
                     <button class="btn-submit" onclick="iniciarViagemMotorista()">Iniciar Viagem</button>
@@ -674,7 +680,7 @@
                 <div id="com-viagem-ativa" style="display: none;">
                     <div class="card" style="border-color: var(--accent-color);">
                         <h3><i class="fa-solid fa-truck-ramp-box"></i> Viagem em Andamento</h3>
-                        <p style="margin: 6px 0;"><strong>Rota:</strong> <span id="ativa-rota"></span> (<span id="ativa-km"></span> KM)</p>
+                        <p style="margin: 6px 0;"><strong>País / Rota:</strong> <span id="ativa-pais"></span> | <span id="ativa-rota"></span> (<span id="ativa-km"></span> KM)</p>
                         <p style="margin: 6px 0;"><strong>Caminhão:</strong> <span id="ativa-caminhao"></span></p>
                         <p style="margin: 6px 0;"><strong>Carga:</strong> <span id="ativa-carga"></span></p>
                         <p style="margin: 6px 0;"><strong>Valor Bruto:</strong> <span id="ativa-valor"></span></p>
@@ -694,8 +700,8 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Descrição do Gasto (Ex: Pedágio Rodovia A1)</label>
-                            <input type="text" id="gasto-descricao" placeholder="Descrição opcional">
+                            <label>Descrição do Gasto</label>
+                            <input type="text" id="gasto-descricao" placeholder="Ex: Pedágio Rodovia A1">
                         </div>
                         <div class="form-group">
                             <label>Valor (R$)</label>
@@ -735,8 +741,47 @@
     <div id="toast">Operação realizada com sucesso!</div>
 
     <script>
+        // Tabela oficial de preços de diesel por litro nos países do ETS2 (convertidos para uma escala proporcional em Reais)
+        const PRECOS_COMBUSTIVEL_PAISES = [
+            { nome: "Alemanha (Germany)", precoLitro: 9.10 },
+            { nome: "França (France)", precoLitro: 8.60 },
+            { nome: "Países Baixos (Netherlands)", precoLitro: 9.30 },
+            { nome: "Reino Unido (UK)", precoLitro: 8.40 },
+            { nome: "Polônia (Poland)", precoLitro: 7.20 },
+            { nome: "Itália (Italy)", precoLitro: 8.10 },
+            { nome: "Espanha (Spain)", precoLitro: 7.40 },
+            { nome: "Áustria (Austria)", precoLitro: 8.50 },
+            { nome: "Suíça (Switzerland)", precoLitro: 9.00 },
+            { nome: "Bélgica (Belgium)", precoLitro: 8.90 },
+            { nome: "Chéquia (Czech Republic)", precoLitro: 7.80 },
+            { nome: "Suécia (Sweden)", precoLitro: 8.70 },
+            { nome: "Noruega (Norway)", precoLitro: 9.20 },
+            { nome: "Dinamarca (Denmark)", precoLitro: 9.40 },
+            { nome: "Hungria (Hungary)", precoLitro: 6.80 },
+            { nome: "Romênia (Romania)", precoLitro: 7.90 },
+            { nome: "Rússia (Russia)", precoLitro: 3.50 },
+            { nome: "Turquia (Turkey)", precoLitro: 6.50 },
+            { nome: "Portugal (Portugal)", precoLitro: 8.30 },
+            { nome: "Finlândia (Finland)", precoLitro: 8.50 }
+        ];
+
+        // Média de consumo padrão de um caminhão pesado carregado: ~32 litros a cada 100km (0.32 litros por KM)
+        const CONSUMO_LITROS_POR_KM = 0.32; 
+
         let sessaoAtual = null;
-        const CUSTO_POR_KM = 1.80; // Custo estimado do combustível por KM rodado
+
+        window.onload = function() {
+            carregarSelectPaises();
+        };
+
+        function carregarSelectPaises() {
+            let select = document.getElementById('viagem-pais');
+            if (!select) return;
+            select.innerHTML = PRECOS_COMBUSTIVEL_PAISES.map(p => 
+                `<option value="${p.precoLitro}" data-nome="${p.nome}">${p.nome} (Diesel: R$ ${p.precoLitro.toFixed(2)}/L)</option>`
+            ).join('');
+            recalcularCombustivelManual();
+        }
 
         function carregarDados() {
             return {
@@ -888,17 +933,16 @@
         function carregarSelectCaminhoes() {
             let dados = carregarDados();
             let select = document.getElementById('viagem-caminhao');
+            if(!select) return;
             select.innerHTML = '<option value="">Selecione o caminhão</option>' + 
                 dados.caminhoes.map(c => `<option value="${c.modelo} (${c.placa})">${c.modelo} - ${c.placa}</option>`).join('');
         }
 
-        // Função de simulação automática de KM com base no tamanho dos nomes das cidades inseridas
         window.calcularDistanciaAutomatica = function() {
             let origem = document.getElementById('viagem-origem').value.trim();
             let destino = document.getElementById('viagem-destino').value.trim();
             
             if (origem.length > 1 && destino.length > 1) {
-                // Algoritmo determinístico baseado nos caracteres para gerar quilometragens realistas no ETS2 (entre 300km e 2400km)
                 let baseHash = (origem + destino).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
                 let kmEstimado = 300 + (baseHash % 1400);
                 document.getElementById('viagem-km').value = kmEstimado;
@@ -908,11 +952,25 @@
 
         window.recalcularCombustivelManual = function() {
             let km = parseFloat(document.getElementById('viagem-km').value) || 0;
-            let custoCombustivel = km * CUSTO_POR_KM;
-            document.getElementById('prev-combustivel').innerText = `R$ ${custoCombustivel.toFixed(2)}`;
+            let selectPais = document.getElementById('viagem-pais');
+            if (!selectPais || selectPais.options.length === 0) return;
+            
+            let precoLitro = parseFloat(selectPais.value) || 0;
+            let nomePais = selectPais.options[selectPais.selectedIndex].text;
+
+            // Cálculo: KM * litros por km (0.32L/km) * preço do litro no país selecionado
+            let litrosConsumidos = km * CONSUMO_LITROS_POR_KM;
+            let custoCombustivel = litrosConsumidos * precoLitro;
+
+            document.getElementById('prev-combustivel').innerText = `R$ ${custoCombustivel.toFixed(2)} (${litrosConsumidos.toFixed(0)} L)`;
+            document.getElementById('pais-preco-info').innerText = `${nomePais}`;
         };
 
         window.iniciarViagemMotorista = function() {
+            let selectPais = document.getElementById('viagem-pais');
+            let paisNome = selectPais.options[selectPais.selectedIndex].getAttribute('data-nome');
+            let precoLitro = parseFloat(selectPais.value);
+
             let origem = document.getElementById('viagem-origem').value.trim();
             let destino = document.getElementById('viagem-destino').value.trim();
             let km = parseFloat(document.getElementById('viagem-km').value);
@@ -921,7 +979,7 @@
             let valor = parseFloat(document.getElementById('viagem-valor').value);
 
             if (!origem || !destino || isNaN(km) || !caminhao || !carga || isNaN(valor)) {
-                mostrarToast("Preencha todos os campos e selecione o caminhão!", "error");
+                mostrarToast("Preencha todos os campos obrigatórios!", "error");
                 return;
             }
 
@@ -931,12 +989,13 @@
                 return;
             }
 
-            let custoCombustivel = km * CUSTO_POR_KM;
+            let custoCombustivel = km * CONSUMO_LITROS_POR_KM * precoLitro;
 
             dados.viagensAtivas[sessaoAtual.id] = {
                 id: 'vig_' + Date.now(),
                 motoristaId: sessaoAtual.id,
                 motoristaNome: sessaoAtual.nome,
+                pais: paisNome,
                 origem,
                 destino,
                 km,
@@ -955,7 +1014,7 @@
             document.getElementById('viagem-km').value = '';
             document.getElementById('viagem-carga').value = '';
             document.getElementById('viagem-valor').value = '';
-            document.getElementById('prev-combustivel').innerText = 'R$ 0,00';
+            recalcularCombustivelManual();
             
             mostrarToast("Viagem iniciada! Vá para a aba 'Viagem Ativa'.");
             
@@ -1010,7 +1069,7 @@
         };
 
         window.finalizarViagemMotorista = function() {
-            if (!confirm("Deseja finalizar esta viagem? O combustível e os gastos extras serão debitados automaticamente.")) return;
+            if (!confirm("Deseja finalizar esta viagem? O combustível por país e os gastos extras serão debitados automaticamente.")) return;
 
             let dados = carregarDados();
             let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
@@ -1020,7 +1079,6 @@
                 return;
             }
 
-            // Somar custos por categoria
             let totalPedagios = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Pedágio').reduce((acc, g) => acc + g.valor, 0);
             let totalBalsas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Balsa').reduce((acc, g) => acc + g.valor, 0);
             let totalMultas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Multa').reduce((acc, g) => acc + g.valor, 0);
@@ -1102,7 +1160,7 @@
                     tbodyViagens.innerHTML = dados.viagens.slice().reverse().map(v => `
                         <tr>
                             <td><strong>${v.motoristaNome || 'N/D'}</strong></td>
-                            <td>${v.origem} → ${v.destino}</td>
+                            <td><small style="color:var(--accent-color)">${v.pais || 'Europa'}</small><br>${v.origem} → ${v.destino}</td>
                             <td>${v.km} KM</td>
                             <td>R$ ${Number(v.valorBruto).toFixed(2)}</td>
                             <td style="color: var(--warning-color);">R$ ${(Number(v.custoCombustivel) || 0).toFixed(2)}</td>
@@ -1144,6 +1202,7 @@
                     divSemViagem.style.display = 'none';
                     divComViagem.style.display = 'block';
 
+                    document.getElementById('ativa-pais').innerText = viagemAtiva.pais || 'Europa';
                     document.getElementById('ativa-rota').innerText = `${viagemAtiva.origem} → ${viagemAtiva.destino}`;
                     document.getElementById('ativa-km').innerText = viagemAtiva.km;
                     document.getElementById('ativa-caminhao').innerText = viagemAtiva.caminhao;
@@ -1179,7 +1238,7 @@
                 tbodyMinhasViagens.innerHTML = minhasViagens.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>' :
                     minhasViagens.slice().reverse().map(v => `
                         <tr>
-                            <td>${v.origem} → ${v.destino}</td>
+                            <td><small style="color:var(--accent-color)">${v.pais || 'Europa'}</small><br>${v.origem} → ${v.destino}</td>
                             <td>${v.km} KM</td>
                             <td>R$ ${Number(v.valorBruto).toFixed(2)}</td>
                             <td style="color: var(--danger-color);">R$ ${(Number(v.totalDescontos) || 0).toFixed(2)}</td>
