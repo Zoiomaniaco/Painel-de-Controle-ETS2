@@ -346,6 +346,126 @@
         tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
         .empty-row { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
 
+        /* Estilo para o botão centralizado de Funcionários e Modal */
+        .center-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+
+        .btn-funcionarios-patrao {
+            background-color: var(--panel-card);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-funcionarios-patrao:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #ffffff;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+
+        .modal-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            animation: modalFadeIn 0.2s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-color);
+        }
+
+        .modal-header h3 i { color: var(--accent-color); }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        .modal-close-btn:hover { color: var(--text-color); }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(85vh - 70px);
+        }
+
+        .badge-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-servico {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success-color);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-parado {
+            background-color: rgba(156, 163, 175, 0.1);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
         #toast {
             visibility: hidden;
             min-width: 250px;
@@ -500,6 +620,13 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                <!-- Botão Centralizado de Funcionários -->
+                <div class="center-btn-container">
+                    <button class="btn-funcionarios-patrao" onclick="abrirModalFuncionarios()">
+                        <i class="fa-solid fa-users"></i> Funcionários
+                    </button>
                 </div>
             </div>
 
@@ -699,10 +826,35 @@
 
     </div>
 
+    <!-- Modal de Funcionários Cadastrados -->
+    <div id="modal-funcionarios" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-users-gear"></i> Funcionários da Empresa</h3>
+                <button class="modal-close-btn" onclick="fecharModalFuncionarios()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Motorista</th>
+                                <th>Usuário</th>
+                                <th style="text-align: center;">Status Atual</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-modal-funcionarios">
+                            <tr><td colspan="3" class="empty-row">Nenhum funcionário cadastrado.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="toast">Operação realizada com sucesso!</div>
 
     <script>
-        // Tabela oficial de preços de diesel por litro nos países do ETS2 (convertidos para uma escala proporcional em Reais)
         const PRECOS_COMBUSTIVEL_PAISES = [
             { nome: "Alemanha (Germany)", precoLitro: 9.10 },
             { nome: "França (France)", precoLitro: 8.60 },
@@ -726,7 +878,6 @@
             { nome: "Finlândia (Finland)", precoLitro: 8.50 }
         ];
 
-        // Média de consumo padrão de um caminhão pesado carregado: ~32 litros a cada 100km (0.32 litros por KM)
         const CONSUMO_LITROS_POR_KM = 0.32; 
 
         let sessaoAtual = null;
@@ -783,7 +934,6 @@
             }
 
             if (tipo === 'patrao') {
-                // Mantido o login genérico para o patrão
                 if (usuario === '*****' && senha === '*****') {
                     sessaoAtual = { tipo: 'patrao', nome: 'Patrão' };
                     iniciarPainelPatrao();
@@ -848,6 +998,41 @@
             document.getElementById(tabId).classList.add('active');
             evt.currentTarget.classList.add('active');
         };
+
+        // Funções do Modal de Funcionários
+        window.abrirModalFuncionarios = function() {
+            atualizarTabelaModalFuncionarios();
+            document.getElementById('modal-funcionarios').style.display = 'flex';
+        };
+
+        window.fecharModalFuncionarios = function() {
+            document.getElementById('modal-funcionarios').style.display = 'none';
+        };
+
+        function atualizarTabelaModalFuncionarios() {
+            let dados = carregarDados();
+            let tbody = document.getElementById('tabela-modal-funcionarios');
+
+            if (dados.funcionarios.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhum funcionário cadastrado.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = dados.funcionarios.map(m => {
+                let emServico = dados.viagensAtivas && dados.viagensAtivas[m.id];
+                let statusBadge = emServico 
+                    ? `<span class="badge-status badge-servico"><i class="fa-solid fa-circle" style="font-size: 7px;"></i> Em Serviço (${emServico.origem} → ${emServico.destino})</span>`
+                    : `<span class="badge-status badge-parado"><i class="fa-solid fa-circle" style="font-size: 7px;"></i> Parado (Sem entregas)</span>`;
+
+                return `
+                    <tr>
+                        <td><strong>${m.nome}</strong></td>
+                        <td>${m.usuario}</td>
+                        <td style="text-align: center;">${statusBadge}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
 
         window.cadastrarCaminhao = function() {
             let modelo = document.getElementById('cam-modelo').value.trim();
