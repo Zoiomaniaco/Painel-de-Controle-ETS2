@@ -579,7 +579,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.05 (Combustível Manual & Descanso)</div>
+                <div class="app-version-badge">Versão 1.06 (Relatório Completo Atualizado)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -659,7 +659,7 @@
                     <div class="metric-card">
                         <div class="metric-icon" style="color: var(--warning-color); background: rgba(245,158,11,0.1);"><i class="fa-solid fa-gas-pump"></i></div>
                         <div class="metric-info">
-                            <h3>Total Combustível</h3>
+                            <h3>Total de Combustível Gasto</h3>
                             <p id="patrao-combustivel">R$ 0,00</p>
                         </div>
                     </div>
@@ -673,28 +673,28 @@
                     <div class="metric-card">
                         <div class="metric-icon" style="color: var(--danger-color); background: rgba(239,68,68,0.1);"><i class="fa-solid fa-file-invoice-dollar"></i></div>
                         <div class="metric-info">
-                            <h3>Total Multas</h3>
+                            <h3>Multas Recebidas</h3>
                             <p id="patrao-multas">R$ 0,00</p>
                         </div>
                     </div>
                     <div class="metric-card">
                         <div class="metric-icon" style="color: var(--accent-color); background: rgba(59,130,246,0.1);"><i class="fa-solid fa-road"></i></div>
                         <div class="metric-info">
-                            <h3>Total Pedágios</h3>
+                            <h3>Pedágios Pagos</h3>
                             <p id="patrao-pedagios">R$ 0,00</p>
                         </div>
                     </div>
                     <div class="metric-card">
                         <div class="metric-icon" style="color: var(--success-color); background: rgba(16,185,129,0.1);"><i class="fa-solid fa-ship"></i></div>
                         <div class="metric-info">
-                            <h3>Total Balsas</h3>
+                            <h3>Balsas Pagas</h3>
                             <p id="patrao-balsas">R$ 0,00</p>
                         </div>
                     </div>
                     <div class="metric-card">
                         <div class="metric-icon" style="color: var(--warning-color); background: rgba(245,158,11,0.1);"><i class="fa-solid fa-utensils"></i></div>
                         <div class="metric-info">
-                            <h3>Total Alimentação (Descanso)</h3>
+                            <h3>Alimentação e Descansos pagos</h3>
                             <p id="patrao-alimentacao">R$ 0,00</p>
                         </div>
                     </div>
@@ -708,27 +708,7 @@
                     </div>
                 </div>
 
-                <!-- Painel/Ranking de Melhores Funcionários -->
-                <div class="card">
-                    <h3><i class="fa-solid fa-trophy"></i> Ranking de Melhores Funcionários</h3>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Pos</th>
-                                    <th>Funcionário</th>
-                                    <th>Viagens</th>
-                                    <th>Total KM</th>
-                                    <th>Tempo Total</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-ranking-funcionarios">
-                                <tr><td colspan="5" class="empty-row">Nenhum dado de desempenho registrado.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+                <!-- Relatório Completo de Viagens Atualizado -->
                 <div class="card">
                     <h3><i class="fa-solid fa-clock-rotate-left"></i> Relatório Completo de Viagens</h3>
                     <div class="table-responsive">
@@ -736,19 +716,18 @@
                             <thead>
                                 <tr>
                                     <th>Funcionário</th>
-                                    <th>País / Rota</th>
+                                    <th>País de Saída → Destino</th>
+                                    <th>Cidade de Saída → Destino</th>
                                     <th>KM</th>
-                                    <th>Salário</th>
-                                    <th>Combustível</th>
-                                    <th>Pedágio</th>
-                                    <th>Balsa</th>
-                                    <th>Multa/Alim.</th>
-                                    <th>Caixa Empresa</th>
-                                    <th style="text-align: center;">Imprevistos</th>
+                                    <th>Carga / Ton</th>
+                                    <th>Caminhão</th>
+                                    <th>Frete Bruto</th>
+                                    <th>Salário Recebido</th>
+                                    <th style="text-align: right;">Imprevistos</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-ultimas-viagens">
-                                <tr><td colspan="10" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
+                                <tr><td colspan="9" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -841,7 +820,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>País / Rota</th>
+                                    <th>Rota</th>
                                     <th>KM</th>
                                     <th>Salário</th>
                                 </tr>
@@ -859,8 +838,8 @@
                 <div class="card">
                     <h3><i class="fa-solid fa-map-location-dot"></i> Iniciar Nova Viagem</h3>
                     <div class="form-group">
-                        <label>País / Região da Viagem</label>
-                        <select id="viagem-pais">
+                        <label>País de Origem</label>
+                        <select id="viagem-pais-origem">
                             <option value="Alemanha">Alemanha (Germany)</option>
                             <option value="França">França (France)</option>
                             <option value="Países Baixos">Países Baixos (Netherlands)</option>
@@ -871,7 +850,23 @@
                             <option value="Áustria">Áustria (Austria)</option>
                             <option value="Suíça">Suíça (Switzerland)</option>
                             <option value="Bélgica">Bélgica (Belgium)</option>
-                            <option value="Outro">Outro País / Mapa Base</option>
+                            <option value="Outro">Outro País</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>País de Destino</label>
+                        <select id="viagem-pais-destino">
+                            <option value="Alemanha">Alemanha (Germany)</option>
+                            <option value="França">França (France)</option>
+                            <option value="Países Baixos">Países Baixos (Netherlands)</option>
+                            <option value="Reino Unido">Reino Unido (UK)</option>
+                            <option value="Polônia">Polônia (Poland)</option>
+                            <option value="Itália">Itália (Italy)</option>
+                            <option value="Espanha">Espanha (Spain)</option>
+                            <option value="Áustria">Áustria (Austria)</option>
+                            <option value="Suíça">Suíça (Switzerland)</option>
+                            <option value="Bélgica">Bélgica (Belgium)</option>
+                            <option value="Outro">Outro País</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -897,6 +892,10 @@
                         <input type="text" id="viagem-carga" placeholder="Ex: Eletrônicos">
                     </div>
                     <div class="form-group">
+                        <label>Peso da Carga (Toneladas)</label>
+                        <input type="number" id="viagem-tonelada" placeholder="Ex: 22">
+                    </div>
+                    <div class="form-group">
                         <label>Valor do Frete Bruto (R$)</label>
                         <input type="number" id="viagem-valor" placeholder="0.00">
                     </div>
@@ -914,9 +913,9 @@
                 <div id="com-viagem-ativa" style="display: none;">
                     <div class="card" style="border-color: var(--accent-color);">
                         <h3><i class="fa-solid fa-truck-ramp-box"></i> Viagem em Andamento</h3>
-                        <p style="margin: 6px 0;"><strong>Rota:</strong> <span id="ativa-rota"></span> (<span id="ativa-km"></span> KM)</p>
+                        <p style="margin: 6px 0;"><strong>Rota:</strong> <span id="ativa-pais-rota"></span> | <span id="ativa-rota"></span> (<span id="ativa-km"></span> KM)</p>
                         <p style="margin: 6px 0;"><strong>Caminhão:</strong> <span id="ativa-caminhao"></span></p>
-                        <p style="margin: 6px 0;"><strong>Carga:</strong> <span id="ativa-carga"></span></p>
+                        <p style="margin: 6px 0;"><strong>Carga / Toneladas:</strong> <span id="ativa-carga"></span></p>
                         <p style="margin: 6px 0;"><strong>Valor Bruto:</strong> <span id="ativa-valor"></span></p>
                     </div>
 
@@ -1238,7 +1237,8 @@
                 dados.viagens.push({
                     id: 'man_' + Date.now(),
                     motoristaNome: 'Oficina Mecânica',
-                    pais: 'Manutenção Preventiva',
+                    paisOrigem: 'Manutenção',
+                    paisDestino: 'Preventiva',
                     origem: cam.modelo,
                     destino: cam.placa,
                     km: 0,
@@ -1272,7 +1272,8 @@
         };
 
         window.iniciarViagemMotorista = function() {
-            let pais = document.getElementById('viagem-pais').value;
+            let paisOrigem = document.getElementById('viagem-pais-origem').value;
+            let paisDestino = document.getElementById('viagem-pais-destino').value;
             let origem = document.getElementById('viagem-origem').value.trim();
             let destino = document.getElementById('viagem-destino').value.trim();
             let km = parseFloat(document.getElementById('viagem-km').value);
@@ -1280,6 +1281,7 @@
             let caminhaoId = selectCaminhao.value;
             let caminhaoNome = selectCaminhao.options[selectCaminhao.selectedIndex]?.getAttribute('data-modelo') || '';
             let carga = document.getElementById('viagem-carga').value.trim();
+            let tonelada = parseFloat(document.getElementById('viagem-tonelada').value) || 0;
             let valor = parseFloat(document.getElementById('viagem-valor').value);
 
             if (!origem || !destino || isNaN(km) || !caminhaoId || !carga || isNaN(valor)) {
@@ -1297,13 +1299,15 @@
                 id: 'vig_' + Date.now(),
                 motoristaId: sessaoAtual.id,
                 motoristaNome: sessaoAtual.nome,
-                pais,
+                paisOrigem,
+                paisDestino,
                 origem,
                 destino,
                 km,
                 caminhaoId,
                 caminhao: caminhaoNome,
                 carga,
+                tonelada,
                 valorBruto: valor,
                 gastosExtras: [],
                 dataInicio: new Date().toISOString()
@@ -1482,45 +1486,20 @@
                     alimentacao: totalAlimentacaoGeral
                 });
 
-                let resumoFuncionarios = {};
-                dados.viagens.filter(v => !v.id.startsWith('man_')).forEach(v => {
-                    let mId = v.motoristaId || 'desconhecido';
-                    if (!resumoFuncionarios[mId]) {
-                        resumoFuncionarios[mId] = { nome: v.motoristaNome, totalKm: 0, totalViagens: 0, totalMinutos: 0 };
-                    }
-                    resumoFuncionarios[mId].totalKm += Number(v.km) || 0;
-                    resumoFuncionarios[mId].totalViagens += 1;
-                    resumoFuncionarios[mId].totalMinutos += Number(v.tempoMinutos) || 0;
-                });
-
-                let arrayRanking = Object.values(resumoFuncionarios).sort((a, b) => b.totalKm - a.totalKm);
-                let tbodyRanking = document.getElementById('tabela-ranking-funcionarios');
-                tbodyRanking.innerHTML = arrayRanking.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhum dado.</td></tr>' :
-                    arrayRanking.map((rf, idx) => `
-                        <tr>
-                            <td><strong>${idx + 1}º</strong></td>
-                            <td>${rf.nome}</td>
-                            <td>${rf.totalViagens}</td>
-                            <td>${rf.totalKm} KM</td>
-                            <td>${rf.totalMinutos} min</td>
-                        </tr>
-                    `).join('');
-
                 let viagensValidas = dados.viagens.filter(v => !v.id.startsWith('man_'));
                 let tbodyViagens = document.getElementById('tabela-ultimas-viagens');
-                tbodyViagens.innerHTML = viagensValidas.length === 0 ? '<tr><td colspan="10" class="empty-row">Nenhuma viagem.</td></tr>' :
+                tbodyViagens.innerHTML = viagensValidas.length === 0 ? '<tr><td colspan="9" class="empty-row">Nenhuma viagem.</td></tr>' :
                     viagensValidas.slice().reverse().map(v => `
                         <tr>
                             <td><strong>${v.motoristaName || v.motoristaNome}</strong></td>
+                            <td>${v.paisOrigem || 'N/D'} → ${v.paisDestino || 'N/D'}</td>
                             <td>${v.origem} → ${v.destino}</td>
                             <td>${v.km} KM</td>
+                            <td>${v.carga} (${v.tonelada || 0} t)</td>
+                            <td><small>${v.caminhao || 'N/D'}</small></td>
+                            <td>R$ ${(Number(v.valorBruto) || 0).toFixed(2)}</td>
                             <td style="color: var(--warning-color);">R$ ${(Number(v.salarioMotorista) || 0).toFixed(2)}</td>
-                            <td>R$ ${(Number(v.custoCombustivel) || 0).toFixed(2)}</td>
-                            <td>R$ ${(Number(v.totalPedagios) || 0).toFixed(2)}</td>
-                            <td>R$ ${(Number(v.totalBalsas) || 0).toFixed(2)}</td>
-                            <td>R$ ${((Number(v.totalMultas) || 0) + (Number(v.totalAlimentacao) || 0)).toFixed(2)}</td>
-                            <td style="color: var(--success-color);">R$ ${(Number(v.caixaEmpresa) || 0).toFixed(2)}</td>
-                            <td style="text-align: center;">${v.observacao ? '⚠️' : '-'}</td>
+                            <td style="text-align: right;">${v.observacao ? '⚠️' : '-'}</td>
                         </tr>
                     `).join('');
 
@@ -1558,10 +1537,11 @@
                 if (viagemAtiva) {
                     divSemViagem.style.display = 'none';
                     divComViagem.style.display = 'block';
+                    document.getElementById('ativa-pais-rota').innerText = `${viagemAtiva.paisOrigem} → ${viagemAtiva.paisDestino}`;
                     document.getElementById('ativa-rota').innerText = `${viagemAtiva.origem} → ${viagemAtiva.destino}`;
                     document.getElementById('ativa-km').innerText = viagemAtiva.km;
                     document.getElementById('ativa-caminhao').innerText = viagemAtiva.caminhao;
-                    document.getElementById('ativa-carga').innerText = viagemAtiva.carga;
+                    document.getElementById('ativa-carga').innerText = `${viagemAtiva.carga} (${viagemAtiva.tonelada || 0} t)`;
                     document.getElementById('ativa-valor').innerText = `R$ ${Number(viagemAtiva.valorBruto).toFixed(2)}`;
 
                     let tbodyGastos = document.getElementById('tabela-gastos-ativos');
