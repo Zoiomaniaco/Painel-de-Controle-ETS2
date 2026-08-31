@@ -13,18 +13,17 @@
     
     <style>
         :root {
-            /* Paleta Profissional Estilo Enterprise / Dashboard Corporativo */
             --bg-body: #090d16;
             --panel-bg: #111827;
             --panel-card: #1f2937;
-            --accent-color: #3b82f6;      /* Azul corporativo moderno */
+            --accent-color: #3b82f6;
             --accent-hover: #2563eb;
-            --text-color: #f3f4f6;        /* Branco claro de alta legibilidade */
-            --text-muted: #9ca3af;        /* Cinza claro nítido */
-            --border-color: #374151;      /* Bordas discretas e elegantes */
-            --success-color: #10b981;     /* Verde moderno */
-            --danger-color: #ef4444;      /* Vermelho claro de alerta */
-            --warning-color: #f59e0b;     /* Amarelo/Laranja de aviso */
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
             --input-bg: #111827;
         }
 
@@ -67,9 +66,7 @@
             gap: 8px;
         }
 
-        header h1 i {
-            color: var(--accent-color);
-        }
+        header h1 i { color: var(--accent-color); }
 
         .btn-logout {
             background: rgba(239, 68, 68, 0.1);
@@ -86,9 +83,7 @@
             transition: all 0.2s;
         }
 
-        .btn-logout:hover {
-            background: rgba(239, 68, 68, 0.2);
-        }
+        .btn-logout:hover { background: rgba(239, 68, 68, 0.2); }
 
         .container {
             max-width: 600px;
@@ -113,7 +108,7 @@
             padding: 32px 24px;
             width: 100%;
             max-width: 420px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
             text-align: center;
         }
 
@@ -129,20 +124,18 @@
             gap: 12px;
         }
 
-        .login-card h2 i {
-            color: var(--accent-color);
-            font-size: 26px;
-        }
+        .login-card h2 i { color: var(--accent-color); font-size: 26px; }
 
         .nav-tabs {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             margin-bottom: 20px;
             width: 100%;
             background-color: #0b0f17;
             padding: 4px;
             border-radius: 8px;
             border: 1px solid var(--border-color);
+            overflow-x: auto;
         }
 
         .nav-tabs button {
@@ -153,17 +146,14 @@
             cursor: pointer;
             border-radius: 6px;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             flex: 1;
+            white-space: nowrap;
             transition: all 0.2s ease;
-        }
-
-        .nav-tabs button i {
-            font-size: 14px;
         }
 
         .nav-tabs button.active {
@@ -222,9 +212,7 @@
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         
-        input[type="password"] {
-            letter-spacing: 2px;
-        }
+        input[type="password"] { letter-spacing: 2px; }
 
         input:focus, select:focus { 
             border-color: var(--accent-color); 
@@ -244,17 +232,10 @@
             font-size: 14px;
             transition: background-color 0.2s;
         }
-        
-        button.btn-submit:hover {
-            background-color: var(--accent-hover);
-        }
+        button.btn-submit:hover { background-color: var(--accent-hover); }
 
-        button.btn-danger {
-            background-color: var(--danger-color);
-        }
-        button.btn-danger:hover {
-            background-color: #dc2626;
-        }
+        button.btn-danger { background-color: var(--danger-color); }
+        button.btn-danger:hover { background-color: #dc2626; }
 
         .btn-link {
             background: none;
@@ -266,12 +247,8 @@
             margin-top: 16px;
             text-decoration: none;
             width: 100%;
-            transition: color 0.2s;
         }
-
-        .btn-link:hover {
-            text-decoration: underline;
-        }
+        .btn-link:hover { text-decoration: underline; }
 
         .metrics-grid {
             display: grid;
@@ -283,23 +260,23 @@
         .metric-card {
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
-            padding: 16px;
+            padding: 14px;
             border-radius: 10px;
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         .metric-icon {
-            width: 42px;
-            height: 42px;
+            width: 38px;
+            height: 38px;
             background-color: rgba(59, 130, 246, 0.1);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 16px;
             color: var(--accent-color);
             flex-shrink: 0;
         }
@@ -313,7 +290,7 @@
 
         .metric-info h3 {
             margin: 0;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 500;
             color: var(--text-muted);
             border: none;
@@ -322,7 +299,7 @@
 
         .metric-info p {
             margin: 0;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--text-color);
             white-space: nowrap;
@@ -365,20 +342,9 @@
             z-index: 10;
         }
 
-        td {
-            color: var(--text-color);
-        }
-
-        tbody tr:hover {
-            background-color: rgba(255, 255, 255, 0.02);
-        }
-
-        .empty-row {
-            text-align: center;
-            color: var(--text-muted);
-            padding: 20px;
-            font-style: italic;
-        }
+        td { color: var(--text-color); }
+        tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
+        .empty-row { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
 
         #toast {
             visibility: hidden;
@@ -416,7 +382,6 @@
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
                 
-                <!-- FORMULÁRIO DE LOGIN -->
                 <div id="form-login-div">
                     <div class="form-group">
                         <label>Tipo de Acesso</label>
@@ -439,7 +404,6 @@
                     <button class="btn-link" onclick="alternarTelaCadastro(true)">Sou novo motorista? Cadastre-se</button>
                 </div>
 
-                <!-- FORMULÁRIO DE AUTO-CADASTRO DO MOTORISTA -->
                 <div id="form-cadastro-div" style="display: none;">
                     <div class="form-group">
                         <label>Nome / Apelido</label>
@@ -481,28 +445,59 @@
                     <div class="metric-card">
                         <div class="metric-icon"><i class="fa-solid fa-route"></i></div>
                         <div class="metric-info">
-                            <h3>Viagens</h3>
+                            <h3>Total Viagens</h3>
                             <p id="patrao-total-viagens">0</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon" style="color: var(--warning-color); background: rgba(245,158,11,0.1);"><i class="fa-solid fa-gas-pump"></i></div>
+                        <div class="metric-info">
+                            <h3>Total Combustível</h3>
+                            <p id="patrao-combustivel">R$ 0,00</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon" style="color: var(--danger-color); background: rgba(239,68,68,0.1);"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                        <div class="metric-info">
+                            <h3>Total Multas</h3>
+                            <p id="patrao-multas">R$ 0,00</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-road-barrier"></i></div>
+                        <div class="metric-info">
+                            <h3>Total Pedágios</h3>
+                            <p id="patrao-pedagios">R$ 0,00</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon"><i class="fa-solid fa-ferry"></i></div>
+                        <div class="metric-info">
+                            <h3>Total Balsas</h3>
+                            <p id="patrao-balsas">R$ 0,00</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="card">
-                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Últimas Viagens Registradas</h3>
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Relatório Completo de Viagens</h3>
                     <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Motorista</th>
-                                    <th>Origem → Destino</th>
-                                    <th>Carga</th>
+                                    <th>Rota</th>
+                                    <th>KM</th>
                                     <th>Bruto</th>
-                                    <th>Descontos</th>
+                                    <th>Combustível</th>
+                                    <th>Pedágio</th>
+                                    <th>Balsa</th>
+                                    <th>Multas</th>
                                     <th>Líquido</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-ultimas-viagens">
-                                <tr><td colspan="6" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
+                                <tr><td colspan="9" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -585,7 +580,7 @@
         <!-- PAINEL DO MOTORISTA -->
         <div id="painel-motorista" style="display: none;">
             <div class="nav-tabs">
-                <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')"><i class="fa-solid fa-wallet"></i> Meu Extrato</button>
+                <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')"><i class="fa-solid fa-wallet"></i> Extrato</button>
                 <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')"><i class="fa-solid fa-circle-plus"></i> Nova Viagem</button>
                 <button class="tab-btn" onclick="switchTab(event, 'm-andamento')"><i class="fa-solid fa-road"></i> Viagem Ativa</button>
             </div>
@@ -616,7 +611,7 @@
                             <thead>
                                 <tr>
                                     <th>Rota</th>
-                                    <th>Carga</th>
+                                    <th>KM</th>
                                     <th>Bruto</th>
                                     <th>Descontos</th>
                                     <th>Líquido</th>
@@ -635,20 +630,35 @@
                 <div class="card">
                     <h3><i class="fa-solid fa-map-location-dot"></i> Iniciar Nova Viagem</h3>
                     <div class="form-group">
-                        <label>Origem</label>
-                        <input type="text" id="viagem-origem" placeholder="Ex: Berlim">
+                        <label>Cidade de Origem</label>
+                        <input type="text" id="viagem-origem" placeholder="Ex: Berlim" oninput="calcularDistanciaAutomatica()">
                     </div>
                     <div class="form-group">
-                        <label>Destino</label>
-                        <input type="text" id="viagem-destino" placeholder="Ex: Paris">
+                        <label>Cidade de Destino</label>
+                        <input type="text" id="viagem-destino" placeholder="Ex: Paris" oninput="calcularDistanciaAutomatica()">
+                    </div>
+                    <div class="form-group">
+                        <label>Distância Estimada (KM) - <small style="color:var(--accent-color);">Calculada automáticamente</small></label>
+                        <input type="number" id="viagem-km" placeholder="0" oninput="recalcularCombustivelManual()">
+                    </div>
+                    <div class="form-group">
+                        <label>Caminhão Utilizado</label>
+                        <select id="viagem-caminhao">
+                            <option value="">Selecione o caminhão</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Tipo de Carga</label>
                         <input type="text" id="viagem-carga" placeholder="Ex: Eletrônicos">
                     </div>
                     <div class="form-group">
-                        <label>Valor do Frete (R$)</label>
+                        <label>Valor do Frete Bruto (R$)</label>
                         <input type="number" id="viagem-valor" placeholder="0.00">
+                    </div>
+                    <div class="form-group" style="background: rgba(59,130,246,0.05); padding: 12px; border-radius: 6px; border: 1px dashed var(--accent-color);">
+                        <label style="color: var(--accent-color); font-weight: 600;"><i class="fa-solid fa-gas-pump"></i> Desconto Automático de Combustível</label>
+                        <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0;">Estimado base (R$ 1.80 por KM rodado)</p>
+                        <p style="font-size: 16px; font-weight: 700; margin: 6px 0 0 0;" id="prev-combustivel">R$ 0,00</p>
                     </div>
                     <button class="btn-submit" onclick="iniciarViagemMotorista()">Iniciar Viagem</button>
                 </div>
@@ -658,45 +668,56 @@
             <div id="m-andamento" class="tab-content">
                 <div id="sem-viagem-ativa" class="card" style="text-align: center; padding: 30px;">
                     <i class="fa-solid fa-triangle-exclamation" style="font-size: 32px; color: var(--warning-color); margin-bottom: 12px;"></i>
-                    <p style="color: var(--text-muted); margin: 0;">Você não possui nenhuma viagem em andamento no momento. Inicie uma nova viagem para poder lançar pedágios ou balsa.</p>
+                    <p style="color: var(--text-muted); margin: 0;">Você não possui nenhuma viagem em andamento no momento. Inicie uma nova viagem para poder lançar pedágios, balsas ou multas.</p>
                 </div>
 
                 <div id="com-viagem-ativa" style="display: none;">
                     <div class="card" style="border-color: var(--accent-color);">
                         <h3><i class="fa-solid fa-truck-ramp-box"></i> Viagem em Andamento</h3>
-                        <p style="margin: 6px 0;"><strong>Rota:</strong> <span id="ativa-rota"></span></p>
+                        <p style="margin: 6px 0;"><strong>Rota:</strong> <span id="ativa-rota"></span> (<span id="ativa-km"></span> KM)</p>
+                        <p style="margin: 6px 0;"><strong>Caminhão:</strong> <span id="ativa-caminhao"></span></p>
                         <p style="margin: 6px 0;"><strong>Carga:</strong> <span id="ativa-carga"></span></p>
                         <p style="margin: 6px 0;"><strong>Valor Bruto:</strong> <span id="ativa-valor"></span></p>
+                        <p style="margin: 6px 0; color: var(--warning-color);"><strong>Combustível Automático:</strong> <span id="ativa-combustivel">R$ 0,00</span></p>
                         <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 12px 0;">
-                        <p style="margin: 6px 0; color: var(--warning-color);"><strong>Total de Gastos (Pedágio/Balsa):</strong> <span id="ativa-gastos">R$ 0,00</span></p>
+                        <p style="margin: 6px 0; color: var(--danger-color);"><strong>Outros Gastos (Balsa/Pedágio/Multas):</strong> <span id="ativa-outros-gastos">R$ 0,00</span></p>
                     </div>
 
                     <div class="card">
-                        <h3><i class="fa-solid fa-receipt"></i> Lançar Gasto na Viagem</h3>
+                        <h3><i class="fa-solid fa-receipt"></i> Lançar Despesa Extra na Viagem</h3>
                         <div class="form-group">
-                            <label>Descrição do Gasto (Ex: Pedágio Rodovia A1 / Balsa)</label>
-                            <input type="text" id="gasto-descricao" placeholder="Ex: Pedágio">
+                            <label>Tipo de Gasto</label>
+                            <select id="gasto-tipo">
+                                <option value="Pedágio">Pedágio</option>
+                                <option value="Balsa">Balsa</option>
+                                <option value="Multa">Multa</option>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label>Valor do Gasto (R$)</label>
+                            <label>Descrição do Gasto (Ex: Pedágio Rodovia A1)</label>
+                            <input type="text" id="gasto-descricao" placeholder="Descrição opcional">
+                        </div>
+                        <div class="form-group">
+                            <label>Valor (R$)</label>
                             <input type="number" id="gasto-valor" placeholder="0.00">
                         </div>
-                        <button class="btn-submit" onclick="adicionarGastoViagem()"><i class="fa-solid fa-plus"></i> Adicionar Gasto</button>
+                        <button class="btn-submit" onclick="adicionarGastoViagem()"><i class="fa-solid fa-plus"></i> Adicionar Despesa</button>
                     </div>
 
                     <div class="card">
-                        <h3><i class="fa-solid fa-list-check"></i> Gastos Lançados nesta Viagem</h3>
+                        <h3><i class="fa-solid fa-list-check"></i> Despesas Lançadas</h3>
                         <div class="table-responsive">
                             <table>
                                 <thead>
                                     <tr>
+                                        <th>Tipo</th>
                                         <th>Descrição</th>
                                         <th>Valor</th>
                                         <th style="text-align: right;">Ação</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tabela-gastos-ativos">
-                                    <tr><td colspan="3" class="empty-row">Nenhum gasto lançado.</td></tr>
+                                    <tr><td colspan="4" class="empty-row">Nenhuma despesa extra lançada.</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -713,9 +734,9 @@
 
     <div id="toast">Operação realizada com sucesso!</div>
 
-    <!-- Lógica da Aplicação (Local Storage) -->
     <script>
         let sessaoAtual = null;
+        const CUSTO_POR_KM = 1.80; // Custo estimado do combustível por KM rodado
 
         function carregarDados() {
             return {
@@ -736,13 +757,8 @@
         window.mudarTipoAcesso = function() {
             let tipo = document.getElementById('tipo-acceso').value;
             let inputUsuario = document.getElementById('login-usuario');
-            if (tipo === 'patrao') {
-                inputUsuario.value = '';
-                inputUsuario.placeholder = 'Jeferson';
-            } else {
-                inputUsuario.value = '';
-                inputUsuario.placeholder = 'Seu usuário de motorista';
-            }
+            inputUsuario.value = '';
+            inputUsuario.placeholder = (tipo === 'patrao') ? 'Jeferson' : 'Seu usuário de motorista';
         };
 
         window.alternarTelaCadastro = function(mostrar) {
@@ -793,14 +809,12 @@
             }
 
             let dados = carregarDados();
-            let existe = dados.funcionarios.some(m => m.usuario.toLowerCase() === usuario.toLowerCase());
-            if (existe) {
+            if (dados.funcionarios.some(m => m.usuario.toLowerCase() === usuario.toLowerCase())) {
                 mostrarToast("Este usuário já está em uso!", "error");
                 return;
             }
 
-            let novoMotorista = { id: 'mot_' + Date.now(), nome, usuario, senha };
-            dados.funcionarios.push(novoMotorista);
+            dados.funcionarios.push({ id: 'mot_' + Date.now(), nome, usuario, senha });
             salvarDados(dados);
 
             mostrarToast("Cadastro realizado com sucesso!");
@@ -839,8 +853,7 @@
             }
 
             let dados = carregarDados();
-            let novoMotorista = { id: 'mot_' + Date.now(), nome, usuario, senha };
-            dados.funcionarios.push(novoMotorista);
+            dados.funcionarios.push({ id: 'mot_' + Date.now(), nome, usuario, senha });
             salvarDados(dados);
 
             document.getElementById('novo-mot-nome').value = '';
@@ -861,8 +874,7 @@
             }
 
             let dados = carregarDados();
-            let novoCaminhao = { id: 'cam_' + Date.now(), modelo, placa };
-            dados.caminhoes.push(novoCaminhao);
+            dados.caminhoes.push({ id: 'cam_' + Date.now(), modelo, placa });
             salvarDados(dados);
 
             document.getElementById('cam-modelo').value = '';
@@ -870,17 +882,46 @@
             
             mostrarToast("Caminhão cadastrado com sucesso!");
             atualizarTelas();
+            carregarSelectCaminhoes();
         };
 
-        // Iniciar Viagem (Coloca na aba Viagem Ativa)
+        function carregarSelectCaminhoes() {
+            let dados = carregarDados();
+            let select = document.getElementById('viagem-caminhao');
+            select.innerHTML = '<option value="">Selecione o caminhão</option>' + 
+                dados.caminhoes.map(c => `<option value="${c.modelo} (${c.placa})">${c.modelo} - ${c.placa}</option>`).join('');
+        }
+
+        // Função de simulação automática de KM com base no tamanho dos nomes das cidades inseridas
+        window.calcularDistanciaAutomatica = function() {
+            let origem = document.getElementById('viagem-origem').value.trim();
+            let destino = document.getElementById('viagem-destino').value.trim();
+            
+            if (origem.length > 1 && destino.length > 1) {
+                // Algoritmo determinístico baseado nos caracteres para gerar quilometragens realistas no ETS2 (entre 300km e 2400km)
+                let baseHash = (origem + destino).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                let kmEstimado = 300 + (baseHash % 1400);
+                document.getElementById('viagem-km').value = kmEstimado;
+                recalcularCombustivelManual();
+            }
+        };
+
+        window.recalcularCombustivelManual = function() {
+            let km = parseFloat(document.getElementById('viagem-km').value) || 0;
+            let custoCombustivel = km * CUSTO_POR_KM;
+            document.getElementById('prev-combustivel').innerText = `R$ ${custoCombustivel.toFixed(2)}`;
+        };
+
         window.iniciarViagemMotorista = function() {
             let origem = document.getElementById('viagem-origem').value.trim();
             let destino = document.getElementById('viagem-destino').value.trim();
+            let km = parseFloat(document.getElementById('viagem-km').value);
+            let caminhao = document.getElementById('viagem-caminhao').value;
             let carga = document.getElementById('viagem-carga').value.trim();
             let valor = parseFloat(document.getElementById('viagem-valor').value);
 
-            if (!origem || !destino || !carga || isNaN(valor)) {
-                mostrarToast("Preencha todos os campos corretamente!", "error");
+            if (!origem || !destino || isNaN(km) || !caminhao || !carga || isNaN(valor)) {
+                mostrarToast("Preencha todos os campos e selecione o caminhão!", "error");
                 return;
             }
 
@@ -890,41 +931,46 @@
                 return;
             }
 
+            let custoCombustivel = km * CUSTO_POR_KM;
+
             dados.viagensAtivas[sessaoAtual.id] = {
                 id: 'vig_' + Date.now(),
                 motoristaId: sessaoAtual.id,
                 motoristaNome: sessaoAtual.nome,
                 origem,
                 destino,
+                km,
+                caminhao,
                 carga,
                 valorBruto: valor,
-                gastos: [],
+                custoCombustivel,
+                gastosExtras: [],
                 dataInicio: new Date().toISOString()
             };
 
             salvarDados(dados);
 
-            // Limpa inputs
             document.getElementById('viagem-origem').value = '';
             document.getElementById('viagem-destino').value = '';
+            document.getElementById('viagem-km').value = '';
             document.getElementById('viagem-carga').value = '';
             document.getElementById('viagem-valor').value = '';
+            document.getElementById('prev-combustivel').innerText = 'R$ 0,00';
             
             mostrarToast("Viagem iniciada! Vá para a aba 'Viagem Ativa'.");
             
-            // Simula clique na aba de viagem ativa
             let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
             switchTab({ currentTarget: botoesTab[2] }, 'm-andamento');
             atualizarTelas();
         };
 
-        // Adicionar gasto (pedágio/balsa) na viagem ativa
         window.adicionarGastoViagem = function() {
+            let tipo = document.getElementById('gasto-tipo').value;
             let descricao = document.getElementById('gasto-descricao').value.trim();
             let valorGasto = parseFloat(document.getElementById('gasto-valor').value);
 
-            if (!descricao || isNaN(valorGasto) || valorGasto <= 0) {
-                mostrarToast("Informe uma descrição e um valor válido para o gasto!", "error");
+            if (isNaN(valorGasto) || valorGasto <= 0) {
+                mostrarToast("Informe um valor válido para a despesa!", "error");
                 return;
             }
 
@@ -936,9 +982,10 @@
                 return;
             }
 
-            viagemAtiva.gastos.push({
+            viagemAtiva.gastosExtras.push({
                 id: 'gst_' + Date.now(),
-                descricao,
+                tipo,
+                descricao: descricao || tipo,
                 valor: valorGasto
             });
 
@@ -947,25 +994,23 @@
             document.getElementById('gasto-descricao').value = '';
             document.getElementById('gasto-valor').value = '';
 
-            mostrarToast("Gasto adicionado com sucesso!");
+            mostrarToast("Despesa adicionada com sucesso!");
             atualizarTelas();
         };
 
-        // Deletar gasto individual da viagem ativa
         window.deletarGastoAtivo = function(gastoId) {
             let dados = carregarDados();
             let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
             if (viagemAtiva) {
-                viagemAtiva.gastos = viagemAtiva.gastos.filter(g => g.id !== gastoId);
+                viagemAtiva.gastosExtras = viagemAtiva.gastosExtras.filter(g => g.id !== gastoId);
                 salvarDados(dados);
-                mostrarToast("Gasto removido.");
+                mostrarToast("Despesa removida.");
                 atualizarTelas();
             }
         };
 
-        // Finalizar viagem ativa (Desconta os gastos automaticamente do valor bruto e envia para o histórico)
         window.finalizarViagemMotorista = function() {
-            if (!confirm("Deseja finalizar esta viagem? Os gastos informados serão descontados automaticamente do valor total.")) return;
+            if (!confirm("Deseja finalizar esta viagem? O combustível e os gastos extras serão debitados automaticamente.")) return;
 
             let dados = carregarDados();
             let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
@@ -975,13 +1020,21 @@
                 return;
             }
 
-            // Calcula total de gastos
-            let totalGastos = viagemAtiva.gastos.reduce((acc, g) => acc + g.valor, 0);
-            let valorLiquido = viagemAtiva.valorBruto - totalGastos;
+            // Somar custos por categoria
+            let totalPedagios = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Pedágio').reduce((acc, g) => acc + g.valor, 0);
+            let totalBalsas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Balsa').reduce((acc, g) => acc + g.valor, 0);
+            let totalMultas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Multa').reduce((acc, g) => acc + g.valor, 0);
+            let totalGastosExtras = totalPedagios + totalBalsas + totalMultas;
+
+            let totalDescontos = viagemAtiva.custoCombustivel + totalGastosExtras;
+            let valorLiquido = viagemAtiva.valorBruto - totalDescontos;
 
             let viagemFinalizada = {
                 ...viagemAtiva,
-                totalGastos,
+                totalPedagios,
+                totalBalsas,
+                totalMultas,
+                totalDescontos,
                 valorLiquido: valorLiquido < 0 ? 0 : valorLiquido,
                 dataFim: new Date().toISOString()
             };
@@ -990,9 +1043,8 @@
             delete dados.viagensAtivas[sessaoAtual.id];
             salvarDados(dados);
 
-            mostrarToast("Viagem finalizada e descontos aplicados com sucesso!");
+            mostrarToast("Viagem finalizada com sucesso!");
             
-            // Retorna para o extrato
             let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
             switchTab({ currentTarget: botoesTab[0] }, 'm-extrato');
             atualizarTelas();
@@ -1001,11 +1053,8 @@
         window.deletarItem = function(colecao, id) {
             if (confirm("Deseja realmente excluir este item?")) {
                 let dados = carregarDados();
-                if (colecao === 'funcionarios') {
-                    dados.funcionarios = dados.funcionarios.filter(item => item.id !== id);
-                } else if (colecao === 'caminhoes') {
-                    dados.caminhoes = dados.caminhoes.filter(item => item.id !== id);
-                }
+                if (colecao === 'funcionarios') dados.funcionarios = dados.funcionarios.filter(item => item.id !== id);
+                if (colecao === 'caminhoes') dados.caminhoes = dados.caminhoes.filter(item => item.id !== id);
                 salvarDados(dados);
                 mostrarToast("Item excluído com sucesso!");
                 atualizarTelas();
@@ -1025,6 +1074,7 @@
             document.getElementById('painel-motorista').style.display = 'block';
             document.getElementById('main-header').style.display = 'flex';
             document.getElementById('header-title').innerText = `MOTORISTA: ${sessaoAtual.nome.toUpperCase()}`;
+            carregarSelectCaminhoes();
             atualizarTelas();
         }
 
@@ -1033,54 +1083,59 @@
             
             if (sessaoAtual && sessaoAtual.tipo === 'patrao') {
                 let faturamentoLiquido = dados.viagens.reduce((acc, v) => acc + (Number(v.valorLiquido) || 0), 0);
+                let totalCombustivelGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.custoCombustivel) || 0), 0);
+                let totalMultasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalMultas) || 0), 0);
+                let totalPedagiosGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalPedagios) || 0), 0);
+                let totalBalsasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalBalsas) || 0), 0);
+
                 document.getElementById('patrao-faturamento').innerText = `R$ ${faturamentoLiquido.toFixed(2)}`;
                 document.getElementById('patrao-total-viagens').innerText = dados.viagens.length;
+                document.getElementById('patrao-combustivel').innerText = `R$ ${totalCombustivelGeral.toFixed(2)}`;
+                document.getElementById('patrao-multas').innerText = `R$ ${totalMultasGeral.toFixed(2)}`;
+                document.getElementById('patrao-pedagios').innerText = `R$ ${totalPedagiosGeral.toFixed(2)}`;
+                document.getElementById('patrao-balsas').innerText = `R$ ${totalBalsasGeral.toFixed(2)}`;
 
                 let tbodyViagens = document.getElementById('tabela-ultimas-viagens');
                 if (dados.viagens.length === 0) {
-                    tbodyViagens.innerHTML = '<tr><td colspan="6" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>';
+                    tbodyViagens.innerHTML = '<tr><td colspan="9" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>';
                 } else {
                     tbodyViagens.innerHTML = dados.viagens.slice().reverse().map(v => `
                         <tr>
                             <td><strong>${v.motoristaNome || 'N/D'}</strong></td>
                             <td>${v.origem} → ${v.destino}</td>
-                            <td>${v.carga}</td>
+                            <td>${v.km} KM</td>
                             <td>R$ ${Number(v.valorBruto).toFixed(2)}</td>
-                            <td style="color: var(--danger-color);">R$ ${(Number(v.totalGastos) || 0).toFixed(2)}</td>
+                            <td style="color: var(--warning-color);">R$ ${(Number(v.custoCombustivel) || 0).toFixed(2)}</td>
+                            <td>R$ ${(Number(v.totalPedagios) || 0).toFixed(2)}</td>
+                            <td>R$ ${(Number(v.totalBalsas) || 0).toFixed(2)}</td>
+                            <td style="color: var(--danger-color);">R$ ${(Number(v.totalMultas) || 0).toFixed(2)}</td>
                             <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valorLiquido).toFixed(2)}</td>
                         </tr>
                     `).join('');
                 }
 
                 let tbodyMotoristas = document.getElementById('tabela-motoristas-patrao');
-                if (dados.funcionarios.length === 0) {
-                    tbodyMotoristas.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhum motorista cadastrado.</td></tr>';
-                } else {
-                    tbodyMotoristas.innerHTML = dados.funcionarios.map(m => `
+                tbodyMotoristas.innerHTML = dados.funcionarios.length === 0 ? '<tr><td colspan="3" class="empty-row">Nenhum motorista cadastrado.</td></tr>' :
+                    dados.funcionarios.map(m => `
                         <tr>
                             <td><strong>${m.nome}</strong></td>
                             <td>${m.usuario}</td>
                             <td style="text-align: right;"><button onclick="deletarItem('funcionarios', '${m.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size: 15px; padding: 4px 8px;"><i class="fa-solid fa-trash-can"></i></button></td>
                         </tr>
                     `).join('');
-                }
 
                 let tbodyFrota = document.getElementById('tabela-frota');
-                if (dados.caminhoes.length === 0) {
-                    tbodyFrota.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhum caminhão cadastrado.</td></tr>';
-                } else {
-                    tbodyFrota.innerHTML = dados.caminhoes.map(c => `
+                tbodyFrota.innerHTML = dados.caminhoes.length === 0 ? '<tr><td colspan="3" class="empty-row">Nenhum caminhão cadastrado.</td></tr>' :
+                    dados.caminhoes.map(c => `
                         <tr>
                             <td><strong>${c.modelo}</strong></td>
                             <td>${c.placa}</td>
                             <td style="text-align: right;"><button onclick="deletarItem('caminhoes', '${c.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size: 15px; padding: 4px 8px;"><i class="fa-solid fa-trash-can"></i></button></td>
                         </tr>
                     `).join('');
-                }
             }
 
             if (sessaoAtual && sessaoAtual.tipo === 'motorista') {
-                // Atualiza painel de viagem ativa
                 let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
                 let divSemViagem = document.getElementById('sem-viagem-ativa');
                 let divComViagem = document.getElementById('com-viagem-ativa');
@@ -1090,30 +1145,30 @@
                     divComViagem.style.display = 'block';
 
                     document.getElementById('ativa-rota').innerText = `${viagemAtiva.origem} → ${viagemAtiva.destino}`;
+                    document.getElementById('ativa-km').innerText = viagemAtiva.km;
+                    document.getElementById('ativa-caminhao').innerText = viagemAtiva.caminhao;
                     document.getElementById('ativa-carga').innerText = viagemAtiva.carga;
                     document.getElementById('ativa-valor').innerText = `R$ ${Number(viagemAtiva.valorBruto).toFixed(2)}`;
+                    document.getElementById('ativa-combustivel').innerText = `R$ ${Number(viagemAtiva.custoCombustivel).toFixed(2)}`;
 
-                    let totalGastosAtuais = viagemAtiva.gastos.reduce((acc, g) => acc + g.valor, 0);
-                    document.getElementById('ativa-gastos').innerText = `R$ ${totalGastosAtuais.toFixed(2)}`;
+                    let totalOutros = viagemAtiva.gastosExtras.reduce((acc, g) => acc + g.valor, 0);
+                    document.getElementById('ativa-outros-gastos').innerText = `R$ ${totalOutros.toFixed(2)}`;
 
                     let tbodyGastos = document.getElementById('tabela-gastos-ativos');
-                    if (viagemAtiva.gastos.length === 0) {
-                        tbodyGastos.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhum gasto lançado.</td></tr>';
-                    } else {
-                        tbodyGastos.innerHTML = viagemAtiva.gastos.map(g => `
+                    tbodyGastos.innerHTML = viagemAtiva.gastosExtras.length === 0 ? '<tr><td colspan="4" class="empty-row">Nenhuma despesa extra lançada.</td></tr>' :
+                        viagemAtiva.gastosExtras.map(g => `
                             <tr>
+                                <td><strong>${g.tipo}</strong></td>
                                 <td>${g.descricao}</td>
                                 <td style="color: var(--danger-color);">R$ ${g.valor.toFixed(2)}</td>
                                 <td style="text-align: right;"><button onclick="deletarGastoAtivo('${g.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size: 14px;"><i class="fa-solid fa-trash"></i></button></td>
                             </tr>
                         `).join('');
-                    }
                 } else {
                     divSemViagem.style.display = 'block';
                     divComViagem.style.display = 'none';
                 }
 
-                // Extrato do motorista
                 let minhasViagens = dados.viagens.filter(v => v.motoristaId === sessaoAtual.id);
                 let meusGanhosLiquidos = minhasViagens.reduce((acc, v) => acc + (Number(v.valorLiquido) || 0), 0);
 
@@ -1121,19 +1176,16 @@
                 document.getElementById('motorista-total-viagens').innerText = minhasViagens.length;
 
                 let tbodyMinhasViagens = document.getElementById('tabela-minhas-viagens');
-                if (minhasViagens.length === 0) {
-                    tbodyMinhasViagens.innerHTML = '<tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>';
-                } else {
-                    tbodyMinhasViagens.innerHTML = minhasViagens.slice().reverse().map(v => `
+                tbodyMinhasViagens.innerHTML = minhasViagens.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>' :
+                    minhasViagens.slice().reverse().map(v => `
                         <tr>
                             <td>${v.origem} → ${v.destino}</td>
-                            <td>${v.carga}</td>
+                            <td>${v.km} KM</td>
                             <td>R$ ${Number(v.valorBruto).toFixed(2)}</td>
-                            <td style="color: var(--danger-color);">R$ ${(Number(v.totalGastos) || 0).toFixed(2)}</td>
+                            <td style="color: var(--danger-color);">R$ ${(Number(v.totalDescontos) || 0).toFixed(2)}</td>
                             <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valorLiquido).toFixed(2)}</td>
                         </tr>
                     `).join('');
-                }
             }
         }
 
