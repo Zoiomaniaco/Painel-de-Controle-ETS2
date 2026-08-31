@@ -199,7 +199,7 @@
             color: var(--text-muted);
         }
 
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 12px 14px;
             background-color: var(--input-bg);
@@ -213,8 +213,9 @@
         }
         
         input[type="password"] { letter-spacing: 2px; }
+        textarea { resize: vertical; min-height: 80px; }
 
-        input:focus, select:focus { 
+        input:focus, select:focus, textarea:focus { 
             border-color: var(--accent-color); 
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); 
         }
@@ -633,10 +634,11 @@
                                     <th>Balsa</th>
                                     <th>Multas</th>
                                     <th>Líquido</th>
+                                    <th style="text-align: center;">Imprevistos</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-ultimas-viagens">
-                                <tr><td colspan="9" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
+                                <tr><td colspan="10" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -834,6 +836,15 @@
                                     <tr><td colspan="4" class="empty-row">Nenhuma despesa extra lançada.</td></tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <!-- CAMPO DE OBSERVAÇÃO / IMPREVISTOS ADICIONADO AQUI -->
+                    <div class="card" style="border-color: var(--warning-color);">
+                        <h3><i class="fa-solid fa-triangle-exclamation" style="color: var(--warning-color);"></i> Relatório de Imprevistos (Opcional)</h3>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Houve algum acidente, desvio ou imprevisto nesta viagem?</label>
+                            <textarea id="viagem-observacao" placeholder="Ex: Houve um engarrafamento e desvio de rota por causa de um acidente na pista..."></textarea>
                         </div>
                     </div>
 
@@ -1239,6 +1250,9 @@
                 return;
             }
 
+            // Pega o texto da observação digitada pelo funcionário
+            let observacao = document.getElementById('viagem-observacao').value.trim();
+
             let dataFim = new Date();
             let dataInicio = new Date(viagemAtiva.dataInicio);
             let tempoMinutos = Math.round((dataFim - dataInicio) / 60000);
@@ -1259,6 +1273,7 @@
                 totalDescontos,
                 valorLiquido: valorLiquido < 0 ? 0 : valorLiquido,
                 tempoMinutos,
+                observacao: observacao, // Salva a observação na viagem
                 dataFim: dataFim.toISOString()
             };
 
@@ -1266,11 +1281,26 @@
             delete dados.viagensAtivas[sessaoAtual.id];
             salvarDados(dados);
 
+            // Limpa o campo de observação
+            document.getElementById('viagem-observacao').value = '';
+
             mostrarToast("Viagem finalizada com sucesso!");
             
             let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
             switchTab({ currentTarget: botoesTab[0] }, 'm-extrato');
             atualizarTelas();
+        };
+
+        // Função para o Patrão abrir a observação/relatório do imprevisto
+        window.verRelatorioImprevisto = function(idViagem) {
+            let dados = carregarDados();
+            let viagem = dados.viagens.find(v => v.id === idViagem);
+            
+            if (viagem && viagem.observacao) {
+                alert(`⚠️ RELATÓRIO DE IMPREVISTO\n\nMotorista: ${viagem.motoristaNome}\nRota: ${viagem.origem} → ${viagem.destino}\n\nDescrição do Ocorrido:\n"${viagem.observacao}"`);
+            } else {
+                alert("Nenhum imprevisto registrado nesta viagem.");
+            }
         };
 
         window.deletarItem = function(colecao, id) {
@@ -1360,21 +1390,29 @@
 
                 let tbodyViagens = document.getElementById('tabela-ultimas-viagens');
                 if (dados.viagens.length === 0) {
-                    tbodyViagens.innerHTML = '<tr><td colspan="9" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>';
+                    tbodyViagens.innerHTML = '<tr><td colspan="10" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>';
                 } else {
-                    tbodyViagens.innerHTML = dados.viagens.slice().reverse().map(v => `
-                        <tr>
-                            <td><strong>${v.motoristaNome || 'N/D'}</strong></td>
-                            <td><small style="color:var(--accent-color)">${v.pais || 'Europa'}</small><br>${v.origem} → ${v.destino}</td>
-                            <td>${v.km} KM</td>
-                            <td>R$ ${Number(v.valorBruto).toFixed(2)}</td>
-                            <td style="color: var(--warning-color);">R$ ${(Number(v.custoCombustivel) || 0).toFixed(2)}</td>
-                            <td>R$ ${(Number(v.totalPedagios) || 0).toFixed(2)}</td>
-                            <td>R$ ${(Number(v.totalBalsas) || 0).toFixed(2)}</td>
-                            <td style="color: var(--danger-color);">R$ ${(Number(v.totalMultas) || 0).toFixed(2)}</td>
-                            <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valorLiquido).toFixed(2)}</td>
-                        </tr>
-                    `).join('');
+                    tbodyViagens.innerHTML = dados.viagens.slice().reverse().map(v => {
+                        // Verifica se o funcionário escreveu alguma observação/imprevisto
+                        let iconeImprevisto = (v.observacao && v.observacao.trim() !== "") 
+                            ? `<button onclick="verRelatorioImprevisto('${v.id}')" style="background: rgba(239,68,68,0.15); border: 1px solid var(--danger-color); color: var(--danger-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold;" title="Ver Relatório de Imprevisto">⚠️ <span style="color:var(--danger-color)">!</span></button>`
+                            : `<span style="color: var(--text-muted); font-size: 12px;">Nenhum</span>`;
+
+                        return `
+                            <tr>
+                                <td><strong>${v.motoristaNome || 'N/D'}</strong></td>
+                                <td><small style="color:var(--accent-color)">${v.pais || 'Europa'}</small><br>${v.origem} → ${v.destino}</td>
+                                <td>${v.km} KM</td>
+                                <td>R$ ${Number(v.valorBruto).toFixed(2)}</td>
+                                <td style="color: var(--warning-color);">R$ ${(Number(v.custoCombustivel) || 0).toFixed(2)}</td>
+                                <td>R$ ${(Number(v.totalPedagios) || 0).toFixed(2)}</td>
+                                <td>R$ ${(Number(v.totalBalsas) || 0).toFixed(2)}</td>
+                                <td style="color: var(--danger-color);">R$ ${(Number(v.totalMultas) || 0).toFixed(2)}</td>
+                                <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valorLiquido).toFixed(2)}</td>
+                                <td style="text-align: center;">${iconeImprevisto}</td>
+                            </tr>
+                        `;
+                    }).join('');
                 }
 
                 let tbodyFrota = document.getElementById('tabela-frota');
