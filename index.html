@@ -597,6 +597,27 @@
                     </div>
                 </div>
 
+                <!-- Painel/Ranking de Melhores Funcionários -->
+                <div class="card">
+                    <h3><i class="fa-solid fa-trophy"></i> Ranking de Melhores Funcionários</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Pos</th>
+                                    <th>Funcionário</th>
+                                    <th>Viagens</th>
+                                    <th>Total KM</th>
+                                    <th>Tempo Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-ranking-funcionarios">
+                                <tr><td colspan="5" class="empty-row">Nenhum dado de desempenho registrado.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="card">
                     <h3><i class="fa-solid fa-clock-rotate-left"></i> Relatório Completo de Viagens</h3>
                     <div class="table-responsive">
@@ -840,10 +861,11 @@
                                 <th>Funcionário</th>
                                 <th>Usuário</th>
                                 <th style="text-align: center;">Status Atual</th>
+                                <th style="text-align: right;">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="tabela-modal-funcionarios">
-                            <tr><td colspan="3" class="empty-row">Nenhum funcionário cadastrado.</td></tr>
+                            <tr><td colspan="4" class="empty-row">Nenhum funcionário cadastrado.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1013,7 +1035,7 @@
             let tbody = document.getElementById('tabela-modal-funcionarios');
 
             if (dados.funcionarios.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhum funcionário cadastrado.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhum funcionário cadastrado.</td></tr>';
                 return;
             }
 
@@ -1028,10 +1050,25 @@
                         <td><strong>${m.nome}</strong></td>
                         <td>${m.usuario}</td>
                         <td style="text-align: center;">${statusBadge}</td>
+                        <td style="text-align: right;"><button onclick="excluirFuncionario('${m.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size: 15px; padding: 4px 8px;"><i class="fa-solid fa-trash-can"></i></button></td>
                     </tr>
                 `;
             }).join('');
         }
+
+        window.excluirFuncionario = function(idFuncionario) {
+            if (confirm("Deseja realmente excluir este funcionário? Suas viagens ativas serão canceladas.")) {
+                let dados = carregarDados();
+                dados.funcionarios = dados.funcionarios.filter(f => f.id !== idFuncionario);
+                if (dados.viagensAtivas[idFuncionario]) {
+                    delete dados.viagensAtivas[idFuncionario];
+                }
+                salvarDados(dados);
+                mostrarToast("Funcionário excluído com sucesso!");
+                atualizarTabelaModalFuncionarios();
+                atualizarTelas();
+            }
+        };
 
         window.cadastrarCaminhao = function() {
             let modelo = document.getElementById('cam-modelo').value.trim();
@@ -1202,6 +1239,10 @@
                 return;
             }
 
+            let dataFim = new Date();
+            let dataInicio = new Date(viagemAtiva.dataInicio);
+            let tempoMinutos = Math.round((dataFim - dataInicio) / 60000);
+
             let totalPedagios = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Pedágio').reduce((acc, g) => acc + g.valor, 0);
             let totalBalsas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Balsa').reduce((acc, g) => acc + g.valor, 0);
             let totalMultas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Multa').reduce((acc, g) => acc + g.valor, 0);
@@ -1217,7 +1258,8 @@
                 totalMultas,
                 totalDescontos,
                 valorLiquido: valorLiquido < 0 ? 0 : valorLiquido,
-                dataFim: new Date().toISOString()
+                tempoMinutos,
+                dataFim: dataFim.toISOString()
             };
 
             dados.viagens.push(viagemFinalizada);
@@ -1274,6 +1316,47 @@
                 document.getElementById('patrao-multas').innerText = `R$ ${totalMultasGeral.toFixed(2)}`;
                 document.getElementById('patrao-pedagios').innerText = `R$ ${totalPedagiosGeral.toFixed(2)}`;
                 document.getElementById('patrao-balsas').innerText = `R$ ${totalBalsasGeral.toFixed(2)}`;
+
+                // Cálculo do Ranking de Funcionários
+                let resumoFuncionarios = {};
+                dados.viagens.forEach(v => {
+                    let mId = v.motoristaId || 'desconhecido';
+                    if (!resumoFuncionarios[mId]) {
+                        resumoFuncionarios[mId] = {
+                            nome: v.motoristaNome || 'Funcionário',
+                            totalKm: 0,
+                            totalViagens: 0,
+                            totalMinutos: 0
+                        };
+                    }
+                    resumoFuncionarios[mId].totalKm += Number(v.km) || 0;
+                    resumoFuncionarios[mId].totalViagens += 1;
+                    resumoFuncionarios[mId].totalMinutos += Number(v.tempoMinutos) || 0;
+                });
+
+                let arrayRanking = Object.values(resumoFuncionarios).sort((a, b) => b.totalKm - a.totalKm);
+                let tbodyRanking = document.getElementById('tabela-ranking-funcionarios');
+
+                if (arrayRanking.length === 0) {
+                    tbodyRanking.innerHTML = '<tr><td colspan="5" class="empty-row">Nenhum dado de desempenho registrado.</td></tr>';
+                } else {
+                    tbodyRanking.innerHTML = arrayRanking.map((rf, idx) => {
+                        let horas = Math.floor(rf.totalMinutos / 60);
+                        let minutos = rf.totalMinutos % 60;
+                        let tempoFormatado = horas > 0 ? `${horas}h ${minutos}m` : `${minutos} min`;
+                        let iconePos = idx === 0 ? '👑 ' : (idx === 1 ? '🥈 ' : (idx === 2 ? '🥉 ' : ''));
+
+                        return `
+                            <tr>
+                                <td><strong>${iconePos}${idx + 1}º</strong></td>
+                                <td>${rf.nome}</td>
+                                <td>${rf.totalViagens}</td>
+                                <td>${rf.totalKm} KM</td>
+                                <td>${tempoFormatado}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
 
                 let tbodyViagens = document.getElementById('tabela-ultimas-viagens');
                 if (dados.viagens.length === 0) {
