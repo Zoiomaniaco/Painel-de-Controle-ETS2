@@ -620,7 +620,7 @@
                     <div class="metric-card">
                         <div class="metric-icon"><i class="fa-solid fa-wallet"></i></div>
                         <div class="metric-info">
-                            <h3>Faturamento Líquido</h3>
+                            <h3>Faturamento Caixa Empresa</h3>
                             <p id="patrao-faturamento">R$ 0,00</p>
                         </div>
                     </div>
@@ -692,16 +692,17 @@
                                     <th>País / Rota</th>
                                     <th>KM</th>
                                     <th>Bruto</th>
+                                    <th>Comissão (14%)</th>
                                     <th>Combustível</th>
                                     <th>Pedágio</th>
                                     <th>Balsa</th>
                                     <th>Multas</th>
-                                    <th>Líquido</th>
+                                    <th>Caixa Empresa</th>
                                     <th style="text-align: center;">Imprevistos</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-ultimas-viagens">
-                                <tr><td colspan="10" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
+                                <tr><td colspan="11" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -764,7 +765,7 @@
                     <div class="metric-card">
                         <div class="metric-icon"><i class="fa-solid fa-coins"></i></div>
                         <div class="metric-info">
-                            <h3>Meus Ganhos (Líquidos)</h3>
+                            <h3>Meu Salário (14% do Bruto)</h3>
                             <p id="motorista-meus-ganhos">R$ 0,00</p>
                         </div>
                     </div>
@@ -786,12 +787,11 @@
                                     <th>País / Rota</th>
                                     <th>KM</th>
                                     <th>Valor Bruto</th>
-                                    <th>Descontos</th>
-                                    <th>Valor Líquido</th>
+                                    <th>Comissão (14%)</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-minhas-viagens">
-                                <tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>
+                                <tr><td colspan="4" class="empty-row">Nenhuma viagem registrada.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -912,7 +912,7 @@
                     </div>
 
                     <button class="btn-submit btn-danger" onclick="finalizarViagemMotorista()" style="padding: 16px; font-size: 15px; margin-top: 10px;">
-                        <i class="fa-solid fa-flag-checkered"></i> Finalizar Viagem e Descontar da Empresa
+                        <i class="fa-solid fa-flag-checkered"></i> Finalizar Viagem e Computar Comissão
                     </button>
                 </div>
             </div>
@@ -1302,7 +1302,7 @@
         };
 
         window.finalizarViagemMotorista = function() {
-            if (!confirm("Deseja finalizar esta viagem? O combustível por país e os gastos extras serão debitados automaticamente.")) return;
+            if (!confirm("Deseja finalizar esta viagem? A comissão de 14% será debitada do valor bruto e os custos lançados para a empresa.")) return;
 
             let dados = carregarDados();
             let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
@@ -1323,16 +1323,19 @@
             let totalMultas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Multa').reduce((acc, g) => acc + g.valor, 0);
             let totalGastosExtras = totalPedagios + totalBalsas + totalMultas;
 
-            let totalDescontos = viagemAtiva.custoCombustivel + totalGastosExtras;
-            let valorLiquido = viagemAtiva.valorBruto - totalDescontos;
+            // Comissão de 14% para o motorista retirada do valor bruto
+            let comissaoMotorista = viagemAtiva.valorBruto * 0.14;
+
+            // Caixa da empresa = Valor Bruto - Comissão (14%) - Combustível - Gastos Extras
+            let caixaEmpresa = viagemAtiva.valorBruto - comissaoMotorista - viagemAtiva.custoCombustivel - totalGastosExtras;
 
             let viagemFinalizada = {
                 ...viagemAtiva,
+                comissaoMotorista,
                 totalPedagios,
                 totalBalsas,
                 totalMultas,
-                totalDescontos,
-                valorLiquido: valorLiquido < 0 ? 0 : valorLiquido,
+                caixaEmpresa: caixaEmpresa,
                 tempoMinutos,
                 observacao: observacao,
                 dataFim: dataFim.toISOString()
@@ -1393,13 +1396,13 @@
             let dados = carregarDados();
             
             if (sessaoAtual && sessaoAtual.tipo === 'patrao') {
-                let faturamentoLiquido = dados.viagens.reduce((acc, v) => acc + (Number(v.valorLiquido) || 0), 0);
+                let faturamentoEmpresa = dados.viagens.reduce((acc, v) => acc + (Number(v.caixaEmpresa) || 0), 0);
                 let totalCombustivelGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.custoCombustivel) || 0), 0);
                 let totalMultasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalMultas) || 0), 0);
                 let totalPedagiosGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalPedagios) || 0), 0);
                 let totalBalsasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalBalsas) || 0), 0);
 
-                document.getElementById('patrao-faturamento').innerText = `R$ ${faturamentoLiquido.toFixed(2)}`;
+                document.getElementById('patrao-faturamento').innerText = `R$ ${faturamentoEmpresa.toFixed(2)}`;
                 document.getElementById('patrao-total-viagens').innerText = dados.viagens.length;
                 document.getElementById('patrao-combustivel').innerText = `R$ ${totalCombustivelGeral.toFixed(2)}`;
                 document.getElementById('patrao-multas').innerText = `R$ ${totalMultasGeral.toFixed(2)}`;
@@ -1448,7 +1451,7 @@
 
                 let tbodyViagens = document.getElementById('tabela-ultimas-viagens');
                 if (dados.viagens.length === 0) {
-                    tbodyViagens.innerHTML = '<tr><td colspan="10" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>';
+                    tbodyViagens.innerHTML = '<tr><td colspan="11" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>';
                 } else {
                     tbodyViagens.innerHTML = dados.viagens.slice().reverse().map(v => {
                         let iconeImprevisto = (v.observacao && v.observacao.trim() !== "") 
@@ -1461,11 +1464,12 @@
                                 <td><small style="color:var(--accent-color)">${v.pais || 'Europa'}</small><br>${v.origem} → ${v.destino}</td>
                                 <td>${v.km} KM</td>
                                 <td>R$ ${Number(v.valorBruto).toFixed(2)}</td>
-                                <td style="color: var(--warning-color);">R$ ${(Number(v.custoCombustivel) || 0).toFixed(2)}</td>
+                                <td style="color: var(--warning-color);">R$ ${(Number(v.comissaoMotorista) || 0).toFixed(2)}</td>
+                                <td>R$ ${(Number(v.custoCombustivel) || 0).toFixed(2)}</td>
                                 <td>R$ ${(Number(v.totalPedagios) || 0).toFixed(2)}</td>
                                 <td>R$ ${(Number(v.totalBalsas) || 0).toFixed(2)}</td>
                                 <td style="color: var(--danger-color);">R$ ${(Number(v.totalMultas) || 0).toFixed(2)}</td>
-                                <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valorLiquido).toFixed(2)}</td>
+                                <td style="color: var(--success-color); font-weight: 600;">R$ ${(Number(v.caixaEmpresa) || 0).toFixed(2)}</td>
                                 <td style="text-align: center;">${iconeImprevisto}</td>
                             </tr>
                         `;
@@ -1519,20 +1523,19 @@
                 }
 
                 let minhasViagens = dados.viagens.filter(v => v.motoristaId === sessaoAtual.id);
-                let meusGanhosLiquidos = minhasViagens.reduce((acc, v) => acc + (Number(v.valorLiquido) || 0), 0);
+                let meuSalarioTotal = minhasViagens.reduce((acc, v) => acc + (Number(v.comissaoMotorista) || 0), 0);
 
-                document.getElementById('motorista-meus-ganhos').innerText = `R$ ${meusGanhosLiquidos.toFixed(2)}`;
+                document.getElementById('motorista-meus-ganhos').innerText = `R$ ${meuSalarioTotal.toFixed(2)}`;
                 document.getElementById('motorista-total-viagens').innerText = minhasViagens.length;
 
                 let tbodyMinhasViagens = document.getElementById('tabela-minhas-viagens');
-                tbodyMinhasViagens.innerHTML = minhasViagens.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>' :
+                tbodyMinhasViagens.innerHTML = minhasViagens.length === 0 ? '<tr><td colspan="4" class="empty-row">Nenhuma viagem registrada.</td></tr>' :
                     minhasViagens.slice().reverse().map(v => `
                         <tr>
                             <td><small style="color:var(--accent-color)">${v.pais || 'Europa'}</small><br>${v.origem} → ${v.destino}</td>
                             <td>${v.km} KM</td>
                             <td>R$ ${Number(v.valorBruto).toFixed(2)}</td>
-                            <td style="color: var(--danger-color);">R$ ${(Number(v.totalDescontos) || 0).toFixed(2)}</td>
-                            <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valorLiquido).toFixed(2)}</td>
+                            <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.comissaoMotorista).toFixed(2)}</td>
                         </tr>
                     `).join('');
             }
