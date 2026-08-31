@@ -14,7 +14,7 @@
     <style>
         :root {
             --bg-color: rgba(15, 17, 21, 0.92);
-            --panel-bg: #000000;
+            --panel-bg: #000000; 
             --accent-color: #ff9800;
             --accent-hover: #e68900;
             --text-color: #e6edf3;
@@ -41,7 +41,7 @@
         }
 
         header {
-            background-color: rgba(0,0,0,0.85);
+            background-color: rgba(0,0,0,0.8);
             border-bottom: 2px solid var(--accent-color);
             padding: 15px;
             display: flex;
@@ -63,7 +63,7 @@
             background: rgba(248, 81, 73, 0.15);
             color: var(--danger-color);
             border: 1px solid var(--danger-color);
-            padding: 6px 12px;
+            padding: 5px 10px;
             border-radius: 4px;
             font-size: 11px;
             font-weight: 600;
@@ -90,26 +90,26 @@
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 28px 25px;
+            padding: 25px;
             width: 100%;
             max-width: 360px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
             text-align: center;
         }
 
         .login-card h2 {
             margin-top: 0;
-            margin-bottom: 28px;
+            margin-bottom: 25px; 
             color: var(--accent-color);
             font-size: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .login-card h2 i {
-            font-size: 26px;
+            font-size: 24px;
         }
 
         .nav-tabs {
@@ -176,7 +176,7 @@
 
         .card h3 i { color: var(--accent-color); }
 
-        .form-group { margin-bottom: 16px; text-align: left; }
+        .form-group { margin-bottom: 15px; text-align: left; }
 
         label {
             display: block;
@@ -302,7 +302,7 @@
         }
 
         th {
-            background-color: rgba(13, 17, 23, 0.95);
+            background-color: rgba(13, 17, 23, 0.9);
             color: var(--text-muted);
             font-weight: 600;
             text-transform: uppercase;
@@ -592,31 +592,24 @@
 
     <div id="toast">Operação realizada com sucesso!</div>
 
-    <!-- Scripts do Firebase v10 e Lógica da Aplicação -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        // **COLOQUE AQUI AS SUAS CREDENCIAIS REAIS DO FIREBASE**
-        const firebaseConfig = {
-            apiKey: "SUA_API_KEY_AQUI",
-            authDomain: "SEU_AUTH_DOMAIN_AQUI",
-            projectId: "SEU_PROJECT_ID_AQUI",
-            storageBucket: "SEU_STORAGE_BUCKET_AQUI",
-            messagingSenderId: "SEU_MESSAGING_SENDER_ID_AQUI",
-            appId: "SEU_APP_ID_AQUI"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        let dadosLocais = {
-            funcionarios: [],
-            caminhoes: [],
-            viagens: []
-        };
-
+    <!-- Lógica da Aplicação sem Firebase (Local Storage) -->
+    <script>
         let sessaoAtual = null;
+
+        // Funções para carregar e salvar dados no LocalStorage
+        function carregarDados() {
+            return {
+                funcionarios: JSON.parse(localStorage.getItem('ets2_funcionarios')) || [],
+                caminhoes: JSON.parse(localStorage.getItem('ets2_caminhoes')) || [],
+                viagens: JSON.parse(localStorage.getItem('ets2_viagens')) || []
+            };
+        }
+
+        function salvarDados(dados) {
+            localStorage.setItem('ets2_funcionarios', JSON.stringify(dados.funcionarios));
+            localStorage.setItem('ets2_caminhoes', JSON.stringify(dados.caminhoes));
+            localStorage.setItem('ets2_viagens', JSON.stringify(dados.viagens));
+        }
 
         window.mudarTipoAcesso = function() {
             let tipo = document.getElementById('tipo-acceso').value;
@@ -635,7 +628,7 @@
             document.getElementById('form-cadastro-div').style.display = mostrar ? 'block' : 'none';
         };
 
-        window.entrarNoSistema = async function() {
+        window.entrarNoSistema = function() {
             let tipo = document.getElementById('tipo-acceso').value;
             let usuario = document.getElementById('login-usuario').value.trim();
             let senha = document.getElementById('login-senha').value.trim();
@@ -653,30 +646,21 @@
                     mostrarToast("Credenciais da Patroa incorretas!", "error");
                 }
             } else {
-                try {
-                    let snapshot = await getDocs(collection(db, "funcionarios"));
-                    let motoristaEncontrado = null;
-                    snapshot.forEach(docSnap => {
-                        let m = docSnap.data();
-                        if (m.usuario.toLowerCase() === usuario.toLowerCase() && m.senha === senha) {
-                            motoristaEncontrado = { id: docSnap.id, ...m };
-                        }
-                    });
+                let dados = carregarDados();
+                let motoristaEncontrado = dados.funcionarios.find(m => 
+                    m.usuario && m.usuario.toLowerCase() === usuario.toLowerCase() && m.senha === senha
+                );
 
-                    if (motoristaEncontrado) {
-                        sessaoAtual = { tipo: 'motorista', ...motoristaEncontrado };
-                        iniciarPainelMotorista();
-                    } else {
-                        mostrarToast("Motorista não encontrado ou senha inválida!", "error");
-                    }
-                } catch (e) {
-                    console.error(e);
-                    mostrarToast("Erro ao conectar com o banco de dados.", "error");
+                if (motoristaEncontrado) {
+                    sessaoAtual = { tipo: 'motorista', ...motoristaEncontrado };
+                    iniciarPainelMotorista();
+                } else {
+                    mostrarToast("Motorista não encontrado ou senha inválida!", "error");
                 }
             }
         };
 
-        window.motoristaAutoCadastrar = async function() {
+        window.motoristaAutoCadastrar = function() {
             let nome = document.getElementById('cad-nome').value.trim();
             let usuario = document.getElementById('cad-usuario').value.trim();
             let senha = document.getElementById('cad-senha').value.trim();
@@ -686,17 +670,24 @@
                 return;
             }
 
-            try {
-                await addDoc(collection(db, "funcionarios"), { nome, usuario, senha });
-                mostrarToast("Cadastro realizado com sucesso!");
-                document.getElementById('login-usuario').value = usuario;
-                document.getElementById('login-senha').value = senha;
-                document.getElementById('tipo-acceso').value = 'motorista';
-                alternarTelaCadastro(false);
-            } catch (e) {
-                console.error(e);
-                mostrarToast("Erro ao realizar cadastro.", "error");
+            let dados = carregarDados();
+            
+            // Verifica se o usuário já existe
+            let existe = dados.funcionarios.some(m => m.usuario.toLowerCase() === usuario.toLowerCase());
+            if (existe) {
+                mostrarToast("Este usuário já está em uso!", "error");
+                return;
             }
+
+            let novoMotorista = { id: 'mot_' + Date.now(), nome, usuario, senha };
+            dados.funcionarios.push(novoMotorista);
+            salvarDados(dados);
+
+            mostrarToast("Cadastro realizado com sucesso!");
+            document.getElementById('login-usuario').value = usuario;
+            document.getElementById('login-senha').value = senha;
+            document.getElementById('tipo-acceso').value = 'motorista';
+            alternarTelaCadastro(false);
         };
 
         window.fazerLogout = function() {
@@ -717,7 +708,7 @@
             evt.currentTarget.classList.add('active');
         };
 
-        window.cadastrarMotoristaPatrao = async function() {
+        window.cadastrarMotoristaPatrao = function() {
             let nome = document.getElementById('novo-mot-nome').value.trim();
             let usuario = document.getElementById('novo-mot-user').value.trim();
             let senha = document.getElementById('novo-mot-senha').value.trim();
@@ -727,18 +718,20 @@
                 return;
             }
 
-            try {
-                await addDoc(collection(db, "funcionarios"), { nome, usuario, senha });
-                document.getElementById('novo-mot-nome').value = '';
-                document.getElementById('novo-mot-user').value = '';
-                document.getElementById('novo-mot-senha').value = '';
-                mostrarToast("Motorista cadastrado com sucesso!");
-            } catch (e) {
-                mostrarToast("Erro ao cadastrar motorista.", "error");
-            }
+            let dados = carregarDados();
+            let novoMotorista = { id: 'mot_' + Date.now(), nome, usuario, senha };
+            dados.funcionarios.push(novoMotorista);
+            salvarDados(dados);
+
+            document.getElementById('novo-mot-nome').value = '';
+            document.getElementById('novo-mot-user').value = '';
+            document.getElementById('novo-mot-senha').value = '';
+            
+            mostrarToast("Motorista cadastrado com sucesso!");
+            atualizarTelas();
         };
 
-        window.cadastrarCaminhao = async function() {
+        window.cadastrarCaminhao = function() {
             let modelo = document.getElementById('cam-modelo').value.trim();
             let placa = document.getElementById('cam-placa').value.trim();
 
@@ -747,17 +740,19 @@
                 return;
             }
 
-            try {
-                await addDoc(collection(db, "caminhoes"), { modelo, placa });
-                document.getElementById('cam-modelo').value = '';
-                document.getElementById('cam-placa').value = '';
-                mostrarToast("Caminhão cadastrado com sucesso!");
-            } catch (e) {
-                mostrarToast("Erro ao cadastrar caminhão.", "error");
-            }
+            let dados = carregarDados();
+            let novoCaminhao = { id: 'cam_' + Date.now(), modelo, placa };
+            dados.caminhoes.push(novoCaminhao);
+            salvarDados(dados);
+
+            document.getElementById('cam-modelo').value = '';
+            document.getElementById('cam-placa').value = '';
+            
+            mostrarToast("Caminhão cadastrado com sucesso!");
+            atualizarTelas();
         };
 
-        window.salvarViagemMotorista = async function() {
+        window.salvarViagemMotorista = function() {
             let origem = document.getElementById('viagem-origem').value.trim();
             let destino = document.getElementById('viagem-destino').value.trim();
             let carga = document.getElementById('viagem-carga').value.trim();
@@ -768,35 +763,41 @@
                 return;
             }
 
-            try {
-                await addDoc(collection(db, "viagens"), {
-                    motoristaId: sessaoAtual.id || 'patrao',
-                    motoristaNome: sessaoAtual.nome,
-                    origem,
-                    destino,
-                    carga,
-                    valor,
-                    data: new Date().toISOString()
-                });
+            let dados = carregarDados();
+            let novaViagem = {
+                id: 'vig_' + Date.now(),
+                motoristaId: sessaoAtual.id || 'patrao',
+                motoristaNome: sessaoAtual.nome,
+                origem,
+                destino,
+                carga,
+                valor,
+                data: new Date().toISOString()
+            };
 
-                document.getElementById('viagem-origem').value = '';
-                document.getElementById('viagem-destino').value = '';
-                document.getElementById('viagem-carga').value = '';
-                document.getElementById('viagem-valor').value = '';
-                mostrarToast("Viagem registrada com sucesso!");
-            } catch (e) {
-                mostrarToast("Erro ao registrar viagem.", "error");
-            }
+            dados.viagens.push(novaViagem);
+            salvarDados(dados);
+
+            document.getElementById('viagem-origem').value = '';
+            document.getElementById('viagem-destino').value = '';
+            document.getElementById('viagem-carga').value = '';
+            document.getElementById('viagem-valor').value = '';
+            
+            mostrarToast("Viagem registrada com sucesso!");
+            atualizarTelas();
         };
 
-        window.deletarItem = async function(colecao, id) {
+        window.deletarItem = function(colecao, id) {
             if (confirm("Deseja realmente excluir este item?")) {
-                try {
-                    await deleteDoc(doc(db, colecao, id));
-                    mostrarToast("Item excluído com sucesso!");
-                } catch (e) {
-                    mostrarToast("Erro ao excluir item.", "error");
+                let dados = carregarDados();
+                if (colecao === 'funcionarios') {
+                    dados.funcionarios = dados.funcionarios.filter(item => item.id !== id);
+                } else if (colecao === 'caminhoes') {
+                    dados.caminhoes = dados.caminhoes.filter(item => item.id !== id);
                 }
+                salvarDados(dados);
+                mostrarToast("Item excluído com sucesso!");
+                atualizarTelas();
             }
         };
 
@@ -805,7 +806,7 @@
             document.getElementById('painel-patrao').style.display = 'block';
             document.getElementById('main-header').style.display = 'flex';
             document.getElementById('header-title').innerText = "PAINEL DA PATRÔA - IEDA DALTRO";
-            ouvirDados();
+            atualizarTelas();
         }
 
         function iniciarPainelMotorista() {
@@ -813,102 +814,83 @@
             document.getElementById('painel-motorista').style.display = 'block';
             document.getElementById('main-header').style.display = 'flex';
             document.getElementById('header-title').innerText = `MOTORISTA: ${sessaoAtual.nome.toUpperCase()}`;
-            ouvirDados();
+            atualizarTelas();
         }
 
-        function ouvirDados() {
-            onSnapshot(collection(db, "funcionarios"), snapshot => {
-                dadosLocais.funcionarios = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderizarPatraoMotoristas();
-            });
+        function atualizarTelas() {
+            let dados = carregarDados();
+            
+            // Renderizações do Patrão
+            if (sessaoAtual && sessaoAtual.tipo === 'patrao') {
+                // Visão Geral
+                let faturamento = dados.viagens.reduce((acc, v) => acc + (Number(v.valor) || 0), 0);
+                document.getElementById('patrao-faturamento').innerText = `R$ ${faturamento.toFixed(2)}`;
+                document.getElementById('patrao-total-viagens').innerText = dados.viagens.length;
 
-            onSnapshot(collection(db, "caminhoes"), snapshot => {
-                dadosLocais.caminhoes = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderizarPatroCaminhoes();
-            });
+                let tbodyViagens = document.getElementById('tabela-ultimas-viagens');
+                if (dados.viagens.length === 0) {
+                    tbodyViagens.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>';
+                } else {
+                    tbodyViagens.innerHTML = dados.viagens.slice().reverse().map(v => `
+                        <tr>
+                            <td>${v.motoristaNome || 'N/D'}</td>
+                            <td>${v.origem} → ${v.destino}</td>
+                            <td>${v.carga}</td>
+                            <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valor).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+                }
 
-            onSnapshot(collection(db, "viagens"), snapshot => {
-                dadosLocais.viagens = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderizarVisaoGeralPatrao();
-                renderizarExtratoMotorista();
-            });
-        }
+                // Motoristas
+                let tbodyMotoristas = document.getElementById('tabela-motoristas-patrao');
+                if (dados.funcionarios.length === 0) {
+                    tbodyMotoristas.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhum motorista cadastrado.</td></tr>';
+                } else {
+                    tbodyMotoristas.innerHTML = dados.funcionarios.map(m => `
+                        <tr>
+                            <td>${m.nome}</td>
+                            <td>${m.usuario}</td>
+                            <td><button onclick="deletarItem('funcionarios', '${m.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash"></i></button></td>
+                        </tr>
+                    `).join('');
+                }
 
-        function renderizarVisaoGeralPatrao() {
-            let faturamento = dadosLocais.viagens.reduce((acc, v) => acc + (Number(v.valor) || 0), 0);
-            document.getElementById('patrao-faturamento').innerText = `R$ ${faturamento.toFixed(2)}`;
-            document.getElementById('patrao-total-viagens').innerText = dadosLocais.viagens.length;
-
-            let tbody = document.getElementById('tabela-ultimas-viagens');
-            if (dadosLocais.viagens.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>';
-                return;
+                // Frota
+                let tbodyFrota = document.getElementById('tabela-frota');
+                if (dados.caminhoes.length === 0) {
+                    tbodyFrota.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhum caminhão cadastrado.</td></tr>';
+                } else {
+                    tbodyFrota.innerHTML = dados.caminhoes.map(c => `
+                        <tr>
+                            <td>${c.modelo}</td>
+                            <td>${c.placa}</td>
+                            <td><button onclick="deletarItem('caminhoes', '${c.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash"></i></button></td>
+                        </tr>
+                    `).join('');
+                }
             }
 
-            tbody.innerHTML = dadosLocais.viagens.map(v => `
-                <tr>
-                    <td>${v.motoristaNome || 'N/D'}</td>
-                    <td>${v.origem} → ${v.destino}</td>
-                    <td>${v.carga}</td>
-                    <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valor).toFixed(2)}</td>
-                </tr>
-            `).join('');
-        }
+            // Renderizações do Motorista
+            if (sessaoAtual && sessaoAtual.tipo === 'motorista') {
+                let minhasViagens = dados.viagens.filter(v => v.motoristaId === sessaoAtual.id);
+                let meusGanhos = minhasViagens.reduce((acc, v) => acc + (Number(v.valor) || 0), 0);
 
-        function renderizarPatraoMotoristas() {
-            let tbody = document.getElementById('tabela-motoristas-patrao');
-            if (dadosLocais.funcionarios.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhum motorista cadastrado.</td></tr>';
-                return;
+                document.getElementById('motorista-meus-ganhos').innerText = `R$ ${meusGanhos.toFixed(2)}`;
+                document.getElementById('motorista-total-viagens').innerText = minhasViagens.length;
+
+                let tbodyMinhasViagens = document.getElementById('tabela-minhas-viagens');
+                if (minhasViagens.length === 0) {
+                    tbodyMinhasViagens.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhuma viagem registrada.</td></tr>';
+                } else {
+                    tbodyMinhasViagens.innerHTML = minhasViagens.slice().reverse().map(v => `
+                        <tr>
+                            <td>${v.origem} → ${v.destino}</td>
+                            <td>${v.carga}</td>
+                            <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valor).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+                }
             }
-
-            tbody.innerHTML = dadosLocais.funcionarios.map(m => `
-                <tr>
-                    <td>${m.nome}</td>
-                    <td>${m.usuario}</td>
-                    <td><button onclick="deletarItem('funcionarios', '${m.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash"></i></button></td>
-                </tr>
-            `).join('');
-        }
-
-        function renderizarPatroCaminhoes() {
-            let tbody = document.getElementById('tabela-frota');
-            if (dadosLocais.caminhoes.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhum caminhão cadastrado.</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = dadosLocais.caminhoes.map(c => `
-                <tr>
-                    <td>${c.modelo}</td>
-                    <td>${c.placa}</td>
-                    <td><button onclick="deletarItem('caminhoes', '${c.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash"></i></button></td>
-                </tr>
-            `).join('');
-        }
-
-        function renderizarExtratoMotorista() {
-            if (!sessaoAtual || sessaoAtual.tipo !== 'motorista') return;
-
-            let minhasViagens = dadosLocais.viagens.filter(v => v.motoristaId === sessaoAtual.id);
-            let meusGanhos = minhasViagens.reduce((acc, v) => acc + (Number(v.valor) || 0), 0);
-
-            document.getElementById('motorista-meus-ganhos').innerText = `R$ ${meusGanhos.toFixed(2)}`;
-            document.getElementById('motorista-total-viagens').innerText = minhasViagens.length;
-
-            let tbody = document.getElementById('tabela-minhas-viagens');
-            if (minhasViagens.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="empty-row">Nenhuma viagem registrada.</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = minhasViagens.map(v => `
-                <tr>
-                    <td>${v.origem} → ${v.destino}</td>
-                    <td>${v.carga}</td>
-                    <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.valor).toFixed(2)}</td>
-                </tr>
-            `).join('');
         }
 
         function mostrarToast(mensagem, tipo = "success") {
