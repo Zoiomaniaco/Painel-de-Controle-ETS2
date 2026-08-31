@@ -213,7 +213,7 @@
             padding: 12px 14px;
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
-            color: #ffffff; /* Letras super visíveis e claras ao digitar */
+            color: #ffffff;
             border-radius: 6px;
             font-size: 14px;
             font-family: 'Inter', sans-serif;
@@ -413,14 +413,14 @@
                     <div class="form-group">
                         <label>Tipo de Acesso</label>
                         <select id="tipo-acceso" onchange="mudarTipoAcesso()">
-                            <option value="patrao">Patrão (Ieda Daltro)</option>
+                            <option value="patrao">Patrão (Jeferson)</option>
                             <option value="motorista">Motorista (Funcionário)</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label>Usuário</label>
-                        <input type="text" id="login-usuario" placeholder="Ieda Daltro">
+                        <input type="text" id="login-usuario" placeholder="Jeferson">
                     </div>
                     <div class="form-group">
                         <label>Senha</label>
@@ -439,7 +439,7 @@
                     </div>
                     <div class="form-group">
                         <label>Crie seu Usuário de Login</label>
-                        <input type="text" id="cad-usuario" placeholder="Ex: jeferson123">
+                        <input type="text" id="cad-usuario" placeholder="Ex: motorista123">
                     </div>
                     <div class="form-group">
                         <label>Crie sua Senha</label>
@@ -669,7 +669,7 @@
             let inputUsuario = document.getElementById('login-usuario');
             if (tipo === 'patrao') {
                 inputUsuario.value = '';
-                inputUsuario.placeholder = 'Ieda Daltro';
+                inputUsuario.placeholder = 'Jeferson';
             } else {
                 inputUsuario.value = '';
                 inputUsuario.placeholder = 'Seu usuário de motorista';
@@ -692,11 +692,11 @@
             }
 
             if (tipo === 'patrao') {
-                if ((usuario.toLowerCase() === 'ieda daltro' || usuario.toLowerCase() === 'ieda') && senha === '12345') {
-                    sessaoAtual = { tipo: 'patrao', nome: 'Ieda Daltro' };
+                if (usuario.toLowerCase() === 'jeferson' && senha === '12345') {
+                    sessaoAtual = { tipo: 'patrao', nome: 'Jeferson' };
                     iniciarPainelPatrao();
                 } else {
-                    mostrarToast("Credenciais da Patroa incorretas!", "error");
+                    mostrarToast("Credenciais do Patrão incorretas!", "error");
                 }
             } else {
                 let dados = carregarDados();
@@ -856,7 +856,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('painel-patrao').style.display = 'block';
             document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('header-title').innerText = "PAINEL DA PATRÔA - IEDA DALTRO";
+            document.getElementById('header-title').innerText = "PAINEL DO PATRÃO - JEFERSON";
             atualizarTelas();
         }
 
