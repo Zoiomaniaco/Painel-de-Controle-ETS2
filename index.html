@@ -10,6 +10,8 @@
     <!-- Google Fonts & FontAwesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para os Gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
@@ -577,7 +579,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.03 (Com Manutenção)</div>
+                <div class="app-version-badge">Versão 1.04 (Com Gráfico & Descanso)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -676,11 +678,33 @@
                         </div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-icon"><i class="fa-solid fa-road-barrier"></i></div>
+                        <div class="metric-icon" style="color: var(--accent-color); background: rgba(59,130,246,0.1);"><i class="fa-solid fa-road"></i></div>
                         <div class="metric-info">
-                            <h3>Total Pedágios/Balsas</h3>
+                            <h3>Total Pedágios</h3>
                             <p id="patrao-pedagios">R$ 0,00</p>
                         </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon" style="color: var(--success-color); background: rgba(16,185,129,0.1);"><i class="fa-solid fa-ship"></i></div>
+                        <div class="metric-info">
+                            <h3>Total Balsas</h3>
+                            <p id="patrao-balsas">R$ 0,00</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-icon" style="color: var(--warning-color); background: rgba(245,158,11,0.1);"><i class="fa-solid fa-utensils"></i></div>
+                        <div class="metric-info">
+                            <h3>Total Alimentação (Descanso)</h3>
+                            <p id="patrao-alimentacao">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfico Financeiro -->
+                <div class="card">
+                    <h3><i class="fa-solid fa-chart-column"></i> Gráfico Financeiro (Entradas vs Saídas)</h3>
+                    <div style="position: relative; height: 240px; width: 100%;">
+                        <canvas id="graficoFinanceiro"></canvas>
                     </div>
                 </div>
 
@@ -716,13 +740,15 @@
                                     <th>KM</th>
                                     <th>Salário</th>
                                     <th>Combustível</th>
-                                    <th>Ped./Balsa/Multa</th>
+                                    <th>Pedágio</th>
+                                    <th>Balsa</th>
+                                    <th>Multa/Alim.</th>
                                     <th>Caixa Empresa</th>
                                     <th style="text-align: center;">Imprevistos</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-ultimas-viagens">
-                                <tr><td colspan="8" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
+                                <tr><td colspan="10" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -888,6 +914,23 @@
                         <p style="margin: 6px 0; color: var(--warning-color);"><strong>Combustível Automático:</strong> <span id="ativa-combustivel">R$ 0,00</span></p>
                     </div>
 
+                    <!-- Bloco de Parada de Descanso / Alimentação -->
+                    <div class="card" style="border-color: var(--warning-color);">
+                        <h3><i class="fa-solid fa-utensils" style="color: var(--warning-color);"></i> Registrar Parada de Descanso</h3>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Informe os horários da sua parada. Custo fixo de alimentação: **R$ 50,00** (debitado da empresa).</p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group" style="margin-bottom: 10px;">
+                                <label>Entrada (Horário)</label>
+                                <input type="time" id="descanso-entrada">
+                            </div>
+                            <div class="form-group" style="margin-bottom: 10px;">
+                                <label>Saída (Horário)</label>
+                                <input type="time" id="descanso-saida">
+                            </div>
+                        </div>
+                        <button class="btn-submit" style="background-color: var(--warning-color); color: #000;" onclick="registrarParadaDescanso()"><i class="fa-solid fa-burger"></i> Salvar Parada e Alimentação (R$ 50,00)</button>
+                    </div>
+
                     <div class="card">
                         <h3><i class="fa-solid fa-receipt"></i> Lançar Despesa Extra na Viagem</h3>
                         <div class="form-group">
@@ -990,6 +1033,7 @@
         const CONSUMO_LITROS_POR_KM = 0.32; 
 
         let sessaoAtual = null;
+        let meuGraficoInstance = null;
 
         window.onload = function() {
             carregarSelectPaises();
@@ -1210,12 +1254,8 @@
 
             let custos = { oleo: 800, pneu: 2500, motor: 6000 };
             let custoServico = custos[tipo];
-
-            let faturamentoEmpresa = dados.viagens.reduce((acc, v) => acc + (Number(v.caixaEmpresa) || 0), 0);
             
-            // Subtrai de uma forma lógica acumulando como despesa de manutenção nas viagens ou ajustando no saldo
             if (confirm(`Deseja realizar a manutenção (${tipo.toUpperCase()}) no caminhão ${cam.modelo}? Custo: R$ ${custoServico}.`)) {
-                // Registramos um evento de manutenção guardando no array de viagens como custo administrativo
                 dados.viagens.push({
                     id: 'man_' + Date.now(),
                     motoristaNome: 'Oficina Mecânica',
@@ -1228,7 +1268,8 @@
                     totalPedagios: 0,
                     totalBalsas: 0,
                     totalMultas: 0,
-                    caixaEmpresa: -custoServico // Reduz do caixa da empresa
+                    totalAlimentacao: 0,
+                    caixaEmpresa: -custoServico
                 });
 
                 if (tipo === 'oleo') cam.kmDesdeOleo = 0;
@@ -1316,6 +1357,33 @@
             atualizarTelas();
         };
 
+        window.registrarParadaDescanso = function() {
+            let entrada = document.getElementById('descanso-entrada').value;
+            let saida = document.getElementById('descanso-saida').value;
+
+            if (!entrada || !saida) {
+                mostrarToast("Informe o horário de entrada e saída da parada!", "error");
+                return;
+            }
+
+            let dados = carregarDados();
+            let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
+            if (!viagemAtiva) return;
+
+            viagemAtiva.gastosExtras.push({
+                id: 'gst_' + Date.now(),
+                tipo: 'Alimentação',
+                descricao: `Descanso (Das ${entrada} às ${saida})`,
+                valor: 50.00
+            });
+
+            salvarDados(dados);
+            document.getElementById('descanso-entrada').value = '';
+            document.getElementById('descanso-saida').value = '';
+            mostrarToast("Parada de descanso registrada e R$ 50,00 descontados!");
+            atualizarTelas();
+        };
+
         window.adicionarGastoViagem = function() {
             let tipo = document.getElementById('gasto-tipo').value;
             let descricao = document.getElementById('gasto-descricao').value.trim();
@@ -1362,12 +1430,12 @@
             let totalPedagios = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Pedágio').reduce((acc, g) => acc + g.valor, 0);
             let totalBalsas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Balsa').reduce((acc, g) => acc + g.valor, 0);
             let totalMultas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Multa').reduce((acc, g) => acc + g.valor, 0);
-            let totalGastosExtras = totalPedagios + totalBalsas + totalMultas;
+            let totalAlimentacao = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Alimentação').reduce((acc, g) => acc + g.valor, 0);
+            let totalGastosExtras = totalPedagios + totalBalsas + totalMultas + totalAlimentacao;
 
             let salarioMotorista = viagemAtiva.valorBruto * 0.14;
             let caixaEmpresa = viagemAtiva.valorBruto - salarioMotorista - viagemAtiva.custoCombustivel - totalGastosExtras;
 
-            // Atualiza a KM do caminhão associado e seus ciclos de manutenção
             let caminhao = dados.caminhoes.find(c => c.id === viagemAtiva.caminhaoId);
             if (caminhao) {
                 caminhao.kmDesdeOleo = (caminhao.kmDesdeOleo || 0) + viagemAtiva.km;
@@ -1381,6 +1449,7 @@
                 totalPedagios,
                 totalBalsas,
                 totalMultas,
+                totalAlimentacao,
                 caixaEmpresa,
                 tempoMinutos,
                 observacao
@@ -1393,14 +1462,6 @@
             let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
             switchTab({ currentTarget: botoesTab[0] }, 'm-extrato');
             atualizarTelas();
-        };
-
-        window.verRelatorioImprevisto = function(idViagem) {
-            let dados = carregarDados();
-            let viagem = dados.viagens.find(v => v.id === idViagem);
-            if (viagem && viagem.observacao) {
-                alert(`⚠️ Ocorrido:\n"${viagem.observacao}"`);
-            }
         };
 
         function iniciarPainelPatrao() {
@@ -1428,14 +1489,31 @@
                 let totalCombustivelGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.custoCombustivel) || 0), 0);
                 let totalManutencoes = dados.viagens.filter(v => v.id.startsWith('man_')).reduce((acc, v) => acc + Math.abs(v.caixaEmpresa), 0);
                 let totalMultasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalMultas) || 0), 0);
-                let totalOutros = dados.viagens.reduce((acc, v) => acc + (Number(v.totalPedagios) || 0) + (Number(v.totalBalsas) || 0), 0);
+                let totalPedagiosGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalPedagios) || 0), 0);
+                let totalBalsasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalBalsas) || 0), 0);
+                let totalAlimentacaoGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalAlimentacao) || 0), 0);
+                let totalSalariosGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.salarioMotorista) || 0), 0);
 
                 document.getElementById('patrao-faturamento').innerText = `R$ ${faturamentoEmpresa.toFixed(2)}`;
                 document.getElementById('patrao-total-viagens').innerText = dados.viagens.filter(v => !v.id.startsWith('man_')).length;
                 document.getElementById('patrao-combustivel').innerText = `R$ ${totalCombustivelGeral.toFixed(2)}`;
                 document.getElementById('patrao-manutencoes').innerText = `R$ ${totalManutencoes.toFixed(2)}`;
                 document.getElementById('patrao-multas').innerText = `R$ ${totalMultasGeral.toFixed(2)}`;
-                document.getElementById('patrao-pedagios').innerText = `R$ ${totalOutros.toFixed(2)}`;
+                document.getElementById('patrao-pedagios').innerText = `R$ ${totalPedagiosGeral.toFixed(2)}`;
+                document.getElementById('patrao-balsas').innerText = `R$ ${totalBalsasGeral.toFixed(2)}`;
+                document.getElementById('patrao-alimentacao').innerText = `R$ ${totalAlimentacaoGeral.toFixed(2)}`;
+
+                // Renderizar ou atualizar Gráfico Chart.js
+                renderizarGraficoPatrao({
+                    faturamento: faturamentoEmpresa,
+                    combustivel: totalCombustivelGeral,
+                    manutencoes: totalManutencoes,
+                    salarios: totalSalariosGeral,
+                    pedagios: totalPedagiosGeral,
+                    balsas: totalBalsasGeral,
+                    multas: totalMultasGeral,
+                    alimentacao: totalAlimentacaoGeral
+                });
 
                 let resumoFuncionarios = {};
                 dados.viagens.filter(v => !v.id.startsWith('man_')).forEach(v => {
@@ -1463,7 +1541,7 @@
 
                 let viagensValidas = dados.viagens.filter(v => !v.id.startsWith('man_'));
                 let tbodyViagens = document.getElementById('tabela-ultimas-viagens');
-                tbodyViagens.innerHTML = viagensValidas.length === 0 ? '<tr><td colspan="8" class="empty-row">Nenhuma viagem.</td></tr>' :
+                tbodyViagens.innerHTML = viagensValidas.length === 0 ? '<tr><td colspan="10" class="empty-row">Nenhuma viagem.</td></tr>' :
                     viagensValidas.slice().reverse().map(v => `
                         <tr>
                             <td><strong>${v.motoristaName || v.motoristaNome}</strong></td>
@@ -1471,13 +1549,14 @@
                             <td>${v.km} KM</td>
                             <td style="color: var(--warning-color);">R$ ${(Number(v.salarioMotorista) || 0).toFixed(2)}</td>
                             <td>R$ ${(Number(v.custoCombustivel) || 0).toFixed(2)}</td>
-                            <td>R$ ${((Number(v.totalPedagios) || 0) + (Number(v.totalMultas) || 0)).toFixed(2)}</td>
+                            <td>R$ ${(Number(v.totalPedagios) || 0).toFixed(2)}</td>
+                            <td>R$ ${(Number(v.totalBalsas) || 0).toFixed(2)}</td>
+                            <td>R$ ${((Number(v.totalMultas) || 0) + (Number(v.totalAlimentacao) || 0)).toFixed(2)}</td>
                             <td style="color: var(--success-color);">R$ ${(Number(v.caixaEmpresa) || 0).toFixed(2)}</td>
                             <td style="text-align: center;">${v.observacao ? '⚠️' : '-'}</td>
                         </tr>
                     `).join('');
 
-                // Tabela de Frota e Manutenção
                 let tbodyManutencao = document.getElementById('tabela-frota-manutencao');
                 tbodyManutencao.innerHTML = dados.caminhoes.length === 0 ? '<tr><td colspan="6" class="empty-row">Nenhum caminhão.</td></tr>' :
                     dados.caminhoes.map(c => {
@@ -1550,6 +1629,64 @@
                         </tr>
                     `).join('');
             }
+        }
+
+        function renderizarGraficoPatrao(valores) {
+            let ctx = document.getElementById('graficoFinanceiro');
+            if (!ctx) return;
+
+            if (meuGraficoInstance) {
+                meuGraficoInstance.destroy();
+            }
+
+            meuGraficoInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Faturamento', 'Combustível', 'Manutenções', 'Salários', 'Pedágios', 'Balsas', 'Multas', 'Alimentação'],
+                    datasets: [{
+                        label: 'Valores em R$',
+                        data: [
+                            valores.faturamento, 
+                            valores.combustivel, 
+                            valores.manutencoes, 
+                            valores.salarios, 
+                            valores.pedagios, 
+                            valores.balsas, 
+                            valores.multas, 
+                            valores.alimentacao
+                        ],
+                        backgroundColor: [
+                            '#3b82f6', // Faturamento
+                            '#f59e0b', // Combustível
+                            '#ef4444', // Manutenções
+                            '#10b981', // Salários
+                            '#60a5fa', // Pedágios
+                            '#34d399', // Balsas
+                            '#f87171', // Multas
+                            '#fbbf24'  // Alimentação
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#374151' },
+                            ticks: { color: '#9ca3af' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#9ca3af', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
         }
 
         window.deletarItem = function(colecao, id) {
