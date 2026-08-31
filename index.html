@@ -2,1572 +2,491 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PAINEL DE CONTROLE - Euro Truck Simulator 2</title>
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1e293b">
-    <!-- Google Fonts & FontAwesome Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão de Frota e Viagens</title>
     <style>
         :root {
-            --bg-body: #090d16;
-            --panel-bg: #111827;
-            --panel-card: #1f2937;
-            --accent-color: #3b82f6;
-            --accent-hover: #2563eb;
-            --text-color: #f3f4f6;
-            --text-muted: #9ca3af;
-            --border-color: #374151;
-            --success-color: #10b981;
-            --danger-color: #ef4444;
-            --warning-color: #f59e0b;
-            --input-bg: #111827;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --danger: #dc2626;
+            --background: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
         }
 
-        * { box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-image: linear-gradient(rgba(9, 13, 22, 0.88), rgba(9, 13, 22, 0.94)), url('fundo.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-color: var(--bg-body);
-            color: var(--text-color);
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         header {
-            background-color: #111827;
-            border-bottom: 1px solid var(--border-color);
-            padding: 16px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            margin-bottom: 24px;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
-        header h1 {
-            margin: 0;
-            color: var(--text-color);
-            font-size: 16px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+        h1 {
+            color: var(--primary);
+            font-size: 24px;
+        }
+
+        .tabs {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        header h1 i { color: var(--accent-color); }
-
-        .btn-logout {
-            background: rgba(239, 68, 68, 0.1);
-            color: #fca5a5;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
+        .tab-btn {
+            padding: 10px 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            font-weight: 600;
             transition: all 0.2s;
         }
 
-        .btn-logout:hover { background: rgba(239, 68, 68, 0.2); }
-
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px 16px;
-            padding-bottom: 50px;
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
         }
 
-        #login-screen {
+        .tab-content {
+            display: none;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 82vh;
-            padding: 12px;
-        }
-
-        .login-card {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 32px 24px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-            text-align: center;
-        }
-
-        .login-card h2 {
-            margin-top: 0;
-            margin-bottom: 4px;
-            color: var(--text-color);
-            font-size: 22px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-        }
-
-        .login-card h2 i { color: var(--accent-color); font-size: 26px; }
-
-        .app-version-badge {
-            display: inline-block;
-            background-color: rgba(59, 130, 246, 0.1);
-            color: var(--accent-color);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-bottom: 24px;
-        }
-
-        .app-info-card {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 18px 20px;
-            width: 100%;
-            max-width: 420px;
-            margin-top: 16px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            text-align: left;
-        }
-
-        .app-info-card h4 {
-            margin: 0 0 8px 0;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
             gap: 6px;
         }
-
-        .app-info-card h4 i { color: var(--accent-color); }
-
-        .app-info-card p {
-            margin: 0 0 10px 0;
-            font-size: 12px;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-
-        .app-info-card .app-footer-info {
-            border-top: 1px solid var(--border-color);
-            padding-top: 8px;
-            font-size: 11px;
-            color: var(--text-muted);
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .nav-tabs {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 20px;
-            width: 100%;
-            background-color: #0b0f17;
-            padding: 4px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            overflow-x: auto;
-        }
-
-        .nav-tabs button {
-            background-color: transparent;
-            color: var(--text-muted);
-            border: none;
-            padding: 10px 8px;
-            cursor: pointer;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            flex: 1;
-            white-space: nowrap;
-            transition: all 0.2s ease;
-        }
-
-        .nav-tabs button.active {
-            background-color: var(--accent-color);
-            color: #ffffff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        .card {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-        }
-
-        .card h3 {
-            margin-top: 0;
-            margin-bottom: 18px;
-            font-size: 15px;
-            font-weight: 600;
-            color: var(--text-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
-        }
-
-        .card h3 i { color: var(--accent-color); }
-
-        .form-group { margin-bottom: 16px; text-align: left; }
 
         label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
         }
 
         input, select, textarea {
-            width: 100%;
-            padding: 12px 14px;
-            background-color: var(--input-bg);
-            border: 1px solid var(--border-color);
-            color: #ffffff;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        
-        input[type="password"] { letter-spacing: 2px; }
-        textarea { resize: vertical; min-height: 80px; }
-
-        input:focus, select:focus, textarea:focus { 
-            border-color: var(--accent-color); 
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); 
-        }
-
-        button.btn-submit {
-            background-color: var(--accent-color);
-            color: #ffffff;
-            border: none;
-            padding: 13px;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 8px;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
-        button.btn-submit:hover { background-color: var(--accent-hover); }
-
-        button.btn-danger { background-color: var(--danger-color); }
-        button.btn-danger:hover { background-color: #dc2626; }
-
-        .btn-link {
-            background: none;
-            border: none;
-            color: var(--accent-color);
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            margin-top: 16px;
-            text-decoration: none;
-            width: 100%;
-        }
-        .btn-link:hover { text-decoration: underline; }
-
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .metric-card {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            padding: 14px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .metric-icon {
-            width: 38px;
-            height: 38px;
-            background-color: rgba(59, 130, 246, 0.1);
+            padding: 10px;
+            border: 1px solid var(--border);
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            color: var(--accent-color);
-            flex-shrink: 0;
+            font-size: 14px;
         }
 
-        .metric-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            overflow: hidden;
-        }
-
-        .metric-info h3 {
-            margin: 0;
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--text-muted);
+        button {
+            background: var(--primary);
+            color: white;
             border: none;
-            padding: 0;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
         }
 
-        .metric-info p {
-            margin: 0;
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-color);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            max-height: 380px;
-            overflow-y: auto;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
+        button:hover {
+            background: var(--primary-dark);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 13px;
-            text-align: left;
-            min-width: 340px;
+            margin-top: 20px;
         }
 
         th, td {
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
         }
 
         th {
-            background-color: #0b0f17;
-            color: var(--text-muted);
+            background-color: #f1f5f9;
             font-weight: 600;
-            text-transform: uppercase;
-            font-size: 11px;
-            letter-spacing: 0.5px;
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
 
-        td { color: var(--text-color); }
-        tbody tr:hover { background-color: rgba(255, 255, 255, 0.02); }
-        .empty-row { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
-
-        .center-btn-container {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 16px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        .btn-funcionarios-patrao {
-            background-color: var(--panel-card);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
+        .badge-success { background: #dcfce7; color: var(--success); }
+        .badge-warning { background: #fef9c3; color: var(--warning); }
+        .badge-danger { background: #fee2e2; color: var(--danger); }
+        .badge-info { background: #e0f2fe; color: var(--primary); }
+
+        .actions-cell {
             display: flex;
-            align-items: center;
             gap: 8px;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
         }
 
-        .btn-funcionarios-patrao:hover {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-            color: #ffffff;
+        .btn-sm {
+            padding: 6px 10px;
+            font-size: 12px;
         }
 
-        .btn-zerar-valores {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: #fca5a5;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        .btn-danger {
+            background: var(--danger);
         }
-
-        .btn-zerar-valores:hover {
-            background-color: rgba(239, 68, 68, 0.2);
-            border-color: var(--danger-color);
-            color: #ffffff;
+        .btn-danger:hover {
+            background: #b91c1c;
         }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 16px;
-        }
-
-        .modal-card {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            width: 100%;
-            max-width: 500px;
-            max-height: 85vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-            animation: modalFadeIn 0.2s ease-out;
-        }
-
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .modal-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h3 {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--text-color);
-        }
-
-        .modal-header h3 i { color: var(--accent-color); }
-
-        .modal-close-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 18px;
-            cursor: pointer;
-            padding: 4px;
-        }
-        .modal-close-btn:hover { color: var(--text-color); }
-
-        .modal-body {
-            padding: 20px;
-            overflow-y: auto;
-            max-height: calc(85vh - 70px);
-        }
-
-        .badge-status {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .badge-servico {
-            background-color: rgba(16, 185, 129, 0.15);
-            color: var(--success-color);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .badge-parado {
-            background-color: rgba(156, 163, 175, 0.1);
-            color: var(--text-muted);
-            border: 1px solid var(--border-color);
-        }
-
-        #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: var(--success-color);
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 14px 20px;
-            position: fixed;
-            z-index: 1000;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 24px;
-            font-size: 14px;
-            font-weight: 600;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.4);
-            transition: visibility 0.2s, opacity 0.2s ease-in-out;
-            opacity: 0;
-        }
-        #toast.show { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body>
 
-    <header id="main-header" style="display: none;">
-        <h1><i class="fa-solid fa-gauge-high"></i> <span id="header-title">PAINEL - ETS2</span></h1>
-        <button class="btn-logout" onclick="fazerLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</button>
-    </header>
-
     <div class="container">
-        
-        <!-- TELA DE LOGIN / CADASTRO -->
-        <div id="login-screen">
-            <div class="login-card">
-                <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.03 (Com Manutenção)</div>
-                
-                <div id="form-login-div">
-                    <div class="form-group">
-                        <label>Tipo de Acesso</label>
-                        <select id="tipo-acceso" onchange="mudarTipoAcesso()">
-                            <option value="patrao">Patrão</option>
-                            <option value="motorista">Funcionário</option>
-                        </select>
-                    </div>
+        <header>
+            <h1>Painel de Controle de Frota & Viagens</h1>
+            <div id="status-geral">Status: Operacional</div>
+        </header>
 
-                    <div class="form-group">
-                        <label>Usuário</label>
-                        <input type="text" id="login-usuario" placeholder="*****">
-                    </div>
-                    <div class="form-group">
-                        <label>Senha</label>
-                        <input type="password" id="login-senha" placeholder="*****">
-                    </div>
-
-                    <button class="btn-submit" onclick="entrarNoSistema()">Acessar Sistema</button>
-                    <button class="btn-link" onclick="alternarTelaCadastro(true)">Sou novo funcionário? Cadastre-se</button>
-                </div>
-
-                <div id="form-cadastro-div" style="display: none;">
-                    <div class="form-group">
-                        <label>Nome / Apelido</label>
-                        <input type="text" id="cad-nome" placeholder="Seu nome completo ou apelido">
-                    </div>
-                    <div class="form-group">
-                        <label>Crie seu Usuário de Login</label>
-                        <input type="text" id="cad-usuario" placeholder="Ex: funcionario123">
-                    </div>
-                    <div class="form-group">
-                        <label>Crie sua Senha</label>
-                        <input type="password" id="cad-senha" placeholder="Sua senha">
-                    </div>
-
-                    <button class="btn-submit" onclick="motoristaAutoCadastrar()">Concluir Cadastro</button>
-                    <button class="btn-link" onclick="alternarTelaCadastro(false)">Já tem uma conta? Faça login</button>
-                </div>
-            </div>
-
-            <!-- ÁREA DE INFORMAÇÕES DO APLICATIVO -->
-            <div class="app-info-card">
-                <h4><i class="fa-solid fa-circle-info"></i> Sobre o aplicativo</h4>
-                <p>Aplicativo desenvolvido por Jeferson Luiz para auxiliar na organização e no gerenciamento da experiência de transporte no Euro Truck Simulator 2 (ETS2). Uso exclusivamente fictício, destinado à simulação e entretenimento.</p>
-                <div class="app-footer-info">
-                    Desenvolvido por Jeferson Luiz • 2026
-                </div>
-            </div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="mudarAba(event, 'viagens')">Viagens</button>
+            <button class="tab-btn" onclick="mudarAba(event, 'descanso')">Controle de Descanso</button>
+            <button class="tab-btn" onclick="mudarAba(event, 'manutencao')">Manutenção (Km)</button>
+            <button class="tab-btn" onclick="mudarAba(event, 'despesas')">Despesas Extras</button>
         </div>
 
-        <!-- PAINEL DO PATRÃO -->
-        <div id="painel-patrao" style="display: none;">
-            <div class="nav-tabs" style="grid-template-columns: repeat(2, 1fr);">
-                <button class="tab-btn active" onclick="switchTab(event, 'p-visao')"><i class="fa-solid fa-chart-pie"></i> Visão Geral</button>
-                <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota & Manutenção</button>
-            </div>
-
-            <!-- Aba Visão Geral -->
-            <div id="p-visao" class="tab-content active">
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-icon"><i class="fa-solid fa-wallet"></i></div>
-                        <div class="metric-info">
-                            <h3>Faturamento Caixa Empresa</h3>
-                            <p id="patrao-faturamento">R$ 0,00</p>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-icon"><i class="fa-solid fa-route"></i></div>
-                        <div class="metric-info">
-                            <h3>Total Viagens</h3>
-                            <p id="patrao-total-viagens">0</p>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-icon" style="color: var(--warning-color); background: rgba(245,158,11,0.1);"><i class="fa-solid fa-gas-pump"></i></div>
-                        <div class="metric-info">
-                            <h3>Total Combustível</h3>
-                            <p id="patrao-combustivel">R$ 0,00</p>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-icon" style="color: var(--danger-color); background: rgba(239,68,68,0.1);"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-                        <div class="metric-info">
-                            <h3>Total Manutenções</h3>
-                            <p id="patrao-manutencoes">R$ 0,00</p>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-icon" style="color: var(--danger-color); background: rgba(239,68,68,0.1);"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                        <div class="metric-info">
-                            <h3>Total Multas</h3>
-                            <p id="patrao-multas">R$ 0,00</p>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-icon"><i class="fa-solid fa-road-barrier"></i></div>
-                        <div class="metric-info">
-                            <h3>Total Pedágios/Balsas</h3>
-                            <p id="patrao-pedagios">R$ 0,00</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Painel/Ranking de Melhores Funcionários -->
-                <div class="card">
-                    <h3><i class="fa-solid fa-trophy"></i> Ranking de Melhores Funcionários</h3>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Pos</th>
-                                    <th>Funcionário</th>
-                                    <th>Viagens</th>
-                                    <th>Total KM</th>
-                                    <th>Tempo Total</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-ranking-funcionarios">
-                                <tr><td colspan="5" class="empty-row">Nenhum dado de desempenho registrado.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Relatório Completo de Viagens</h3>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Funcionário</th>
-                                    <th>País / Rota</th>
-                                    <th>KM</th>
-                                    <th>Salário</th>
-                                    <th>Combustível</th>
-                                    <th>Ped./Balsa/Multa</th>
-                                    <th>Caixa Empresa</th>
-                                    <th style="text-align: center;">Imprevistos</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-ultimas-viagens">
-                                <tr><td colspan="8" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Botões de Ações do Patrão (Funcionários & Zerar Valores) -->
-                <div class="center-btn-container">
-                    <button class="btn-funcionarios-patrao" onclick="abrirModalFuncionarios()">
-                        <i class="fa-solid fa-users"></i> Funcionários
-                    </button>
-                    <button class="btn-zerar-valores" onclick="confirmarZerarValores()">
-                        <i class="fa-solid fa-rotate-left"></i> Zerar Todos os Valores
-                    </button>
-                </div>
-            </div>
-
-            <!-- Aba Frota & Manutenção -->
-            <div id="p-caminhoes" class="tab-content">
-                <div class="card">
-                    <h3><i class="fa-solid fa-truck"></i> Cadastrar Caminhão</h3>
+        <!-- ABA VIAGENS -->
+        <div id="viagens" class="tab-content active">
+            <h2>Gerenciamento de Viagens</h2>
+            <form id="form-viagem" onsubmit="salvarViagem(event)" style="margin-top: 20px;">
+                <div class="form-grid">
                     <div class="form-group">
-                        <label>Modelo / Nome do Caminhão</label>
-                        <input type="text" id="cam-modelo" placeholder="Ex: Scania R450">
+                        <label>Motorista / Patrão</label>
+                        <input type="text" id="v-motorista" required placeholder="Nome do condutor">
                     </div>
                     <div class="form-group">
-                        <label>Placa / ID</label>
-                        <input type="text" id="cam-placa" placeholder="Ex: ETS-2026">
-                    </div>
-                    <button class="btn-submit" onclick="cadastrarCaminhao()">Salvar Caminhão</button>
-                </div>
-
-                <div class="card">
-                    <h3><i class="fa-solid fa-screwdriver-wrench"></i> Status da Frota & Manutenção Preventiva</h3>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
-                        • <strong>Troca de Óleo:</strong> a cada 5.000 KM (Custo: R$ 800)<br>
-                        • <strong>Troca de Pneus:</strong> a cada 10.000 KM (Custo: R$ 2.500)<br>
-                        • <strong>Revisão do Motor:</strong> a cada 20.000 KM (Custo: R$ 6.000)
-                    </p>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Modelo / Placa</th>
-                                    <th>KM Total</th>
-                                    <th>Óleo</th>
-                                    <th>Pneus</th>
-                                    <th>Motor</th>
-                                    <th style="text-align: right;">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-frota-manutencao">
-                                <tr><td colspan="6" class="empty-row">Nenhum caminhão cadastrado.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- PAINEL DO MOTORISTA (FUNCIONÁRIO) -->
-        <div id="painel-motorista" style="display: none;">
-            <div class="nav-tabs">
-                <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')"><i class="fa-solid fa-wallet"></i> Extrato</button>
-                <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')"><i class="fa-solid fa-circle-plus"></i> Nova Viagem</button>
-                <button class="tab-btn" onclick="switchTab(event, 'm-andamento')"><i class="fa-solid fa-road"></i> Viagem Ativa</button>
-            </div>
-
-            <!-- Meu Extrato -->
-            <div id="m-extrato" class="tab-content active">
-                <div class="metrics-grid">
-                    <div class="metric-card">
-                        <div class="metric-icon"><i class="fa-solid fa-coins"></i></div>
-                        <div class="metric-info">
-                            <h3>Meu Salário Acumulado</h3>
-                            <p id="motorista-meus-ganhos">R$ 0,00</p>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-icon"><i class="fa-solid fa-truck-fast"></i></div>
-                        <div class="metric-info">
-                            <h3>Minhas Viagens</h3>
-                            <p id="motorista-total-viagens">0</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3><i class="fa-solid fa-timeline"></i> Histórico de Viagens</h3>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>País / Rota</th>
-                                    <th>KM</th>
-                                    <th>Salário</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-minhas-viagens">
-                                <tr><td colspan="3" class="empty-row">Nenhuma viagem registrada.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Adicionar Viagem -->
-            <div id="m-adicionar" class="tab-content">
-                <div class="card">
-                    <h3><i class="fa-solid fa-map-location-dot"></i> Iniciar Nova Viagem</h3>
-                    <div class="form-group">
-                        <label>País da Viagem</label>
-                        <select id="viagem-pais" onchange="recalcularCombustivelManual()"></select>
+                        <label>Veículo / Placa</label>
+                        <input type="text" id="v-veiculo" required placeholder="Ex: ABC-1234">
                     </div>
                     <div class="form-group">
-                        <label>Cidade de Origem</label>
-                        <input type="text" id="viagem-origem" placeholder="Ex: Berlim" oninput="calcularDistanciaAutomatica()">
-                    </div>
-                    <div class="form-group">
-                        <label>Cidade de Destino</label>
-                        <input type="text" id="viagem-destino" placeholder="Ex: Paris" oninput="calcularDistanciaAutomatica()">
-                    </div>
-                    <div class="form-group">
-                        <label>Distância (KM)</label>
-                        <input type="number" id="viagem-km" placeholder="0" oninput="recalcularCombustivelManual()">
-                    </div>
-                    <div class="form-group">
-                        <label>Caminhão Utilizado</label>
-                        <select id="viagem-caminhao">
-                            <option value="">Selecione o caminhão</option>
+                        <label>País de Destino</label>
+                        <select id="v-pais" onchange="atualizarCalculoCombustivel()">
+                            <option value="Brasil">Brasil</option>
+                            <option value="Argentina">Argentina</option>
+                            <option value="Paraguai">Paraguai</option>
+                            <option value="Uruguai">Uruguai</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Tipo de Carga</label>
-                        <input type="text" id="viagem-carga" placeholder="Ex: Eletrônicos">
+                        <label>Quilometragem (Km)</label>
+                        <input type="number" id="v-km" required placeholder="Ex: 500">
+                    </div>
+                </div>
+                <button type="submit">Cadastrar Viagem</button>
+            </form>
+
+            <h3 style="margin-top: 30px;">Viagens Registradas</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Motorista</th>
+                        <th>Veículo</th>
+                        <th>País</th>
+                        <th>Km</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-viagens">
+                    <!-- Preenchido via JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ABA DESCANSO -->
+        <div id="descanso" class="tab-content">
+            <h2>Registro de Descanso e Paradas</h2>
+            <form id="form-descanso" onsubmit="salvarDescanso(event)" style="margin-top: 20px;">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Motorista</label>
+                        <input type="text" id="d-motorista" required placeholder="Nome do motorista">
                     </div>
                     <div class="form-group">
-                        <label>Valor do Frete Bruto (R$)</label>
-                        <input type="number" id="viagem-valor" placeholder="0.00">
+                        <label>Tipo de Parada</label>
+                        <select id="d-tipo">
+                            <option value="Descanso Diário">Descanso Diário</option>
+                            <option value="Pausa para Refeição">Pausa para Refeição</option>
+                            <option value="Pernoite">Pernoite</option>
+                            <option value="Manutenção Rápida / Parada Técnica">Parada Técnica</option>
+                        </select>
                     </div>
-                    <div class="form-group" style="background: rgba(59,130,246,0.05); padding: 12px; border-radius: 6px; border: 1px dashed var(--accent-color);">
-                        <label style="color: var(--accent-color); font-weight: 600;"><i class="fa-solid fa-gas-pump"></i> Desconto Automático de Combustível</label>
-                        <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0 0;" id="pais-preco-info">Baseado no país selecionado</p>
-                        <p style="font-size: 16px; font-weight: 700; margin: 6px 0 0 0;" id="prev-combustivel">R$ 0,00</p>
+                    <div class="form-group">
+                        <label>Duração (Horas)</label>
+                        <input type="number" step="0.5" id="d-duracao" required placeholder="Ex: 8">
                     </div>
-                    <button class="btn-submit" onclick="iniciarViagemMotorista()">Iniciar Viagem</button>
+                    <div class="form-group">
+                        <label>Local / Posto</label>
+                        <input type="text" id="d-local" required placeholder="Ex: Posto Rodoserv">
+                    </div>
                 </div>
-            </div>
+                <button type="submit">Registrar Descanso</button>
+            </form>
 
-            <!-- Viagem Ativa & Lançamento de Gastos -->
-            <div id="m-andamento" class="tab-content">
-                <div id="sem-viagem-ativa" class="card" style="text-align: center; padding: 30px;">
-                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 32px; color: var(--warning-color); margin-bottom: 12px;"></i>
-                    <p style="color: var(--text-muted); margin: 0;">Você não possui nenhuma viagem em andamento no momento.</p>
-                </div>
-
-                <div id="com-viagem-ativa" style="display: none;">
-                    <div class="card" style="border-color: var(--accent-color);">
-                        <h3><i class="fa-solid fa-truck-ramp-box"></i> Viagem em Andamento</h3>
-                        <p style="margin: 6px 0;"><strong>Rota:</strong> <span id="ativa-rota"></span> (<span id="ativa-km"></span> KM)</p>
-                        <p style="margin: 6px 0;"><strong>Caminhão:</strong> <span id="ativa-caminhao"></span></p>
-                        <p style="margin: 6px 0;"><strong>Carga:</strong> <span id="ativa-carga"></span></p>
-                        <p style="margin: 6px 0;"><strong>Valor Bruto:</strong> <span id="ativa-valor"></span></p>
-                        <p style="margin: 6px 0; color: var(--warning-color);"><strong>Combustível Automático:</strong> <span id="ativa-combustivel">R$ 0,00</span></p>
-                    </div>
-
-                    <div class="card">
-                        <h3><i class="fa-solid fa-receipt"></i> Lançar Despesa Extra na Viagem</h3>
-                        <div class="form-group">
-                            <label>Tipo de Gasto</label>
-                            <select id="gasto-tipo">
-                                <option value="Pedágio">Pedágio</option>
-                                <option value="Balsa">Balsa</option>
-                                <option value="Multa">Multa</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Descrição do Gasto</label>
-                            <input type="text" id="gasto-descricao" placeholder="Ex: Pedágio Rodovia">
-                        </div>
-                        <div class="form-group">
-                            <label>Valor (R$)</label>
-                            <input type="number" id="gasto-valor" placeholder="0.00">
-                        </div>
-                        <button class="btn-submit" onclick="adicionarGastoViagem()"><i class="fa-solid fa-plus"></i> Adicionar Despesa</button>
-                    </div>
-
-                    <div class="card">
-                        <h3><i class="fa-solid fa-list-check"></i> Despesas Lançadas</h3>
-                        <div class="table-responsive">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Tipo</th>
-                                        <th>Descrição</th>
-                                        <th>Valor</th>
-                                        <th style="text-align: right;">Ação</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabela-gastos-ativos">
-                                    <tr><td colspan="4" class="empty-row">Nenhuma despesa extra.</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="card" style="border-color: var(--warning-color);">
-                        <h3><i class="fa-solid fa-triangle-exclamation" style="color: var(--warning-color);"></i> Relatório de Imprevistos (Opcional)</h3>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <textarea id="viagem-observacao" placeholder="Ex: Houve um engarrafamento..."></textarea>
-                        </div>
-                    </div>
-
-                    <button class="btn-submit btn-danger" onclick="finalizarViagemMotorista()" style="padding: 16px; font-size: 15px; margin-top: 10px;">
-                        <i class="fa-solid fa-flag-checkered"></i> Finalizar Viagem
-                    </button>
-                </div>
-            </div>
+            <h3 style="margin-top: 30px;">Histórico de Descansos e Pausas</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Motorista</th>
+                        <th>Tipo</th>
+                        <th>Duração</th>
+                        <th>Local</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-descanso">
+                    <!-- Preenchido via JS -->
+                </tbody>
+            </table>
         </div>
 
-    </div>
+        <!-- ABA MANUTENÇÃO -->
+        <div id="manutencao" class="tab-content">
+            <h2>Controle de Manutenção por Quilometragem</h2>
+            <p style="margin-top: 10px; color: #64748b;">Monitore o desgaste de peças e revisões com base nos quilômetros rodados.</p>
+            <table style="margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th>Veículo</th>
+                        <th>Km Atual</th>
+                        <th>Próxima Revisão</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-manutencao">
+                    <!-- Preenchido via JS -->
+                </tbody>
+            </table>
+        </div>
 
-    <!-- Modal de Funcionários Cadastrados -->
-    <div id="modal-funcionarios" class="modal-overlay">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-users-gear"></i> Funcionários da Empresa</h3>
-                <button class="modal-close-btn" onclick="fecharModalFuncionarios()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Funcionário</th>
-                                <th>Usuário</th>
-                                <th style="text-align: center;">Status Atual</th>
-                                <th style="text-align: right;">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-modal-funcionarios">
-                            <tr><td colspan="4" class="empty-row">Nenhum funcionário cadastrado.</td></tr>
-                        </tbody>
-                    </table>
+        <!-- ABA DESPESAS EXTRAS -->
+        <div id="despesas" class="tab-content">
+            <h2>Painel de Despesas Extras</h2>
+            <form id="form-despesa" onsubmit="salvarDespesa(event)" style="margin-top: 20px;">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Descrição da Despesa</label>
+                        <input type="text" id="e-descricao" required placeholder="Ex: Pedágio, Borracharia">
+                    </div>
+                    <div class="form-group">
+                        <label>Valor (R$ / Moeda)</label>
+                        <input type="number" step="0.01" id="e-valor" required placeholder="0.00">
+                    </div>
                 </div>
-            </div>
+                <button type="submit">Adicionar Despesa</button>
+            </form>
+            <table style="margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tabela-despesas">
+                    <!-- Preenchido via JS -->
+                </tbody>
+            </table>
         </div>
     </div>
-
-    <div id="toast">Operação realizada com sucesso!</div>
 
     <script>
-        const PRECOS_COMBUSTIVEL_PAISES = [
-            { nome: "Alemanha (Germany)", precoLitro: 9.10 },
-            { nome: "França (France)", precoLitro: 8.60 },
-            { nome: "Países Baixos (Netherlands)", precoLitro: 9.30 },
-            { nome: "Reino Unido (UK)", precoLitro: 8.40 },
-            { nome: "Polônia (Poland)", precoLitro: 7.20 },
-            { nome: "Itália (Italy)", precoLitro: 8.10 },
-            { nome: "Espanha (Spain)", precoLitro: 7.40 },
-            { nome: "Áustria (Austria)", precoLitro: 8.50 },
-            { nome: "Suíça (Switzerland)", precoLitro: 9.00 },
-            { nome: "Bélgica (Belgium)", precoLitro: 8.90 }
-        ];
+        // Dados locais simulados (localStorage)
+        let viagens = JSON.parse(localStorage.getItem('f_viagens')) || [];
+        let descansos = JSON.parse(localStorage.getItem('f_descansos')) || [];
+        let despesas = JSON.parse(localStorage.getItem('f_despesas')) || [];
 
-        const CONSUMO_LITROS_POR_KM = 0.32; 
+        function mudarAba(evt, abaNome) {
+            const conteudos = document.getElementsByClassName('tab-content');
+            for (let c of conteudos) c.classList.remove('active');
 
-        let sessaoAtual = null;
+            const botoes = document.getElementsByClassName('tab-btn');
+            for (let b of botoes) b.classList.remove('active');
 
-        window.onload = function() {
-            carregarSelectPaises();
-        };
-
-        function carregarSelectPaises() {
-            let select = document.getElementById('viagem-pais');
-            if (!select) return;
-            select.innerHTML = PRECOS_COMBUSTIVEL_PAISES.map(p => 
-                `<option value="${p.precoLitro}" data-nome="${p.nome}">${p.nome} (Diesel: R$ ${p.precoLitro.toFixed(2)}/L)</option>`
-            ).join('');
-            recalcularCombustivelManual();
-        }
-
-        function carregarDados() {
-            return {
-                funcionarios: JSON.parse(localStorage.getItem('ets2_funcionarios')) || [],
-                caminhoes: JSON.parse(localStorage.getItem('ets2_caminhoes')) || [],
-                viagens: JSON.parse(localStorage.getItem('ets2_viagens')) || [],
-                viagensAtivas: JSON.parse(localStorage.getItem('ets2_viagens_ativas')) || {}
-            };
-        }
-
-        function salvarDados(dados) {
-            localStorage.setItem('ets2_funcionarios', JSON.stringify(dados.funcionarios));
-            localStorage.setItem('ets2_caminhoes', JSON.stringify(dados.caminhoes));
-            localStorage.setItem('ets2_viagens', JSON.stringify(dados.viagens));
-            localStorage.setItem('ets2_viagens_ativas', JSON.stringify(dados.viagensAtivas));
-        }
-
-        window.mudarTipoAcesso = function() {
-            let tipo = document.getElementById('tipo-acceso').value;
-            let inputUsuario = document.getElementById('login-usuario');
-            inputUsuario.value = '';
-            inputUsuario.placeholder = (tipo === 'patrao') ? '*****' : 'Seu usuário de funcionário';
-        };
-
-        window.alternarTelaCadastro = function(mostrar) {
-            document.getElementById('form-login-div').style.display = mostrar ? 'none' : 'block';
-            document.getElementById('form-cadastro-div').style.display = mostrar ? 'block' : 'none';
-        };
-
-        window.entrarNoSistema = function() {
-            let tipo = document.getElementById('tipo-acceso').value;
-            let usuario = document.getElementById('login-usuario').value.trim();
-            let senha = document.getElementById('login-senha').value.trim();
-
-            if (!usuario || !senha) {
-                mostrarToast("Preencha o usuário e a senha!", "error");
-                return;
-            }
-
-            if (tipo === 'patrao') {
-                if (usuario === '*****' && senha === '*****') {
-                    sessaoAtual = { tipo: 'patrao', nome: 'Patrão' };
-                    iniciarPainelPatrao();
-                } else {
-                    mostrarToast("Credenciais do Patrão incorretas!", "error");
-                }
-            } else {
-                let dados = carregarDados();
-                let funcionarioEncontrado = dados.funcionarios.find(m => 
-                    m.usuario && m.usuario.toLowerCase() === usuario.toLowerCase() && m.senha === senha
-                );
-
-                if (funcionarioEncontrado) {
-                    sessaoAtual = { tipo: 'motorista', ...funcionarioEncontrado };
-                    iniciarPainelMotorista();
-                } else {
-                    mostrarToast("Funcionário não encontrado ou senha inválida!", "error");
-                }
-            }
-        };
-
-        window.motoristaAutoCadastrar = function() {
-            let nome = document.getElementById('cad-nome').value.trim();
-            let usuario = document.getElementById('cad-usuario').value.trim();
-            let senha = document.getElementById('cad-senha').value.trim();
-
-            if (!nome || !usuario || !senha) {
-                mostrarToast("Preencha todos os campos do cadastro!", "error");
-                return;
-            }
-
-            let dados = carregarDados();
-            if (dados.funcionarios.some(m => m.usuario.toLowerCase() === usuario.toLowerCase())) {
-                mostrarToast("Este usuário já está em uso!", "error");
-                return;
-            }
-
-            dados.funcionarios.push({ id: 'mot_' + Date.now(), nome, usuario, senha });
-            salvarDados(dados);
-
-            mostrarToast("Cadastro realizado com sucesso!");
-            document.getElementById('login-usuario').value = usuario;
-            document.getElementById('login-senha').value = senha;
-            document.getElementById('tipo-acceso').value = 'motorista';
-            alternarTelaCadastro(false);
-        };
-
-        window.fazerLogout = function() {
-            sessaoAtual = null;
-            document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('painel-patrao').style.display = 'none';
-            document.getElementById('painel-motorista').style.display = 'none';
-            document.getElementById('main-header').style.display = 'none';
-            document.getElementById('login-senha').value = '';
-            mostrarToast("Você saiu do sistema.");
-        };
-
-        window.switchTab = function(evt, tabId) {
-            let container = evt.currentTarget.closest('.container');
-            container.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            container.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+            document.getElementById(abaNome).classList.add('active');
             evt.currentTarget.classList.add('active');
-        };
+            
+            atualizarTabelas();
+        }
 
-        window.abrirModalFuncionarios = function() {
-            atualizarTabelaModalFuncionarios();
-            document.getElementById('modal-funcionarios').style.display = 'flex';
-        };
+        // Funções de Viagem
+        function salvarViagem(e) {
+            e.preventDefault();
+            const novaViagem = {
+                id: Date.now(),
+                motorista: document.getElementById('v-motorista').value,
+                veiculo: document.getElementById('v-veiculo').value,
+                pais: document.getElementById('v-pais').value,
+                km: Number(document.getElementById('v-km').value)
+            };
+            viagens.push(novaViagem);
+            localStorage.setItem('f_viagens', JSON.stringify(viagens));
+            document.getElementById('form-viagem').reset();
+            atualizarTabelas();
+        }
 
-        window.fecharModalFuncionarios = function() {
-            document.getElementById('modal-funcionarios').style.display = 'none';
-        };
+        function excluirViagem(id) {
+            viagens = viagens.filter(v => v.id !== id);
+            localStorage.setItem('f_viagens', JSON.stringify(viagens));
+            atualizarTabelas();
+        }
 
-        window.confirmarZerarValores = function() {
-            if (confirm("⚠️ ATENÇÃO:\nDeseja realmente zerar todos os valores, histórico de viagens e quilometragens? Os cadastros de caminhões e funcionários serão mantidos.")) {
-                let dados = carregarDados();
-                dados.viagens = [];
-                dados.viagensAtivas = {};
-                dados.caminhoes.forEach(c => {
-                    c.kmDesdeOleo = 0;
-                    c.kmDesdePneu = 0;
-                    c.kmDesdeMotor = 0;
-                });
-                salvarDados(dados);
-                mostrarToast("Todos os valores e manutenções foram zerados!");
-                atualizarTelas();
-            }
-        };
+        // Funções de Descanso
+        function salvarDescanso(e) {
+            e.preventDefault();
+            const novoDescanso = {
+                id: Date.now(),
+                motorista: document.getElementById('d-motorista').value,
+                tipo: document.getElementById('d-tipo').value,
+                duracao: document.getElementById('d-duracao').value,
+                local: document.getElementById('d-local').value
+            };
+            descansos.push(novoDescanso);
+            localStorage.setItem('f_descansos', JSON.stringify(descansos));
+            document.getElementById('form-descanso').reset();
+            atualizarTabelas();
+        }
 
-        function atualizarTabelaModalFuncionarios() {
-            let dados = carregarDados();
-            let tbody = document.getElementById('tabela-modal-funcionarios');
-            if (dados.funcionarios.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhum funcionário cadastrado.</td></tr>';
-                return;
-            }
-            tbody.innerHTML = dados.funcionarios.map(m => {
-                let emServico = dados.viagensAtivas && dados.viagensAtivas[m.id];
-                let statusBadge = emServico 
-                    ? `<span class="badge-status badge-servico">Em Serviço</span>`
-                    : `<span class="badge-status badge-parado">Parado</span>`;
-                return `
+        function excluirDescanso(id) {
+            descansos = descansos.filter(d => d.id !== id);
+            localStorage.setItem('f_descansos', JSON.stringify(descansos));
+            atualizarTabelas();
+        }
+
+        // Funções de Despesas
+        function salvarDespesa(e) {
+            e.preventDefault();
+            const novaDespesa = {
+                id: Date.now(),
+                descricao: document.getElementById('e-descricao').value,
+                valor: Number(document.getElementById('e-valor').value)
+            };
+            despesas.push(novaDespesa);
+            localStorage.setItem('f_despesas', JSON.stringify(despesas));
+            document.getElementById('form-despesa').reset();
+            atualizarTabelas();
+        }
+
+        function excluirDespesa(id) {
+            despesas = despesas.filter(d => d.id !== id);
+            localStorage.setItem('f_despesas', JSON.stringify(despesas));
+            atualizarTabelas();
+        }
+
+        // Atualização Geral das Tabelas e Manutenções Baseadas em Km
+        function atualizarTabelas() {
+            // Tabela Viagens
+            const tViagens = document.getElementById('tabela-viagens');
+            tViagens.innerHTML = viagens.map(v => `
+                <tr>
+                    <td>${v.motorista}</td>
+                    <td>${v.veiculo}</td>
+                    <td><span class="badge badge-info">${v.pais}</span></td>
+                    <td>${v.km} Km</td>
+                    <td class="actions-cell">
+                        <button class="btn-sm btn-danger" onclick="excluirViagem(${v.id})">Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Tabela Descanso
+            const tDescanso = document.getElementById('tabela-descanso');
+            tDescanso.innerHTML = descansos.map(d => `
+                <tr>
+                    <td>${d.motorista}</td>
+                    <td><span class="badge badge-warning">${d.tipo}</span></td>
+                    <td>${d.duracao}h</td>
+                    <td>${d.local}</td>
+                    <td class="actions-cell">
+                        <button class="btn-sm btn-danger" onclick="excluirDescanso(${d.id})">Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Tabela Manutenção (Agrupada por veículo e calculada por Km)
+            const veiculosMap = {};
+            viagens.forEach(v => {
+                if (!veiculosMap[v.veiculo]) veiculosMap[v.veiculo] = 0;
+                veiculosMap[v.veiculo] += v.km;
+            });
+
+            const tManutencao = document.getElementById('tabela-manutencao');
+            let htmlManutencao = '';
+            for (let veiculo in veiculosMap) {
+                let kmTotal = veiculosMap[veiculo];
+                let proximaRevisao = 10000; // Alvo de revisão padrão a cada 10.000 km
+                let resto = kmTotal % proximaRevisao;
+                let falta = proximaRevisao - resto;
+                let statusBadge = falta < 1500 ? '<span class="badge badge-danger">Revisão Próxima</span>' : '<span class="badge badge-success">Em Dia</span>';
+
+                htmlManutencao += `
                     <tr>
-                        <td><strong>${m.nome}</strong></td>
-                        <td>${m.usuario}</td>
-                        <td style="text-align: center;">${statusBadge}</td>
-                        <td style="text-align: right;"><button onclick="excluirFuncionario('${m.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button></td>
+                        <td>${veiculo}</td>
+                        <td>${kmTotal} Km</td>
+                        <td>A cada ${proximaRevisao} Km (Faltam ~${falta} Km)</td>
+                        <td>${statusBadge}</td>
                     </tr>
                 `;
-            }).join('');
+            }
+            tManutencao.innerHTML = htmlManutencao || '<tr><td colspan="4" style="text-align:center;">Nenhum veículo cadastrado nas viagens.</td></tr>';
+
+            // Tabela Despesas
+            const tDespesas = document.getElementById('tabela-despesas');
+            tDespesas.innerHTML = despesas.map(d => `
+                <tr>
+                    <td>${d.descricao}</td>
+                    <td>R$ ${d.valor.toFixed(2)}</td>
+                    <td class="actions-cell">
+                        <button class="btn-sm btn-danger" onclick="excluirDespesa(${d.id})">Excluir</button>
+                    </td>
+                </tr>
+            `).join('');
         }
 
-        window.excluirFuncionario = function(idFuncionario) {
-            if (confirm("Deseja excluir este funcionário?")) {
-                let dados = carregarDados();
-                dados.funcionarios = dados.funcionarios.filter(f => f.id !== idFuncionario);
-                delete dados.viagensAtivas[idFuncionario];
-                salvarDados(dados);
-                atualizarTabelaModalFuncionarios();
-                atualizarTelas();
-            }
-        };
-
-        window.cadastrarCaminhao = function() {
-            let modelo = document.getElementById('cam-modelo').value.trim();
-            let placa = document.getElementById('cam-placa').value.trim();
-
-            if (!modelo || !placa) {
-                mostrarToast("Preencha todos os campos do caminhão!", "error");
-                return;
-            }
-
-            let dados = carregarDados();
-            dados.caminhoes.push({ 
-                id: 'cam_' + Date.now(), 
-                modelo, 
-                placa,
-                kmDesdeOleo: 0,
-                kmDesdePneu: 0,
-                kmDesdeMotor: 0
-            });
-            salvarDados(dados);
-
-            document.getElementById('cam-modelo').value = '';
-            document.getElementById('cam-placa').value = '';
-            
-            mostrarToast("Caminhão cadastrado com sucesso!");
-            atualizarTelas();
-            carregarSelectCaminhoes();
-        };
-
-        function carregarSelectCaminhoes() {
-            let dados = carregarDados();
-            let select = document.getElementById('viagem-caminhao');
-            if(!select) return;
-            select.innerHTML = '<option value="">Selecione o caminhão</option>' + 
-                dados.caminhoes.map(c => `<option value="${c.id}" data-modelo="${c.modelo} (${c.placa})">${c.modelo} - ${c.placa}</option>`).join('');
-        }
-
-        window.realizarManutencao = function(caminhaoId, tipo) {
-            let dados = carregarDados();
-            let cam = dados.caminhoes.find(c => c.id === caminhaoId);
-            if (!cam) return;
-
-            let custos = { oleo: 800, pneu: 2500, motor: 6000 };
-            let custoServico = custos[tipo];
-
-            let faturamentoEmpresa = dados.viagens.reduce((acc, v) => acc + (Number(v.caixaEmpresa) || 0), 0);
-            
-            // Subtrai de uma forma lógica acumulando como despesa de manutenção nas viagens ou ajustando no saldo
-            if (confirm(`Deseja realizar a manutenção (${tipo.toUpperCase()}) no caminhão ${cam.modelo}? Custo: R$ ${custoServico}.`)) {
-                // Registramos um evento de manutenção guardando no array de viagens como custo administrativo
-                dados.viagens.push({
-                    id: 'man_' + Date.now(),
-                    motoristaNome: 'Oficina Mecânica',
-                    pais: 'Manutenção Preventiva',
-                    origem: cam.modelo,
-                    destino: cam.placa,
-                    km: 0,
-                    salarioMotorista: 0,
-                    custoCombustivel: 0,
-                    totalPedagios: 0,
-                    totalBalsas: 0,
-                    totalMultas: 0,
-                    caixaEmpresa: -custoServico // Reduz do caixa da empresa
-                });
-
-                if (tipo === 'oleo') cam.kmDesdeOleo = 0;
-                if (tipo === 'pneu') cam.kmDesdePneu = 0;
-                if (tipo === 'motor') cam.kmDesdeMotor = 0;
-
-                salvarDados(dados);
-                mostrarToast("Manutenção concluída com sucesso!");
-                atualizarTelas();
-            }
-        };
-
-        window.calcularDistanciaAutomatica = function() {
-            let origem = document.getElementById('viagem-origem').value.trim();
-            let destino = document.getElementById('viagem-destino').value.trim();
-            if (origem.length > 1 && destino.length > 1) {
-                let baseHash = (origem + destino).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-                let kmEstimado = 300 + (baseHash % 1400);
-                document.getElementById('viagem-km').value = kmEstimado;
-                recalcularCombustivelManual();
-            }
-        };
-
-        window.recalcularCombustivelManual = function() {
-            let km = parseFloat(document.getElementById('viagem-km').value) || 0;
-            let selectPais = document.getElementById('viagem-pais');
-            if (!selectPais || selectPais.options.length === 0) return;
-            
-            let precoLitro = parseFloat(selectPais.value) || 0;
-            let litrosConsumidos = km * CONSUMO_LITROS_POR_KM;
-            let custoCombustivel = litrosConsumidos * precoLitro;
-
-            document.getElementById('prev-combustivel').innerText = `R$ ${custoCombustivel.toFixed(2)} (${litrosConsumidos.toFixed(0)} L)`;
-        };
-
-        window.iniciarViagemMotorista = function() {
-            let selectPais = document.getElementById('viagem-pais');
-            let paisNome = selectPais.options[selectPais.selectedIndex].getAttribute('data-nome');
-            let precoLitro = parseFloat(selectPais.value);
-
-            let origem = document.getElementById('viagem-origem').value.trim();
-            let destino = document.getElementById('viagem-destino').value.trim();
-            let km = parseFloat(document.getElementById('viagem-km').value);
-            let selectCaminhao = document.getElementById('viagem-caminhao');
-            let caminhaoId = selectCaminhao.value;
-            let caminhaoNome = selectCaminhao.options[selectCaminhao.selectedIndex]?.getAttribute('data-modelo') || '';
-            let carga = document.getElementById('viagem-carga').value.trim();
-            let valor = parseFloat(document.getElementById('viagem-valor').value);
-
-            if (!origem || !destino || isNaN(km) || !caminhaoId || !carga || isNaN(valor)) {
-                mostrarToast("Preencha todos os campos obrigatórios!", "error");
-                return;
-            }
-
-            let dados = carregarDados();
-            if (dados.viagensAtivas[sessaoAtual.id]) {
-                mostrarToast("Você já tem uma viagem em andamento!", "error");
-                return;
-            }
-
-            let custoCombustivel = km * CONSUMO_LITROS_POR_KM * precoLitro;
-
-            dados.viagensAtivas[sessaoAtual.id] = {
-                id: 'vig_' + Date.now(),
-                motoristaId: sessaoAtual.id,
-                motoristaNome: sessaoAtual.nome,
-                pais: paisNome,
-                origem,
-                destino,
-                km,
-                caminhaoId,
-                caminhao: caminhaoNome,
-                carga,
-                valorBruto: valor,
-                custoCombustivel,
-                gastosExtras: [],
-                dataInicio: new Date().toISOString()
-            };
-
-            salvarDados(dados);
-            mostrarToast("Viagem iniciada!");
-            
-            let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
-            switchTab({ currentTarget: botoesTab[2] }, 'm-andamento');
-            atualizarTelas();
-        };
-
-        window.adicionarGastoViagem = function() {
-            let tipo = document.getElementById('gasto-tipo').value;
-            let descricao = document.getElementById('gasto-descricao').value.trim();
-            let valorGasto = parseFloat(document.getElementById('gasto-valor').value);
-
-            if (isNaN(valorGasto) || valorGasto <= 0) {
-                mostrarToast("Informe um valor válido!", "error");
-                return;
-            }
-
-            let dados = carregarDados();
-            let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
-            if (!viagemAtiva) return;
-
-            viagemAtiva.gastosExtras.push({ id: 'gst_' + Date.now(), tipo, descricao: descricao || tipo, valor: valorGasto });
-            salvarDados(dados);
-
-            document.getElementById('gasto-descricao').value = '';
-            document.getElementById('gasto-valor').value = '';
-            atualizarTelas();
-        };
-
-        window.deletarGastoAtivo = function(gastoId) {
-            let dados = carregarDados();
-            let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
-            if (viagemAtiva) {
-                viagemAtiva.gastosExtras = viagemAtiva.gastosExtras.filter(g => g.id !== gastoId);
-                salvarDados(dados);
-                atualizarTelas();
-            }
-        };
-
-        window.finalizarViagemMotorista = function() {
-            if (!confirm("Deseja finalizar esta viagem?")) return;
-
-            let dados = carregarDados();
-            let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
-            if (!viagemAtiva) return;
-
-            let observacao = document.getElementById('viagem-observacao').value.trim();
-            let dataFim = new Date();
-            let tempoMinutos = Math.round((dataFim - new Date(viagemAtiva.dataInicio)) / 60000);
-
-            let totalPedagios = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Pedágio').reduce((acc, g) => acc + g.valor, 0);
-            let totalBalsas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Balsa').reduce((acc, g) => acc + g.valor, 0);
-            let totalMultas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Multa').reduce((acc, g) => acc + g.valor, 0);
-            let totalGastosExtras = totalPedagios + totalBalsas + totalMultas;
-
-            let salarioMotorista = viagemAtiva.valorBruto * 0.14;
-            let caixaEmpresa = viagemAtiva.valorBruto - salarioMotorista - viagemAtiva.custoCombustivel - totalGastosExtras;
-
-            // Atualiza a KM do caminhão associado e seus ciclos de manutenção
-            let caminhao = dados.caminhoes.find(c => c.id === viagemAtiva.caminhaoId);
-            if (caminhao) {
-                caminhao.kmDesdeOleo = (caminhao.kmDesdeOleo || 0) + viagemAtiva.km;
-                caminhao.kmDesdePneu = (caminhao.kmDesdePneu || 0) + viagemAtiva.km;
-                caminhao.kmDesdeMotor = (caminhao.kmDesdeMotor || 0) + viagemAtiva.km;
-            }
-
-            dados.viagens.push({
-                ...viagemAtiva,
-                salarioMotorista,
-                totalPedagios,
-                totalBalsas,
-                totalMultas,
-                caixaEmpresa,
-                tempoMinutos,
-                observacao
-            });
-
-            delete dados.viagensAtivas[sessaoAtual.id];
-            salvarDados(dados);
-
-            mostrarToast("Viagem finalizada com sucesso!");
-            let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
-            switchTab({ currentTarget: botoesTab[0] }, 'm-extrato');
-            atualizarTelas();
-        };
-
-        window.verRelatorioImprevisto = function(idViagem) {
-            let dados = carregarDados();
-            let viagem = dados.viagens.find(v => v.id === idViagem);
-            if (viagem && viagem.observacao) {
-                alert(`⚠️ Ocorrido:\n"${viagem.observacao}"`);
-            }
-        };
-
-        function iniciarPainelPatrao() {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('painel-patrao').style.display = 'block';
-            document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('header-title').innerText = "PAINEL DO PATRÃO";
-            atualizarTelas();
-        }
-
-        function iniciarPainelMotorista() {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('painel-motorista').style.display = 'block';
-            document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('header-title').innerText = `FUNCIONÁRIO: ${sessaoAtual.nome.toUpperCase()}`;
-            carregarSelectCaminhoes();
-            atualizarTelas();
-        }
-
-        function atualizarTelas() {
-            let dados = carregarDados();
-            
-            if (sessaoAtual && sessaoAtual.tipo === 'patrao') {
-                let faturamentoEmpresa = dados.viagens.reduce((acc, v) => acc + (Number(v.caixaEmpresa) || 0), 0);
-                let totalCombustivelGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.custoCombustivel) || 0), 0);
-                let totalManutencoes = dados.viagens.filter(v => v.id.startsWith('man_')).reduce((acc, v) => acc + Math.abs(v.caixaEmpresa), 0);
-                let totalMultasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalMultas) || 0), 0);
-                let totalOutros = dados.viagens.reduce((acc, v) => acc + (Number(v.totalPedagios) || 0) + (Number(v.totalBalsas) || 0), 0);
-
-                document.getElementById('patrao-faturamento').innerText = `R$ ${faturamentoEmpresa.toFixed(2)}`;
-                document.getElementById('patrao-total-viagens').innerText = dados.viagens.filter(v => !v.id.startsWith('man_')).length;
-                document.getElementById('patrao-combustivel').innerText = `R$ ${totalCombustivelGeral.toFixed(2)}`;
-                document.getElementById('patrao-manutencoes').innerText = `R$ ${totalManutencoes.toFixed(2)}`;
-                document.getElementById('patrao-multas').innerText = `R$ ${totalMultasGeral.toFixed(2)}`;
-                document.getElementById('patrao-pedagios').innerText = `R$ ${totalOutros.toFixed(2)}`;
-
-                let resumoFuncionarios = {};
-                dados.viagens.filter(v => !v.id.startsWith('man_')).forEach(v => {
-                    let mId = v.motoristaId || 'desconhecido';
-                    if (!resumoFuncionarios[mId]) {
-                        resumoFuncionarios[mId] = { nome: v.motoristaNome, totalKm: 0, totalViagens: 0, totalMinutos: 0 };
-                    }
-                    resumoFuncionarios[mId].totalKm += Number(v.km) || 0;
-                    resumoFuncionarios[mId].totalViagens += 1;
-                    resumoFuncionarios[mId].totalMinutos += Number(v.tempoMinutos) || 0;
-                });
-
-                let arrayRanking = Object.values(resumoFuncionarios).sort((a, b) => b.totalKm - a.totalKm);
-                let tbodyRanking = document.getElementById('tabela-ranking-funcionarios');
-                tbodyRanking.innerHTML = arrayRanking.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhum dado.</td></tr>' :
-                    arrayRanking.map((rf, idx) => `
-                        <tr>
-                            <td><strong>${idx + 1}º</strong></td>
-                            <td>${rf.nome}</td>
-                            <td>${rf.totalViagens}</td>
-                            <td>${rf.totalKm} KM</td>
-                            <td>${rf.totalMinutos} min</td>
-                        </tr>
-                    `).join('');
-
-                let viagensValidas = dados.viagens.filter(v => !v.id.startsWith('man_'));
-                let tbodyViagens = document.getElementById('tabela-ultimas-viagens');
-                tbodyViagens.innerHTML = viagensValidas.length === 0 ? '<tr><td colspan="8" class="empty-row">Nenhuma viagem.</td></tr>' :
-                    viagensValidas.slice().reverse().map(v => `
-                        <tr>
-                            <td><strong>${v.motoristaName || v.motoristaNome}</strong></td>
-                            <td>${v.origem} → ${v.destino}</td>
-                            <td>${v.km} KM</td>
-                            <td style="color: var(--warning-color);">R$ ${(Number(v.salarioMotorista) || 0).toFixed(2)}</td>
-                            <td>R$ ${(Number(v.custoCombustivel) || 0).toFixed(2)}</td>
-                            <td>R$ ${((Number(v.totalPedagios) || 0) + (Number(v.totalMultas) || 0)).toFixed(2)}</td>
-                            <td style="color: var(--success-color);">R$ ${(Number(v.caixaEmpresa) || 0).toFixed(2)}</td>
-                            <td style="text-align: center;">${v.observacao ? '⚠️' : '-'}</td>
-                        </tr>
-                    `).join('');
-
-                // Tabela de Frota e Manutenção
-                let tbodyManutencao = document.getElementById('tabela-frota-manutencao');
-                tbodyManutencao.innerHTML = dados.caminhoes.length === 0 ? '<tr><td colspan="6" class="empty-row">Nenhum caminhão.</td></tr>' :
-                    dados.caminhoes.map(c => {
-                        let kmOleo = c.kmDesdeOleo || 0;
-                        let kmPneu = c.kmDesdePneu || 0;
-                        let kmMotor = c.kmDesdeMotor || 0;
-
-                        let statusOleo = kmOleo >= 5000 ? `<button class="btn-submit btn-danger" style="padding:4px 8px; font-size:11px;" onclick="realizarManutencao('${c.id}', 'oleo')">Trocar Óleo (R$800)</button>` : `<span style="color:var(--success-color)">OK (${kmOleo}/5000 km)</span>`;
-                        let statusPneu = kmPneu >= 10000 ? `<button class="btn-submit btn-danger" style="padding:4px 8px; font-size:11px;" onclick="realizarManutencao('${c.id}', 'pneu')">Trocar Pneus (R$2500)</button>` : `<span style="color:var(--success-color)">OK (${kmPneu}/10000 km)</span>`;
-                        let statusMotor = kmMotor >= 20000 ? `<button class="btn-submit btn-danger" style="padding:4px 8px; font-size:11px;" onclick="realizarManutencao('${c.id}', 'motor')">Revisão Motor (R$6000)</button>` : `<span style="color:var(--success-color)">OK (${kmMotor}/20000 km)</span>`;
-
-                        let kmTotalGeral = dados.viagens.filter(v => v.caminhaoId === c.id).reduce((acc, v) => acc + v.km, 0);
-
-                        return `
-                            <tr>
-                                <td><strong>${c.modelo}</strong><br><small>${c.placa}</small></td>
-                                <td>${kmTotalGeral} KM</td>
-                                <td>${statusOleo}</td>
-                                <td>${statusPneu}</td>
-                                <td>${statusMotor}</td>
-                                <td style="text-align: right;"><button onclick="deletarItem('caminhoes', '${c.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button></td>
-                            </tr>
-                        `;
-                    }).join('');
-            }
-
-            if (sessaoAtual && sessaoAtual.tipo === 'motorista') {
-                let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
-                let divSemViagem = document.getElementById('sem-viagem-ativa');
-                let divComViagem = document.getElementById('com-viagem-ativa');
-
-                if (viagemAtiva) {
-                    divSemViagem.style.display = 'none';
-                    divComViagem.style.display = 'block';
-                    document.getElementById('ativa-rota').innerText = `${viagemAtiva.origem} → ${viagemAtiva.destino}`;
-                    document.getElementById('ativa-km').innerText = viagemAtiva.km;
-                    document.getElementById('ativa-caminhao').innerText = viagemAtiva.caminhao;
-                    document.getElementById('ativa-carga').innerText = viagemAtiva.carga;
-                    document.getElementById('ativa-valor').innerText = `R$ ${Number(viagemAtiva.valorBruto).toFixed(2)}`;
-                    document.getElementById('ativa-combustivel').innerText = `R$ ${Number(viagemAtiva.custoCombustivel).toFixed(2)}`;
-
-                    let tbodyGastos = document.getElementById('tabela-gastos-ativos');
-                    tbodyGastos.innerHTML = viagemAtiva.gastosExtras.length === 0 ? '<tr><td colspan="4" class="empty-row">Nenhuma despesa.</td></tr>' :
-                        viagemAtiva.gastosExtras.map(g => `
-                            <tr>
-                                <td>${g.tipo}</td>
-                                <td>${g.descricao}</td>
-                                <td style="color: var(--danger-color);">R$ ${g.valor.toFixed(2)}</td>
-                                <td style="text-align: right;"><button onclick="deletarGastoAtivo('${g.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash"></i></button></td>
-                            </tr>
-                        `).join('');
-                } else {
-                    divSemViagem.style.display = 'block';
-                    divComViagem.style.display = 'none';
-                }
-
-                let minhasViagens = dados.viagens.filter(v => v.motoristaId === sessaoAtual.id && !v.id.startsWith('man_'));
-                let meuSalarioTotal = minhasViagens.reduce((acc, v) => acc + (Number(v.salarioMotorista) || 0), 0);
-
-                document.getElementById('motorista-meus-ganhos').innerText = `R$ ${meuSalarioTotal.toFixed(2)}`;
-                document.getElementById('motorista-total-viagens').innerText = minhasViagens.length;
-
-                let tbodyMinhasViagens = document.getElementById('tabela-minhas-viagens');
-                tbodyMinhasViagens.innerHTML = minhasViagens.length === 0 ? '<tr><td colspan="3" class="empty-row">Nenhuma viagem.</td></tr>' :
-                    minhasViagens.slice().reverse().map(v => `
-                        <tr>
-                            <td>${v.origem} → ${v.destino}</td>
-                            <td>${v.km} KM</td>
-                            <td style="color: var(--success-color);">R$ ${Number(v.salarioMotorista).toFixed(2)}</td>
-                        </tr>
-                    `).join('');
-            }
-        }
-
-        window.deletarItem = function(colecao, id) {
-            if (confirm("Deseja excluir este caminhão?")) {
-                let dados = carregarDados();
-                dados.caminhoes = dados.caminhoes.filter(item => item.id !== id);
-                salvarDados(dados);
-                atualizarTelas();
-            }
-        };
-
-        function mostrarToast(mensagem, tipo = "success") {
-            let toast = document.getElementById('toast');
-            toast.innerText = mensagem;
-            toast.style.backgroundColor = tipo === "error" ? "var(--danger-color)" : "var(--success-color)";
-            toast.className = "show";
-            setTimeout(() => { toast.className = ""; }, 3000);
-        }
+        // Inicializar dados na tela ao carregar
+        window.onload = atualizarTabelas;
     </script>
 </body>
 </html>
