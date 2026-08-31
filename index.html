@@ -386,18 +386,18 @@
                     <div class="form-group">
                         <label>Tipo de Acesso</label>
                         <select id="tipo-acceso" onchange="mudarTipoAcesso()">
-                            <option value="patrao">Patrão (Jeferson)</option>
+                            <option value="patrao">Patrão</option>
                             <option value="motorista">Motorista (Funcionário)</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label>Usuário</label>
-                        <input type="text" id="login-usuario" placeholder="Jeferson">
+                        <input type="text" id="login-usuario" placeholder="*****">
                     </div>
                     <div class="form-group">
                         <label>Senha</label>
-                        <input type="password" id="login-senha" placeholder="Sua senha">
+                        <input type="password" id="login-senha" placeholder="*****">
                     </div>
 
                     <button class="btn-submit" onclick="entrarNoSistema()">Acessar Sistema</button>
@@ -426,9 +426,8 @@
 
         <!-- PAINEL DO PATRÃO -->
         <div id="painel-patrao" style="display: none;">
-            <div class="nav-tabs">
+            <div class="nav-tabs" style="grid-template-columns: repeat(2, 1fr);">
                 <button class="tab-btn active" onclick="switchTab(event, 'p-visao')"><i class="fa-solid fa-chart-pie"></i> Visão Geral</button>
-                <button class="tab-btn" onclick="switchTab(event, 'p-motoristas')"><i class="fa-solid fa-users"></i> Motoristas</button>
                 <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
             </div>
 
@@ -498,44 +497,6 @@
                             </thead>
                             <tbody id="tabela-ultimas-viagens">
                                 <tr><td colspan="9" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Aba Motoristas -->
-            <div id="p-motoristas" class="tab-content">
-                <div class="card">
-                    <h3><i class="fa-solid fa-user-plus"></i> Cadastrar Novo Motorista</h3>
-                    <div class="form-group">
-                        <label>Nome do Motorista</label>
-                        <input type="text" id="novo-mot-nome" placeholder="Nome completo">
-                    </div>
-                    <div class="form-group">
-                        <label>Usuário de Acesso</label>
-                        <input type="text" id="novo-mot-user" placeholder="usuario123">
-                    </div>
-                    <div class="form-group">
-                        <label>Senha Provisória</label>
-                        <input type="password" id="novo-mot-senha" placeholder="Senha">
-                    </div>
-                    <button class="btn-submit" onclick="cadastrarMotoristaPatrao()">Adicionar Motorista</button>
-                </div>
-
-                <div class="card">
-                    <h3><i class="fa-solid fa-id-card-clip"></i> Lista de Motoristas</h3>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Usuário</th>
-                                    <th style="text-align: right;">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-motoristas-patrao">
-                                <tr><td colspan="3" class="empty-row">Nenhum motorista cadastrado.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -803,7 +764,7 @@
             let tipo = document.getElementById('tipo-acceso').value;
             let inputUsuario = document.getElementById('login-usuario');
             inputUsuario.value = '';
-            inputUsuario.placeholder = (tipo === 'patrao') ? 'Jeferson' : 'Seu usuário de motorista';
+            inputUsuario.placeholder = (tipo === 'patrao') ? '*****' : 'Seu usuário de motorista';
         };
 
         window.alternarTelaCadastro = function(mostrar) {
@@ -822,11 +783,12 @@
             }
 
             if (tipo === 'patrao') {
-                if (usuario.toLowerCase() === 'jeferson' && senha === '12345') {
-                    sessaoAtual = { tipo: 'patrao', nome: 'Jeferson' };
+                // Mantido o login genérico para o patrão
+                if (usuario === '*****' && senha === '*****') {
+                    sessaoAtual = { tipo: 'patrao', nome: 'Patrão' };
                     iniciarPainelPatrao();
                 } else {
-                    mostrarToast("Credenciais do Patrão incorretas!", "error");
+                    mostrarToast("Credenciais do Patrão incorretas! Use ***** e *****", "error");
                 }
             } else {
                 let dados = carregarDados();
@@ -887,28 +849,6 @@
             evt.currentTarget.classList.add('active');
         };
 
-        window.cadastrarMotoristaPatrao = function() {
-            let nome = document.getElementById('novo-mot-nome').value.trim();
-            let usuario = document.getElementById('novo-mot-user').value.trim();
-            let senha = document.getElementById('novo-mot-senha').value.trim();
-
-            if (!nome || !usuario || !senha) {
-                mostrarToast("Preencha todos os campos!", "error");
-                return;
-            }
-
-            let dados = carregarDados();
-            dados.funcionarios.push({ id: 'mot_' + Date.now(), nome, usuario, senha });
-            salvarDados(dados);
-
-            document.getElementById('novo-mot-nome').value = '';
-            document.getElementById('novo-mot-user').value = '';
-            document.getElementById('novo-mot-senha').value = '';
-            
-            mostrarToast("Motorista cadastrado com sucesso!");
-            atualizarTelas();
-        };
-
         window.cadastrarCaminhao = function() {
             let modelo = document.getElementById('cam-modelo').value.trim();
             let placa = document.getElementById('cam-placa').value.trim();
@@ -958,7 +898,6 @@
             let precoLitro = parseFloat(selectPais.value) || 0;
             let nomePais = selectPais.options[selectPais.selectedIndex].text;
 
-            // Cálculo: KM * litros por km (0.32L/km) * preço do litro no país selecionado
             let litrosConsumidos = km * CONSUMO_LITROS_POR_KM;
             let custoCombustivel = litrosConsumidos * precoLitro;
 
@@ -1111,7 +1050,6 @@
         window.deletarItem = function(colecao, id) {
             if (confirm("Deseja realmente excluir este item?")) {
                 let dados = carregarDados();
-                if (colecao === 'funcionarios') dados.funcionarios = dados.funcionarios.filter(item => item.id !== id);
                 if (colecao === 'caminhoes') dados.caminhoes = dados.caminhoes.filter(item => item.id !== id);
                 salvarDados(dados);
                 mostrarToast("Item excluído com sucesso!");
@@ -1123,7 +1061,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('painel-patrao').style.display = 'block';
             document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('header-title').innerText = "PAINEL DO PATRÃO - JEFERSON";
+            document.getElementById('header-title').innerText = "PAINEL DO PATRÃO";
             atualizarTelas();
         }
 
@@ -1171,16 +1109,6 @@
                         </tr>
                     `).join('');
                 }
-
-                let tbodyMotoristas = document.getElementById('tabela-motoristas-patrao');
-                tbodyMotoristas.innerHTML = dados.funcionarios.length === 0 ? '<tr><td colspan="3" class="empty-row">Nenhum motorista cadastrado.</td></tr>' :
-                    dados.funcionarios.map(m => `
-                        <tr>
-                            <td><strong>${m.nome}</strong></td>
-                            <td>${m.usuario}</td>
-                            <td style="text-align: right;"><button onclick="deletarItem('funcionarios', '${m.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size: 15px; padding: 4px 8px;"><i class="fa-solid fa-trash-can"></i></button></td>
-                        </tr>
-                    `).join('');
 
                 let tbodyFrota = document.getElementById('tabela-frota');
                 tbodyFrota.innerHTML = dados.caminhoes.length === 0 ? '<tr><td colspan="3" class="empty-row">Nenhum caminhão cadastrado.</td></tr>' :
