@@ -577,7 +577,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.02</div>
+                <div class="app-version-badge">Versão 1.03 (Com Manutenção)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -623,7 +623,7 @@
             <!-- ÁREA DE INFORMAÇÕES DO APLICATIVO -->
             <div class="app-info-card">
                 <h4><i class="fa-solid fa-circle-info"></i> Sobre o aplicativo</h4>
-                <p>Aplicativo desenvolvido por Jeferson Luiz para auxiliar na organização e no gerenciamento da experiência de transporte no Euro Truck Simulator 2 (ETS2). Uso exclusivamente fictício, destinado à simulação e entretenimento. Não possui vínculo com empresas ou serviços reais.</p>
+                <p>Aplicativo desenvolvido por Jeferson Luiz para auxiliar na organização e no gerenciamento da experiência de transporte no Euro Truck Simulator 2 (ETS2). Uso exclusivamente fictício, destinado à simulação e entretenimento.</p>
                 <div class="app-footer-info">
                     Desenvolvido por Jeferson Luiz • 2026
                 </div>
@@ -634,7 +634,7 @@
         <div id="painel-patrao" style="display: none;">
             <div class="nav-tabs" style="grid-template-columns: repeat(2, 1fr);">
                 <button class="tab-btn active" onclick="switchTab(event, 'p-visao')"><i class="fa-solid fa-chart-pie"></i> Visão Geral</button>
-                <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
+                <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota & Manutenção</button>
             </div>
 
             <!-- Aba Visão Geral -->
@@ -662,6 +662,13 @@
                         </div>
                     </div>
                     <div class="metric-card">
+                        <div class="metric-icon" style="color: var(--danger-color); background: rgba(239,68,68,0.1);"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                        <div class="metric-info">
+                            <h3>Total Manutenções</h3>
+                            <p id="patrao-manutencoes">R$ 0,00</p>
+                        </div>
+                    </div>
+                    <div class="metric-card">
                         <div class="metric-icon" style="color: var(--danger-color); background: rgba(239,68,68,0.1);"><i class="fa-solid fa-file-invoice-dollar"></i></div>
                         <div class="metric-info">
                             <h3>Total Multas</h3>
@@ -671,15 +678,8 @@
                     <div class="metric-card">
                         <div class="metric-icon"><i class="fa-solid fa-road-barrier"></i></div>
                         <div class="metric-info">
-                            <h3>Total Pedágios</h3>
+                            <h3>Total Pedágios/Balsas</h3>
                             <p id="patrao-pedagios">R$ 0,00</p>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-icon"><i class="fa-solid fa-ferry"></i></div>
-                        <div class="metric-info">
-                            <h3>Total Balsas</h3>
-                            <p id="patrao-balsas">R$ 0,00</p>
                         </div>
                     </div>
                 </div>
@@ -716,15 +716,13 @@
                                     <th>KM</th>
                                     <th>Salário</th>
                                     <th>Combustível</th>
-                                    <th>Pedágio</th>
-                                    <th>Balsa</th>
-                                    <th>Multas</th>
+                                    <th>Ped./Balsa/Multa</th>
                                     <th>Caixa Empresa</th>
                                     <th style="text-align: center;">Imprevistos</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-ultimas-viagens">
-                                <tr><td colspan="10" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
+                                <tr><td colspan="8" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -741,7 +739,7 @@
                 </div>
             </div>
 
-            <!-- Aba Frota -->
+            <!-- Aba Frota & Manutenção -->
             <div id="p-caminhoes" class="tab-content">
                 <div class="card">
                     <h3><i class="fa-solid fa-truck"></i> Cadastrar Caminhão</h3>
@@ -757,19 +755,26 @@
                 </div>
 
                 <div class="card">
-                    <h3><i class="fa-solid fa-warehouse"></i> Frota Ativa</h3>
+                    <h3><i class="fa-solid fa-screwdriver-wrench"></i> Status da Frota & Manutenção Preventiva</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 14px;">
+                        • <strong>Troca de Óleo:</strong> a cada 5.000 KM (Custo: R$ 800)<br>
+                        • <strong>Troca de Pneus:</strong> a cada 10.000 KM (Custo: R$ 2.500)<br>
+                        • <strong>Revisão do Motor:</strong> a cada 20.000 KM (Custo: R$ 6.000)
+                    </p>
                     <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Modelo</th>
-                                    <th>Placa</th>
-                                    <th>Quilometragem Rodada</th>
+                                    <th>Modelo / Placa</th>
+                                    <th>KM Total</th>
+                                    <th>Óleo</th>
+                                    <th>Pneus</th>
+                                    <th>Motor</th>
                                     <th style="text-align: right;">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabela-frota">
-                                <tr><td colspan="4" class="empty-row">Nenhum caminhão cadastrado.</td></tr>
+                            <tbody id="tabela-frota-manutencao">
+                                <tr><td colspan="6" class="empty-row">Nenhum caminhão cadastrado.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -828,10 +833,8 @@
                 <div class="card">
                     <h3><i class="fa-solid fa-map-location-dot"></i> Iniciar Nova Viagem</h3>
                     <div class="form-group">
-                        <label>País da Viagem (Tabela ETS2)</label>
-                        <select id="viagem-pais" onchange="recalcularCombustivelManual()">
-                            <!-- Preenchido via JS -->
-                        </select>
+                        <label>País da Viagem</label>
+                        <select id="viagem-pais" onchange="recalcularCombustivelManual()"></select>
                     </div>
                     <div class="form-group">
                         <label>Cidade de Origem</label>
@@ -872,19 +875,17 @@
             <div id="m-andamento" class="tab-content">
                 <div id="sem-viagem-ativa" class="card" style="text-align: center; padding: 30px;">
                     <i class="fa-solid fa-triangle-exclamation" style="font-size: 32px; color: var(--warning-color); margin-bottom: 12px;"></i>
-                    <p style="color: var(--text-muted); margin: 0;">Você não possui nenhuma viagem em andamento no momento. Inicie uma nova viagem para poder lançar pedágios, balsas ou multas.</p>
+                    <p style="color: var(--text-muted); margin: 0;">Você não possui nenhuma viagem em andamento no momento.</p>
                 </div>
 
                 <div id="com-viagem-ativa" style="display: none;">
                     <div class="card" style="border-color: var(--accent-color);">
                         <h3><i class="fa-solid fa-truck-ramp-box"></i> Viagem em Andamento</h3>
-                        <p style="margin: 6px 0;"><strong>País / Rota:</strong> <span id="ativa-pais"></span> | <span id="ativa-rota"></span> (<span id="ativa-km"></span> KM)</p>
+                        <p style="margin: 6px 0;"><strong>Rota:</strong> <span id="ativa-rota"></span> (<span id="ativa-km"></span> KM)</p>
                         <p style="margin: 6px 0;"><strong>Caminhão:</strong> <span id="ativa-caminhao"></span></p>
                         <p style="margin: 6px 0;"><strong>Carga:</strong> <span id="ativa-carga"></span></p>
                         <p style="margin: 6px 0;"><strong>Valor Bruto:</strong> <span id="ativa-valor"></span></p>
                         <p style="margin: 6px 0; color: var(--warning-color);"><strong>Combustível Automático:</strong> <span id="ativa-combustivel">R$ 0,00</span></p>
-                        <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 12px 0;">
-                        <p style="margin: 6px 0; color: var(--danger-color);"><strong>Outros Gastos (Balsa/Pedágio/Multas):</strong> <span id="ativa-outros-gastos">R$ 0,00</span></p>
                     </div>
 
                     <div class="card">
@@ -899,7 +900,7 @@
                         </div>
                         <div class="form-group">
                             <label>Descrição do Gasto</label>
-                            <input type="text" id="gasto-descricao" placeholder="Ex: Pedágio Rodovia A1">
+                            <input type="text" id="gasto-descricao" placeholder="Ex: Pedágio Rodovia">
                         </div>
                         <div class="form-group">
                             <label>Valor (R$)</label>
@@ -921,23 +922,21 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tabela-gastos-ativos">
-                                    <tr><td colspan="4" class="empty-row">Nenhuma despesa extra lançada.</td></tr>
+                                    <tr><td colspan="4" class="empty-row">Nenhuma despesa extra.</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- CAMPO DE OBSERVAÇÃO / IMPREVISTOS -->
                     <div class="card" style="border-color: var(--warning-color);">
                         <h3><i class="fa-solid fa-triangle-exclamation" style="color: var(--warning-color);"></i> Relatório de Imprevistos (Opcional)</h3>
                         <div class="form-group" style="margin-bottom: 0;">
-                            <label>Houve algum acidente, desvio ou imprevisto nesta viagem?</label>
-                            <textarea id="viagem-observacao" placeholder="Ex: Houve um engarrafamento e desvio de rota por causa de um acidente na pista..."></textarea>
+                            <textarea id="viagem-observacao" placeholder="Ex: Houve um engarrafamento..."></textarea>
                         </div>
                     </div>
 
                     <button class="btn-submit btn-danger" onclick="finalizarViagemMotorista()" style="padding: 16px; font-size: 15px; margin-top: 10px;">
-                        <i class="fa-solid fa-flag-checkered"></i> Finalizar Viagem e Computar Salário
+                        <i class="fa-solid fa-flag-checkered"></i> Finalizar Viagem
                     </button>
                 </div>
             </div>
@@ -985,17 +984,7 @@
             { nome: "Espanha (Spain)", precoLitro: 7.40 },
             { nome: "Áustria (Austria)", precoLitro: 8.50 },
             { nome: "Suíça (Switzerland)", precoLitro: 9.00 },
-            { nome: "Bélgica (Belgium)", precoLitro: 8.90 },
-            { nome: "Chéquia (Czech Republic)", precoLitro: 7.80 },
-            { nome: "Suécia (Sweden)", precoLitro: 8.70 },
-            { nome: "Noruega (Norway)", precoLitro: 9.20 },
-            { nome: "Dinamarca (Denmark)", precoLitro: 9.40 },
-            { nome: "Hungria (Hungary)", precoLitro: 6.80 },
-            { nome: "Romênia (Romania)", precoLitro: 7.90 },
-            { nome: "Rússia (Russia)", precoLitro: 3.50 },
-            { nome: "Turquia (Turkey)", precoLitro: 6.50 },
-            { nome: "Portugal (Portugal)", precoLitro: 8.30 },
-            { nome: "Finlândia (Finland)", precoLitro: 8.50 }
+            { nome: "Bélgica (Belgium)", precoLitro: 8.90 }
         ];
 
         const CONSUMO_LITROS_POR_KM = 0.32; 
@@ -1058,7 +1047,7 @@
                     sessaoAtual = { tipo: 'patrao', nome: 'Patrão' };
                     iniciarPainelPatrao();
                 } else {
-                    mostrarToast("Credenciais do Patrão incorretas! Use ***** e *****", "error");
+                    mostrarToast("Credenciais do Patrão incorretas!", "error");
                 }
             } else {
                 let dados = carregarDados();
@@ -1133,8 +1122,13 @@
                 let dados = carregarDados();
                 dados.viagens = [];
                 dados.viagensAtivas = {};
+                dados.caminhoes.forEach(c => {
+                    c.kmDesdeOleo = 0;
+                    c.kmDesdePneu = 0;
+                    c.kmDesdeMotor = 0;
+                });
                 salvarDados(dados);
-                mostrarToast("Todos os valores e relatórios foram zerados!");
+                mostrarToast("Todos os valores e manutenções foram zerados!");
                 atualizarTelas();
             }
         };
@@ -1142,38 +1136,32 @@
         function atualizarTabelaModalFuncionarios() {
             let dados = carregarDados();
             let tbody = document.getElementById('tabela-modal-funcionarios');
-
             if (dados.funcionarios.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhum funcionário cadastrado.</td></tr>';
                 return;
             }
-
             tbody.innerHTML = dados.funcionarios.map(m => {
                 let emServico = dados.viagensAtivas && dados.viagensAtivas[m.id];
                 let statusBadge = emServico 
-                    ? `<span class="badge-status badge-servico"><i class="fa-solid fa-circle" style="font-size: 7px;"></i> Em Serviço (${emServico.origem} → ${emServico.destino})</span>`
-                    : `<span class="badge-status badge-parado"><i class="fa-solid fa-circle" style="font-size: 7px;"></i> Parado (Sem entregas)</span>`;
-
+                    ? `<span class="badge-status badge-servico">Em Serviço</span>`
+                    : `<span class="badge-status badge-parado">Parado</span>`;
                 return `
                     <tr>
                         <td><strong>${m.nome}</strong></td>
                         <td>${m.usuario}</td>
                         <td style="text-align: center;">${statusBadge}</td>
-                        <td style="text-align: right;"><button onclick="excluirFuncionario('${m.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size: 15px; padding: 4px 8px;"><i class="fa-solid fa-trash-can"></i></button></td>
+                        <td style="text-align: right;"><button onclick="excluirFuncionario('${m.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button></td>
                     </tr>
                 `;
             }).join('');
         }
 
         window.excluirFuncionario = function(idFuncionario) {
-            if (confirm("Deseja realmente excluir este funcionário? Suas viagens ativas serão canceladas.")) {
+            if (confirm("Deseja excluir este funcionário?")) {
                 let dados = carregarDados();
                 dados.funcionarios = dados.funcionarios.filter(f => f.id !== idFuncionario);
-                if (dados.viagensAtivas[idFuncionario]) {
-                    delete dados.viagensAtivas[idFuncionario];
-                }
+                delete dados.viagensAtivas[idFuncionario];
                 salvarDados(dados);
-                mostrarToast("Funcionário excluído com sucesso!");
                 atualizarTabelaModalFuncionarios();
                 atualizarTelas();
             }
@@ -1189,7 +1177,14 @@
             }
 
             let dados = carregarDados();
-            dados.caminhoes.push({ id: 'cam_' + Date.now(), modelo, placa });
+            dados.caminhoes.push({ 
+                id: 'cam_' + Date.now(), 
+                modelo, 
+                placa,
+                kmDesdeOleo: 0,
+                kmDesdePneu: 0,
+                kmDesdeMotor: 0
+            });
             salvarDados(dados);
 
             document.getElementById('cam-modelo').value = '';
@@ -1208,10 +1203,47 @@
                 dados.caminhoes.map(c => `<option value="${c.id}" data-modelo="${c.modelo} (${c.placa})">${c.modelo} - ${c.placa}</option>`).join('');
         }
 
+        window.realizarManutencao = function(caminhaoId, tipo) {
+            let dados = carregarDados();
+            let cam = dados.caminhoes.find(c => c.id === caminhaoId);
+            if (!cam) return;
+
+            let custos = { oleo: 800, pneu: 2500, motor: 6000 };
+            let custoServico = custos[tipo];
+
+            let faturamentoEmpresa = dados.viagens.reduce((acc, v) => acc + (Number(v.caixaEmpresa) || 0), 0);
+            
+            // Subtrai de uma forma lógica acumulando como despesa de manutenção nas viagens ou ajustando no saldo
+            if (confirm(`Deseja realizar a manutenção (${tipo.toUpperCase()}) no caminhão ${cam.modelo}? Custo: R$ ${custoServico}.`)) {
+                // Registramos um evento de manutenção guardando no array de viagens como custo administrativo
+                dados.viagens.push({
+                    id: 'man_' + Date.now(),
+                    motoristaNome: 'Oficina Mecânica',
+                    pais: 'Manutenção Preventiva',
+                    origem: cam.modelo,
+                    destino: cam.placa,
+                    km: 0,
+                    salarioMotorista: 0,
+                    custoCombustivel: 0,
+                    totalPedagios: 0,
+                    totalBalsas: 0,
+                    totalMultas: 0,
+                    caixaEmpresa: -custoServico // Reduz do caixa da empresa
+                });
+
+                if (tipo === 'oleo') cam.kmDesdeOleo = 0;
+                if (tipo === 'pneu') cam.kmDesdePneu = 0;
+                if (tipo === 'motor') cam.kmDesdeMotor = 0;
+
+                salvarDados(dados);
+                mostrarToast("Manutenção concluída com sucesso!");
+                atualizarTelas();
+            }
+        };
+
         window.calcularDistanciaAutomatica = function() {
             let origem = document.getElementById('viagem-origem').value.trim();
             let destino = document.getElementById('viagem-destino').value.trim();
-            
             if (origem.length > 1 && destino.length > 1) {
                 let baseHash = (origem + destino).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
                 let kmEstimado = 300 + (baseHash % 1400);
@@ -1226,13 +1258,10 @@
             if (!selectPais || selectPais.options.length === 0) return;
             
             let precoLitro = parseFloat(selectPais.value) || 0;
-            let nomePais = selectPais.options[selectPais.selectedIndex].text;
-
             let litrosConsumidos = km * CONSUMO_LITROS_POR_KM;
             let custoCombustivel = litrosConsumidos * precoLitro;
 
             document.getElementById('prev-combustivel').innerText = `R$ ${custoCombustivel.toFixed(2)} (${litrosConsumidos.toFixed(0)} L)`;
-            document.getElementById('pais-preco-info').innerText = `${nomePais}`;
         };
 
         window.iniciarViagemMotorista = function() {
@@ -1280,15 +1309,7 @@
             };
 
             salvarDados(dados);
-
-            document.getElementById('viagem-origem').value = '';
-            document.getElementById('viagem-destino').value = '';
-            document.getElementById('viagem-km').value = '';
-            document.getElementById('viagem-carga').value = '';
-            document.getElementById('viagem-valor').value = '';
-            recalcularCombustivelManual();
-            
-            mostrarToast("Viagem iniciada! Vá para a aba 'Viagem Ativa'.");
+            mostrarToast("Viagem iniciada!");
             
             let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
             switchTab({ currentTarget: botoesTab[2] }, 'm-andamento');
@@ -1301,31 +1322,19 @@
             let valorGasto = parseFloat(document.getElementById('gasto-valor').value);
 
             if (isNaN(valorGasto) || valorGasto <= 0) {
-                mostrarToast("Informe um valor válido para a despesa!", "error");
+                mostrarToast("Informe um valor válido!", "error");
                 return;
             }
 
             let dados = carregarDados();
             let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
+            if (!viagemAtiva) return;
 
-            if (!viagemAtiva) {
-                mostrarToast("Nenhuma viagem ativa encontrada.", "error");
-                return;
-            }
-
-            viagemAtiva.gastosExtras.push({
-                id: 'gst_' + Date.now(),
-                tipo,
-                descricao: descricao || tipo,
-                valor: valorGasto
-            });
-
+            viagemAtiva.gastosExtras.push({ id: 'gst_' + Date.now(), tipo, descricao: descricao || tipo, valor: valorGasto });
             salvarDados(dados);
 
             document.getElementById('gasto-descricao').value = '';
             document.getElementById('gasto-valor').value = '';
-
-            mostrarToast("Despesa adicionada com sucesso!");
             atualizarTelas();
         };
 
@@ -1335,59 +1344,52 @@
             if (viagemAtiva) {
                 viagemAtiva.gastosExtras = viagemAtiva.gastosExtras.filter(g => g.id !== gastoId);
                 salvarDados(dados);
-                mostrarToast("Despesa removida.");
                 atualizarTelas();
             }
         };
 
         window.finalizarViagemMotorista = function() {
-            if (!confirm("Deseja finalizar esta viagem? O salário será depositado na sua conta em até 2 minutos e os custos lançados para a empresa.")) return;
+            if (!confirm("Deseja finalizar esta viagem?")) return;
 
             let dados = carregarDados();
             let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
-
-            if (!viagemAtiva) {
-                mostrarToast("Nenhuma viagem ativa para finalizar.", "error");
-                return;
-            }
+            if (!viagemAtiva) return;
 
             let observacao = document.getElementById('viagem-observacao').value.trim();
-
             let dataFim = new Date();
-            let dataInicio = new Date(viagemAtiva.dataInicio);
-            let tempoMinutos = Math.round((dataFim - dataInicio) / 60000);
+            let tempoMinutos = Math.round((dataFim - new Date(viagemAtiva.dataInicio)) / 60000);
 
             let totalPedagios = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Pedágio').reduce((acc, g) => acc + g.valor, 0);
             let totalBalsas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Balsa').reduce((acc, g) => acc + g.valor, 0);
             let totalMultas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Multa').reduce((acc, g) => acc + g.valor, 0);
             let totalGastosExtras = totalPedagios + totalBalsas + totalMultas;
 
-            // Salário do motorista: 14% do valor bruto
             let salarioMotorista = viagemAtiva.valorBruto * 0.14;
-
-            // Caixa da empresa cai IMEDIATAMENTE = Valor Bruto - Salário (14%) - Combustível - Gastos Extras
             let caixaEmpresa = viagemAtiva.valorBruto - salarioMotorista - viagemAtiva.custoCombustivel - totalGastosExtras;
 
-            let viagemFinalizada = {
+            // Atualiza a KM do caminhão associado e seus ciclos de manutenção
+            let caminhao = dados.caminhoes.find(c => c.id === viagemAtiva.caminhaoId);
+            if (caminhao) {
+                caminhao.kmDesdeOleo = (caminhao.kmDesdeOleo || 0) + viagemAtiva.km;
+                caminhao.kmDesdePneu = (caminhao.kmDesdePneu || 0) + viagemAtiva.km;
+                caminhao.kmDesdeMotor = (caminhao.kmDesdeMotor || 0) + viagemAtiva.km;
+            }
+
+            dados.viagens.push({
                 ...viagemAtiva,
                 salarioMotorista,
                 totalPedagios,
                 totalBalsas,
                 totalMultas,
-                caixaEmpresa: caixaEmpresa,
+                caixaEmpresa,
                 tempoMinutos,
-                observacao: observacao,
-                dataFim: dataFim.toISOString()
-            };
+                observacao
+            });
 
-            dados.viagens.push(viagemFinalizada);
             delete dados.viagensAtivas[sessaoAtual.id];
             salvarDados(dados);
 
-            document.getElementById('viagem-observacao').value = '';
-
-            mostrarToast("Viagem finalizada! O salário cairá em sua conta em 2 minutos.");
-            
+            mostrarToast("Viagem finalizada com sucesso!");
             let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
             switchTab({ currentTarget: botoesTab[0] }, 'm-extrato');
             atualizarTelas();
@@ -1396,21 +1398,8 @@
         window.verRelatorioImprevisto = function(idViagem) {
             let dados = carregarDados();
             let viagem = dados.viagens.find(v => v.id === idViagem);
-            
             if (viagem && viagem.observacao) {
-                alert(`⚠️ RELATÓRIO DE IMPREVISTO\n\nMotorista: ${viagem.motoristaNome}\nRota: ${viagem.origem} → ${viagem.destino}\n\nDescrição do Ocorrido:\n"${viagem.observacao}"`);
-            } else {
-                alert("Nenhum imprevisto registrado nesta viagem.");
-            }
-        };
-
-        window.deletarItem = function(colecao, id) {
-            if (confirm("Deseja realmente excluir este item?")) {
-                let dados = carregarDados();
-                if (colecao === 'caminhoes') dados.caminhoes = dados.caminhoes.filter(item => item.id !== id);
-                salvarDados(dados);
-                mostrarToast("Item excluído com sucesso!");
-                atualizarTelas();
+                alert(`⚠️ Ocorrido:\n"${viagem.observacao}"`);
             }
         };
 
@@ -1437,27 +1426,22 @@
             if (sessaoAtual && sessaoAtual.tipo === 'patrao') {
                 let faturamentoEmpresa = dados.viagens.reduce((acc, v) => acc + (Number(v.caixaEmpresa) || 0), 0);
                 let totalCombustivelGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.custoCombustivel) || 0), 0);
+                let totalManutencoes = dados.viagens.filter(v => v.id.startsWith('man_')).reduce((acc, v) => acc + Math.abs(v.caixaEmpresa), 0);
                 let totalMultasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalMultas) || 0), 0);
-                let totalPedagiosGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalPedagios) || 0), 0);
-                let totalBalsasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalBalsas) || 0), 0);
+                let totalOutros = dados.viagens.reduce((acc, v) => acc + (Number(v.totalPedagios) || 0) + (Number(v.totalBalsas) || 0), 0);
 
                 document.getElementById('patrao-faturamento').innerText = `R$ ${faturamentoEmpresa.toFixed(2)}`;
-                document.getElementById('patrao-total-viagens').innerText = dados.viagens.length;
+                document.getElementById('patrao-total-viagens').innerText = dados.viagens.filter(v => !v.id.startsWith('man_')).length;
                 document.getElementById('patrao-combustivel').innerText = `R$ ${totalCombustivelGeral.toFixed(2)}`;
+                document.getElementById('patrao-manutencoes').innerText = `R$ ${totalManutencoes.toFixed(2)}`;
                 document.getElementById('patrao-multas').innerText = `R$ ${totalMultasGeral.toFixed(2)}`;
-                document.getElementById('patrao-pedagios').innerText = `R$ ${totalPedagiosGeral.toFixed(2)}`;
-                document.getElementById('patrao-balsas').innerText = `R$ ${totalBalsasGeral.toFixed(2)}`;
+                document.getElementById('patrao-pedagios').innerText = `R$ ${totalOutros.toFixed(2)}`;
 
                 let resumoFuncionarios = {};
-                dados.viagens.forEach(v => {
+                dados.viagens.filter(v => !v.id.startsWith('man_')).forEach(v => {
                     let mId = v.motoristaId || 'desconhecido';
                     if (!resumoFuncionarios[mId]) {
-                        resumoFuncionarios[mId] = {
-                            nome: v.motoristaNome || 'Funcionário',
-                            totalKm: 0,
-                            totalViagens: 0,
-                            totalMinutos: 0
-                        };
+                        resumoFuncionarios[mId] = { nome: v.motoristaNome, totalKm: 0, totalViagens: 0, totalMinutos: 0 };
                     }
                     resumoFuncionarios[mId].totalKm += Number(v.km) || 0;
                     resumoFuncionarios[mId].totalViagens += 1;
@@ -1466,71 +1450,55 @@
 
                 let arrayRanking = Object.values(resumoFuncionarios).sort((a, b) => b.totalKm - a.totalKm);
                 let tbodyRanking = document.getElementById('tabela-ranking-funcionarios');
+                tbodyRanking.innerHTML = arrayRanking.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhum dado.</td></tr>' :
+                    arrayRanking.map((rf, idx) => `
+                        <tr>
+                            <td><strong>${idx + 1}º</strong></td>
+                            <td>${rf.nome}</td>
+                            <td>${rf.totalViagens}</td>
+                            <td>${rf.totalKm} KM</td>
+                            <td>${rf.totalMinutos} min</td>
+                        </tr>
+                    `).join('');
 
-                if (arrayRanking.length === 0) {
-                    tbodyRanking.innerHTML = '<tr><td colspan="5" class="empty-row">Nenhum dado de desempenho registrado.</td></tr>';
-                } else {
-                    tbodyRanking.innerHTML = arrayRanking.map((rf, idx) => {
-                        let horas = Math.floor(rf.totalMinutos / 60);
-                        let minutos = rf.totalMinutos % 60;
-                        let tempoFormatado = horas > 0 ? `${horas}h ${minutos}m` : `${minutos} min`;
-                        let iconePos = idx === 0 ? '👑 ' : (idx === 1 ? '🥈 ' : (idx === 2 ? '🥉 ' : ''));
-
-                        return `
-                            <tr>
-                                <td><strong>${iconePos}${idx + 1}º</strong></td>
-                                <td>${rf.nome}</td>
-                                <td>${rf.totalViagens}</td>
-                                <td>${rf.totalKm} KM</td>
-                                <td>${tempoFormatado}</td>
-                            </tr>
-                        `;
-                    }).join('');
-                }
-
+                let viagensValidas = dados.viagens.filter(v => !v.id.startsWith('man_'));
                 let tbodyViagens = document.getElementById('tabela-ultimas-viagens');
-                if (dados.viagens.length === 0) {
-                    tbodyViagens.innerHTML = '<tr><td colspan="10" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>';
-                } else {
-                    tbodyViagens.innerHTML = dados.viagens.slice().reverse().map(v => {
-                        let iconeImprevisto = (v.observacao && v.observacao.trim() !== "") 
-                            ? `<button onclick="verRelatorioImprevisto('${v.id}')" style="background: rgba(239,68,68,0.15); border: 1px solid var(--danger-color); color: var(--danger-color); padding: 4px 8px; border-radius: 4px; cursor: pointer; font-weight: bold;" title="Ver Relatório de Imprevisto">⚠️ <span style="color:var(--danger-color)">!</span></button>`
-                            : `<span style="color: var(--text-muted); font-size: 12px;">Nenhum</span>`;
+                tbodyViagens.innerHTML = viagensValidas.length === 0 ? '<tr><td colspan="8" class="empty-row">Nenhuma viagem.</td></tr>' :
+                    viagensValidas.slice().reverse().map(v => `
+                        <tr>
+                            <td><strong>${v.motoristaName || v.motoristaNome}</strong></td>
+                            <td>${v.origem} → ${v.destino}</td>
+                            <td>${v.km} KM</td>
+                            <td style="color: var(--warning-color);">R$ ${(Number(v.salarioMotorista) || 0).toFixed(2)}</td>
+                            <td>R$ ${(Number(v.custoCombustivel) || 0).toFixed(2)}</td>
+                            <td>R$ ${((Number(v.totalPedagios) || 0) + (Number(v.totalMultas) || 0)).toFixed(2)}</td>
+                            <td style="color: var(--success-color);">R$ ${(Number(v.caixaEmpresa) || 0).toFixed(2)}</td>
+                            <td style="text-align: center;">${v.observacao ? '⚠️' : '-'}</td>
+                        </tr>
+                    `).join('');
 
-                        return `
-                            <tr>
-                                <td><strong>${v.motoristaNome || 'N/D'}</strong></td>
-                                <td><small style="color:var(--accent-color)">${v.pais || 'Europa'}</small><br>${v.origem} → ${v.destino}</td>
-                                <td>${v.km} KM</td>
-                                <td style="color: var(--warning-color);">R$ ${(Number(v.salarioMotorista) || 0).toFixed(2)}</td>
-                                <td>R$ ${(Number(v.custoCombustivel) || 0).toFixed(2)}</td>
-                                <td>R$ ${(Number(v.totalPedagios) || 0).toFixed(2)}</td>
-                                <td>R$ ${(Number(v.totalBalsas) || 0).toFixed(2)}</td>
-                                <td style="color: var(--danger-color);">R$ ${(Number(v.totalMultas) || 0).toFixed(2)}</td>
-                                <td style="color: var(--success-color); font-weight: 600;">R$ ${(Number(v.caixaEmpresa) || 0).toFixed(2)}</td>
-                                <td style="text-align: center;">${iconeImprevisto}</td>
-                            </tr>
-                        `;
-                    }).join('');
-                }
-
-                let kmPorCaminhao = {};
-                dados.viagens.forEach(v => {
-                    if (v.caminhaoId) {
-                        kmPorCaminhao[v.caminhaoId] = (kmPorCaminhao[v.caminhaoId] || 0) + (Number(v.km) || 0);
-                    }
-                });
-
-                let tbodyFrota = document.getElementById('tabela-frota');
-                tbodyFrota.innerHTML = dados.caminhoes.length === 0 ? '<tr><td colspan="4" class="empty-row">Nenhum caminhão cadastrado.</td></tr>' :
+                // Tabela de Frota e Manutenção
+                let tbodyManutencao = document.getElementById('tabela-frota-manutencao');
+                tbodyManutencao.innerHTML = dados.caminhoes.length === 0 ? '<tr><td colspan="6" class="empty-row">Nenhum caminhão.</td></tr>' :
                     dados.caminhoes.map(c => {
-                        let kmTotalRodada = kmPorCaminhao[c.id] || 0;
+                        let kmOleo = c.kmDesdeOleo || 0;
+                        let kmPneu = c.kmDesdePneu || 0;
+                        let kmMotor = c.kmDesdeMotor || 0;
+
+                        let statusOleo = kmOleo >= 5000 ? `<button class="btn-submit btn-danger" style="padding:4px 8px; font-size:11px;" onclick="realizarManutencao('${c.id}', 'oleo')">Trocar Óleo (R$800)</button>` : `<span style="color:var(--success-color)">OK (${kmOleo}/5000 km)</span>`;
+                        let statusPneu = kmPneu >= 10000 ? `<button class="btn-submit btn-danger" style="padding:4px 8px; font-size:11px;" onclick="realizarManutencao('${c.id}', 'pneu')">Trocar Pneus (R$2500)</button>` : `<span style="color:var(--success-color)">OK (${kmPneu}/10000 km)</span>`;
+                        let statusMotor = kmMotor >= 20000 ? `<button class="btn-submit btn-danger" style="padding:4px 8px; font-size:11px;" onclick="realizarManutencao('${c.id}', 'motor')">Revisão Motor (R$6000)</button>` : `<span style="color:var(--success-color)">OK (${kmMotor}/20000 km)</span>`;
+
+                        let kmTotalGeral = dados.viagens.filter(v => v.caminhaoId === c.id).reduce((acc, v) => acc + v.km, 0);
+
                         return `
                             <tr>
-                                <td><strong>${c.modelo}</strong></td>
-                                <td>${c.placa}</td>
-                                <td><span style="color: var(--accent-color); font-weight: 600;">${kmTotalRodada} KM</span></td>
-                                <td style="text-align: right;"><button onclick="deletarItem('caminhoes', '${c.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size: 15px; padding: 4px 8px;"><i class="fa-solid fa-trash-can"></i></button></td>
+                                <td><strong>${c.modelo}</strong><br><small>${c.placa}</small></td>
+                                <td>${kmTotalGeral} KM</td>
+                                <td>${statusOleo}</td>
+                                <td>${statusPneu}</td>
+                                <td>${statusMotor}</td>
+                                <td style="text-align: right;"><button onclick="deletarItem('caminhoes', '${c.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button></td>
                             </tr>
                         `;
                     }).join('');
@@ -1544,8 +1512,6 @@
                 if (viagemAtiva) {
                     divSemViagem.style.display = 'none';
                     divComViagem.style.display = 'block';
-
-                    document.getElementById('ativa-pais').innerText = viagemAtiva.pais || 'Europa';
                     document.getElementById('ativa-rota').innerText = `${viagemAtiva.origem} → ${viagemAtiva.destino}`;
                     document.getElementById('ativa-km').innerText = viagemAtiva.km;
                     document.getElementById('ativa-caminhao').innerText = viagemAtiva.caminhao;
@@ -1553,17 +1519,14 @@
                     document.getElementById('ativa-valor').innerText = `R$ ${Number(viagemAtiva.valorBruto).toFixed(2)}`;
                     document.getElementById('ativa-combustivel').innerText = `R$ ${Number(viagemAtiva.custoCombustivel).toFixed(2)}`;
 
-                    let totalOutros = viagemAtiva.gastosExtras.reduce((acc, g) => acc + g.valor, 0);
-                    document.getElementById('ativa-outros-gastos').innerText = `R$ ${totalOutros.toFixed(2)}`;
-
                     let tbodyGastos = document.getElementById('tabela-gastos-ativos');
-                    tbodyGastos.innerHTML = viagemAtiva.gastosExtras.length === 0 ? '<tr><td colspan="4" class="empty-row">Nenhuma despesa extra lançada.</td></tr>' :
+                    tbodyGastos.innerHTML = viagemAtiva.gastosExtras.length === 0 ? '<tr><td colspan="4" class="empty-row">Nenhuma despesa.</td></tr>' :
                         viagemAtiva.gastosExtras.map(g => `
                             <tr>
-                                <td><strong>${g.tipo}</strong></td>
+                                <td>${g.tipo}</td>
                                 <td>${g.descricao}</td>
                                 <td style="color: var(--danger-color);">R$ ${g.valor.toFixed(2)}</td>
-                                <td style="text-align: right;"><button onclick="deletarGastoAtivo('${g.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer; font-size: 14px;"><i class="fa-solid fa-trash"></i></button></td>
+                                <td style="text-align: right;"><button onclick="deletarGastoAtivo('${g.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash"></i></button></td>
                             </tr>
                         `).join('');
                 } else {
@@ -1571,23 +1534,32 @@
                     divComViagem.style.display = 'none';
                 }
 
-                let minhasViagens = dados.viagens.filter(v => v.motoristaId === sessaoAtual.id);
+                let minhasViagens = dados.viagens.filter(v => v.motoristaId === sessaoAtual.id && !v.id.startsWith('man_'));
                 let meuSalarioTotal = minhasViagens.reduce((acc, v) => acc + (Number(v.salarioMotorista) || 0), 0);
 
                 document.getElementById('motorista-meus-ganhos').innerText = `R$ ${meuSalarioTotal.toFixed(2)}`;
                 document.getElementById('motorista-total-viagens').innerText = minhasViagens.length;
 
                 let tbodyMinhasViagens = document.getElementById('tabela-minhas-viagens');
-                tbodyMinhasViagens.innerHTML = minhasViagens.length === 0 ? '<tr><td colspan="3" class="empty-row">Nenhuma viagem registrada.</td></tr>' :
+                tbodyMinhasViagens.innerHTML = minhasViagens.length === 0 ? '<tr><td colspan="3" class="empty-row">Nenhuma viagem.</td></tr>' :
                     minhasViagens.slice().reverse().map(v => `
                         <tr>
-                            <td><small style="color:var(--accent-color)">${v.pais || 'Europa'}</small><br>${v.origem} → ${v.destino}</td>
+                            <td>${v.origem} → ${v.destino}</td>
                             <td>${v.km} KM</td>
-                            <td style="color: var(--success-color); font-weight: 600;">R$ ${Number(v.salarioMotorista).toFixed(2)}</td>
+                            <td style="color: var(--success-color);">R$ ${Number(v.salarioMotorista).toFixed(2)}</td>
                         </tr>
                     `).join('');
             }
         }
+
+        window.deletarItem = function(colecao, id) {
+            if (confirm("Deseja excluir este caminhão?")) {
+                let dados = carregarDados();
+                dados.caminhoes = dados.caminhoes.filter(item => item.id !== id);
+                salvarDados(dados);
+                atualizarTelas();
+            }
+        };
 
         function mostrarToast(mensagem, tipo = "success") {
             let toast = document.getElementById('toast');
