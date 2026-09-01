@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PAINEL DE CONTROLE - Euro Truck Simulator 2</title>
+    <title>PAINEL DA EMPRESA - Euro Truck Simulator 2</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#090d16">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -644,7 +644,7 @@
 <body>
 
     <header id="main-header" style="display: none;">
-        <h1><i class="fa-solid fa-gauge-high"></i> <span id="header-title">PAINEL - ETS2</span></h1>
+        <h1><i class="fa-solid fa-gauge-high"></i> <span id="header-title">PAINEL DA EMPRESA</span></h1>
         <button class="btn-logout" onclick="fazerLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</button>
     </header>
 
@@ -773,7 +773,7 @@
                 </div>
 
                 <div class="card">
-                    <h3><i class="fa-solid fa-chart-column"></i> Gráfico Financeiro 3D Dinâmico</h3>
+                    <h3><i class="fa-solid fa-chart-column"></i> Gráfico Financeiro</h3>
                     <div style="position: relative; height: 260px; width: 100%;">
                         <canvas id="graficoFinanceiro"></canvas>
                     </div>
@@ -832,7 +832,7 @@
 
             <div id="p-rotas" class="tab-content">
                 <div class="card">
-                    <h3><i class="fa-solid fa-boxes-stacked"></i> Rotas Cadastradas (Agrupadas por Carga)</h3>
+                    <h3><i class="fa-solid fa-boxes-stacked"></i> Rotas Cadastradas</h3>
                     <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
                         Visualize o resumo de entregas agrupadas por tipo de carga, incluindo quantidade de viagens, percursos, KM total e horas acumuladas.
                     </p>
@@ -1760,7 +1760,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('painel-patrao').style.display = 'block';
             document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('header-title').innerText = "PAINEL DO PATRÃO";
+            document.getElementById('header-title').innerText = "PAINEL DA EMPRESA";
             atualizarTelas();
         }
 
