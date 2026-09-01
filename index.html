@@ -628,7 +628,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.11 (Sessão Persistente & Carga Agrupada)</div>
+                <div class="app-version-badge">Versão 1.12 (Edição de Trab. Rápidos & Persistência)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -1038,7 +1038,8 @@
 
             <div id="m-alugados" class="tab-content">
                 <div class="card">
-                    <h3><i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> Registrar Trabalho Rápido (Caminhão Alugado)</h3>
+                    <h3 id="titulo-form-alugado"><i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> Registrar Trabalho Rápido (Caminhão Alugado)</h3>
+                    <input type="hidden" id="edit-alugado-id" value="">
                     <div class="form-group">
                         <label>Qual Caminhão Vai Trabalhar</label>
                         <select id="alugado-caminhao">
@@ -1081,7 +1082,8 @@
                             <input type="number" id="alugado-balsa" placeholder="0.00" value="0">
                         </div>
                     </div>
-                    <button class="btn-submit" onclick="cadastrarTrabalhoRapido()"><i class="fa-solid fa-plus"></i> Salvar Trabalho Rápido</button>
+                    <button class="btn-submit" id="btn-salvar-alugado" onclick="cadastrarTrabalhoRapido()"><i class="fa-solid fa-plus"></i> Salvar Trabalho Rápido</button>
+                    <button id="btn-cancelar-edicao" class="btn-submit btn-danger" style="display:none; margin-top:6px;" onclick="cancelarEdicaoTrabalhoRapido()">Cancelar Edição</button>
                 </div>
 
                 <div class="card">
@@ -1094,7 +1096,7 @@
                                     <th>Carga (Ton)</th>
                                     <th>Rota (De → Para)</th>
                                     <th>Pedágio / Balsa</th>
-                                    <th style="text-align: right;">Lucro Líquido</th>
+                                    <th style="text-align: right;">Ações / Lucro</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-trabalhos-rapidos">
@@ -1349,6 +1351,7 @@
         };
 
         window.cadastrarTrabalhoRapido = function() {
+            let editId = document.getElementById('edit-alugado-id').value;
             let caminhao = document.getElementById('alugado-caminhao').value;
             let carga = document.getElementById('alugado-carga').value.trim();
             let tonelada = parseFloat(document.getElementById('alugado-tonelada').value) || 0;
@@ -1364,22 +1367,81 @@
             }
 
             let lucroLiquido = valorBruto - (pedagio + balsa);
-
             let dados = carregarDados();
-            dados.trabalhosAlugados.push({
-                id: 'alg_' + Date.now(),
-                caminhao,
-                carga,
-                tonelada,
-                origem,
-                destino,
-                valorBruto,
-                pedagio,
-                balsa,
-                lucroLiquido
-            });
-            salvarDados(dados);
 
+            if (editId) {
+                // Modo Edição
+                let index = dados.trabalhosAlugados.findIndex(t => t.id === editId);
+                if (index !== -1) {
+                    dados.trabalhosAlugados[index] = {
+                        id: editId,
+                        caminhao,
+                        carga,
+                        tonelada,
+                        origem,
+                        destino,
+                        valorBruto,
+                        pedagio,
+                        balsa,
+                        lucroLiquido
+                    };
+                    mostrarToast("Trabalho rápido atualizado com sucesso!");
+                }
+                cancelarEdicaoTrabalhoRapido();
+            } else {
+                // Modo Novo Cadastro
+                dados.trabalhosAlugados.push({
+                    id: 'alg_' + Date.now(),
+                    caminhao,
+                    carga,
+                    tonelada,
+                    origem,
+                    destino,
+                    valorBruto,
+                    pedagio,
+                    balsa,
+                    lucroLiquido
+                });
+                limparFormularioTrabalhoRapido();
+                mostrarToast("Trabalho rápido lançado com sucesso!");
+            }
+
+            salvarDados(dados);
+            atualizarTelas();
+        };
+
+        window.editarTrabalhoRapido = function(id) {
+            let dados = carregarDados();
+            let trabalho = dados.trabalhosAlugados.find(t => t.id === id);
+            if (!trabalho) return;
+
+            document.getElementById('edit-alugado-id').value = trabalho.id;
+            document.getElementById('alugado-caminhao').value = trabalho.caminhao;
+            document.getElementById('alugado-carga').value = trabalho.carga;
+            document.getElementById('alugado-tonelada').value = trabalho.tonelada;
+            document.getElementById('alugado-origem').value = trabalho.origem;
+            document.getElementById('alugado-destino').value = trabalho.destino;
+            document.getElementById('alugado-valor').value = trabalho.valorBruto;
+            document.getElementById('alugado-pedagio').value = trabalho.pedagio;
+            document.getElementById('alugado-balsa').value = trabalho.balsa;
+
+            document.getElementById('titulo-form-alugado').innerHTML = `<i class="fa-solid fa-pen-to-square" style="color: var(--accent-color);"></i> Editar Trabalho Rápido`;
+            document.getElementById('btn-salvar-alugado').innerHTML = `<i class="fa-solid fa-check"></i> Salvar Alterações`;
+            document.getElementById('btn-cancelar-edicao').style.display = 'block';
+
+            // Leva o usuário ao topo do formulário se necessário
+            document.getElementById('m-alugados').scrollTop = 0;
+        };
+
+        window.cancelarEdicaoTrabalhoRapido = function() {
+            limparFormularioTrabalhoRapido();
+            document.getElementById('edit-alugado-id').value = '';
+            document.getElementById('titulo-form-alugado').innerHTML = `<i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> Registrar Trabalho Rápido (Caminhão Alugado)`;
+            document.getElementById('btn-salvar-alugado').innerHTML = `<i class="fa-solid fa-plus"></i> Salvar Trabalho Rápido`;
+            document.getElementById('btn-cancelar-edicao').style.display = 'none';
+        };
+
+        function limparFormularioTrabalhoRapido() {
             document.getElementById('alugado-carga').value = '';
             document.getElementById('alugado-tonelada').value = '';
             document.getElementById('alugado-origem').value = '';
@@ -1387,9 +1449,16 @@
             document.getElementById('alugado-valor').value = '';
             document.getElementById('alugado-pedagio').value = '0';
             document.getElementById('alugado-balsa').value = '0';
+        }
 
-            mostrarToast("Trabalho rápido lançado com sucesso!");
-            atualizarTelas();
+        window.deletarTrabalhoRapido = function(id) {
+            if (confirm("Deseja excluir este trabalho rápido?")) {
+                let dados = carregarDados();
+                dados.trabalhosAlugados = dados.trabalhosAlugados.filter(t => t.id !== id);
+                salvarDados(dados);
+                mostrarToast("Trabalho rápido excluído!");
+                atualizarTelas();
+            }
         };
 
         function carregarSelectCaminhoes() {
@@ -1798,7 +1867,11 @@
                             <td>${t.carga} <small>(${t.tonelada} t)</small></td>
                             <td>${t.origem} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:var(--text-muted)"></i> ${t.destino}</td>
                             <td>R$ ${(t.pedagio + t.balsa).toFixed(2)}</td>
-                            <td style="text-align: right; color: var(--success-color); font-weight: 700;">R$ ${t.lucroLiquido.toFixed(2)}</td>
+                            <td style="text-align: right;">
+                                <button onclick="editarTrabalhoRapido('${t.id}')" title="Editar" style="background:none; border:none; color:var(--accent-color); cursor:pointer; margin-right:8px;"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button onclick="deletarTrabalhoRapido('${t.id}')" title="Excluir" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
+                                <br><span style="color: var(--success-color); font-weight: 700; font-size:11px;">R$ ${t.lucroLiquido.toFixed(2)}</span>
+                            </td>
                         </tr>
                     `).join('');
             }
