@@ -628,7 +628,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.10 (Área do Funcionário & Agrupado por Carga)</div>
+                <div class="app-version-badge">Versão 1.11 (Sessão Persistente & Carga Agrupada)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -1137,7 +1137,7 @@
     <div id="toast">Operação realizada com sucesso!</div>
 
     <script>
-        let sessaoAtual = null;
+        let sessaoAtual = JSON.parse(localStorage.getItem('ets2_sessao_atual')) || null;
         let meuGraficoInstance = null;
 
         function carregarDados() {
@@ -1157,6 +1157,17 @@
             localStorage.setItem('ets2_viagens', JSON.stringify(dados.viagens));
             localStorage.setItem('ets2_viagens_ativas', JSON.stringify(dados.viagensAtivas));
         }
+
+        // Inicialização automática ao carregar a página
+        window.onload = function() {
+            if (sessaoAtual) {
+                if (sessaoAtual.tipo === 'patrao') {
+                    iniciarPainelPatrao();
+                } else if (sessaoAtual.tipo === 'motorista') {
+                    iniciarPainelMotorista();
+                }
+            }
+        };
 
         window.mudarTipoAcesso = function() {
             let tipo = document.getElementById('tipo-acceso').value;
@@ -1183,6 +1194,7 @@
             if (tipo === 'patrao') {
                 if (usuario === '*****' && senha === '*****') {
                     sessaoAtual = { tipo: 'patrao', nome: 'Patrão' };
+                    localStorage.setItem('ets2_sessao_atual', JSON.stringify(sessaoAtual));
                     iniciarPainelPatrao();
                 } else {
                     mostrarToast("Credenciais do Patrão incorretas!", "error");
@@ -1195,6 +1207,7 @@
 
                 if (funcionarioEncontrado) {
                     sessaoAtual = { tipo: 'motorista', ...funcionarioEncontrado };
+                    localStorage.setItem('ets2_sessao_atual', JSON.stringify(sessaoAtual));
                     iniciarPainelMotorista();
                 } else {
                     mostrarToast("Funcionário não encontrado ou senha inválida!", "error");
@@ -1230,6 +1243,7 @@
 
         window.fazerLogout = function() {
             sessaoAtual = null;
+            localStorage.removeItem('ets2_sessao_atual');
             document.getElementById('login-screen').style.display = 'flex';
             document.getElementById('painel-patrao').style.display = 'none';
             document.getElementById('painel-motorista').style.display = 'none';
