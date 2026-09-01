@@ -687,10 +687,9 @@
 
         <!-- PAINEL DO PATRÃO -->
         <div id="painel-patrao" style="display: none;">
-            <div class="nav-tabs" style="grid-template-columns: repeat(4, 1fr);">
+            <div class="nav-tabs" style="grid-template-columns: repeat(3, 1fr);">
                 <button class="tab-btn active" onclick="switchTab(event, 'p-visao')"><i class="fa-solid fa-chart-pie"></i> Visão Geral</button>
                 <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
-                <button class="tab-btn" onclick="switchTab(event, 'p-alugados')"><i class="fa-solid fa-truck-fast"></i> Caminhões Alugados</button>
                 <button class="tab-btn" onclick="switchTab(event, 'p-rotas')"><i class="fa-solid fa-map-location-dot"></i> Serviços</button>
             </div>
 
@@ -816,76 +815,6 @@
                 </div>
             </div>
 
-            <!-- Aba Caminhões Alugados (Trabalhos Rápidos) -->
-            <div id="p-alugados" class="tab-content">
-                <div class="card">
-                    <h3><i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> Registrar Trabalho Rápido (Caminhão Alugado)</h3>
-                    <div class="form-group">
-                        <label>Qual Caminhão Vai Trabalhar</label>
-                        <select id="alugado-caminhao">
-                            <option value="Volvo FH">Volvo FH (Alugado)</option>
-                            <option value="Scania R">Scania R (Alugado)</option>
-                            <option value="Mercedes Actros">Mercedes Actros (Alugado)</option>
-                            <option value="DAF XF">DAF XF (Alugado)</option>
-                            <option value="MAN TGX">MAN TGX (Alugado)</option>
-                            <option value="Renault T">Renault T (Alugado)</option>
-                            <option value="Iveco S-Way">Iveco S-Way (Alugado)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Qual Carga vai Levar</label>
-                        <input type="text" id="alugado-carga" placeholder="Ex: Tratores / Eletrônicos / Alimentos">
-                    </div>
-                    <div class="form-group">
-                        <label>Tonelada a Carregar (t)</label>
-                        <input type="number" id="alugado-tonelada" placeholder="Ex: 22">
-                    </div>
-                    <div class="form-group">
-                        <label>De onde tá saindo (Origem)</label>
-                        <input type="text" id="alugado-origem" placeholder="Ex: Berlim - TransNet">
-                    </div>
-                    <div class="form-group">
-                        <label>Pra onde tá indo (Destino)</label>
-                        <input type="text" id="alugado-destino" placeholder="Ex: Paris - EuroGoodies">
-                    </div>
-                    <div class="form-group">
-                        <label>Valor Bruto do Frete (R$)</label>
-                        <input type="number" id="alugado-valor" placeholder="0.00">
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div class="form-group">
-                            <label>Pedágio (Desconto)</label>
-                            <input type="number" id="alugado-pedagio" placeholder="0.00" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label>Balsa (Desconto)</label>
-                            <input type="number" id="alugado-balsa" placeholder="0.00" value="0">
-                        </div>
-                    </div>
-                    <button class="btn-submit" onclick="cadastrarTrabalhoRapido()"><i class="fa-solid fa-plus"></i> Salvar Trabalho Rápido</button>
-                </div>
-
-                <div class="card">
-                    <h3><i class="fa-solid fa-list-check"></i> Histórico de Caminhões Alugados</h3>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Caminhão</th>
-                                    <th>Carga (Ton)</th>
-                                    <th>Rota (De → Para)</th>
-                                    <th>Pedágio / Balsa</th>
-                                    <th style="text-align: right;">Lucro Líquido</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-trabalhos-rapidos">
-                                <tr><td colspan="5" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
             <!-- Aba Serviços Realizados (Rotas Cadastradas/Concluídas) -->
             <div id="p-rotas" class="tab-content">
                 <div class="card">
@@ -915,10 +844,11 @@
 
         <!-- PAINEL DO MOTORISTA (FUNCIONÁRIO) -->
         <div id="painel-motorista" style="display: none;">
-            <div class="nav-tabs">
+            <div class="nav-tabs" style="grid-template-columns: repeat(4, 1fr);">
                 <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')"><i class="fa-solid fa-wallet"></i> Extrato</button>
                 <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')"><i class="fa-solid fa-circle-plus"></i> Nova Viagem</button>
                 <button class="tab-btn" onclick="switchTab(event, 'm-andamento')"><i class="fa-solid fa-road"></i> Viagem Ativa</button>
+                <button class="tab-btn" onclick="switchTab(event, 'm-alugados')"><i class="fa-solid fa-truck-fast"></i> Trab. Rápidos</button>
             </div>
 
             <!-- Meu Extrato -->
@@ -1114,6 +1044,76 @@
                     <button class="btn-submit btn-danger" onclick="finalizarViagemMotorista()" style="padding: 15px; font-size: 14px; margin-top: 6px;">
                         <i class="fa-solid fa-flag-checkered"></i> Finalizar Viagem
                     </button>
+                </div>
+            </div>
+
+            <!-- Aba Caminhões Alugados (Trabalhos Rápidos) na Área do Funcionário -->
+            <div id="m-alugados" class="tab-content">
+                <div class="card">
+                    <h3><i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> Registrar Trabalho Rápido (Caminhão Alugado)</h3>
+                    <div class="form-group">
+                        <label>Qual Caminhão Vai Trabalhar</label>
+                        <select id="alugado-caminhao">
+                            <option value="Volvo FH">Volvo FH (Alugado)</option>
+                            <option value="Scania R">Scania R (Alugado)</option>
+                            <option value="Mercedes Actros">Mercedes Actros (Alugado)</option>
+                            <option value="DAF XF">DAF XF (Alugado)</option>
+                            <option value="MAN TGX">MAN TGX (Alugado)</option>
+                            <option value="Renault T">Renault T (Alugado)</option>
+                            <option value="Iveco S-Way">Iveco S-Way (Alugado)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Qual Carga vai Levar</label>
+                        <input type="text" id="alugado-carga" placeholder="Ex: Tratores / Eletrônicos / Alimentos">
+                    </div>
+                    <div class="form-group">
+                        <label>Tonelada a Carregar (t)</label>
+                        <input type="number" id="alugado-tonelada" placeholder="Ex: 22">
+                    </div>
+                    <div class="form-group">
+                        <label>De onde tá saindo (Origem)</label>
+                        <input type="text" id="alugado-origem" placeholder="Ex: Berlim - TransNet">
+                    </div>
+                    <div class="form-group">
+                        <label>Pra onde tá indo (Destino)</label>
+                        <input type="text" id="alugado-destino" placeholder="Ex: Paris - EuroGoodies">
+                    </div>
+                    <div class="form-group">
+                        <label>Valor Bruto do Frete (R$)</label>
+                        <input type="number" id="alugado-valor" placeholder="0.00">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label>Pedágio (Desconto)</label>
+                            <input type="number" id="alugado-pedagio" placeholder="0.00" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Balsa (Desconto)</label>
+                            <input type="number" id="alugado-balsa" placeholder="0.00" value="0">
+                        </div>
+                    </div>
+                    <button class="btn-submit" onclick="cadastrarTrabalhoRapido()"><i class="fa-solid fa-plus"></i> Salvar Trabalho Rápido</button>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-list-check"></i> Histórico de Caminhões Alugados</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Caminhão</th>
+                                    <th>Carga (Ton)</th>
+                                    <th>Rota (De → Para)</th>
+                                    <th>Pedágio / Balsa</th>
+                                    <th style="text-align: right;">Lucro Líquido</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-trabalhos-rapidos">
+                                <tr><td colspan="5" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1685,19 +1685,6 @@
                         </tr>
                     `).join('');
 
-                // Tabela de Caminhões Alugados
-                let tbodyAlugados = document.getElementById('tabela-trabalhos-rapidos');
-                tbodyAlugados.innerHTML = dados.trabalhosAlugados.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>' :
-                    dados.trabalhosAlugados.slice().reverse().map(t => `
-                        <tr>
-                            <td><i class="fa-solid fa-truck" style="color:var(--accent-color); margin-right:4px;"></i> <strong>${t.caminhao}</strong></td>
-                            <td>${t.carga} <small>(${t.tonelada} t)</small></td>
-                            <td>${t.origem} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:var(--text-muted)"></i> ${t.destino}</td>
-                            <td>R$ ${(t.pedagio + t.balsa).toFixed(2)}</td>
-                            <td style="text-align: right; color: var(--success-color); font-weight: 700;">R$ ${t.lucroLiquido.toFixed(2)}</td>
-                        </tr>
-                    `).join('');
-
                 let tbodyManutencao = document.getElementById('tabela-frota-manutencao');
                 tbodyManutencao.innerHTML = dados.caminhoes.length === 0 ? '<tr><td colspan="6" class="empty-row">Nenhum caminhão.</td></tr>' :
                     dados.caminhoes.map(c => {
@@ -1768,6 +1755,19 @@
                             <td>${v.km} KM</td>
                             <td style="color: var(--success-color); font-weight: 600;">${v.tempoFormatado || 'N/D'}</td>
                             <td style="color: var(--success-color);">R$ ${Number(v.salarioMotorista).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+
+                // Tabela de Caminhões Alugados na Área do Funcionário
+                let tbodyAlugados = document.getElementById('tabela-trabalhos-rapidos');
+                tbodyAlugados.innerHTML = dados.trabalhosAlugados.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>' :
+                    dados.trabalhosAlugados.slice().reverse().map(t => `
+                        <tr>
+                            <td><i class="fa-solid fa-truck" style="color:var(--accent-color); margin-right:4px;"></i> <strong>${t.caminhao}</strong></td>
+                            <td>${t.carga} <small>(${t.tonelada} t)</small></td>
+                            <td>${t.origem} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:var(--text-muted)"></i> ${t.destino}</td>
+                            <td>R$ ${(t.pedagio + t.balsa).toFixed(2)}</td>
+                            <td style="text-align: right; color: var(--success-color); font-weight: 700;">R$ ${t.lucroLiquido.toFixed(2)}</td>
                         </tr>
                     `).join('');
             }
