@@ -632,7 +632,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.08 (Interface Moderna)</div>
+                <div class="app-version-badge">Versão 1.09 (3D Chart & Dinâmico)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -754,36 +754,11 @@
                     </div>
                 </div>
 
-                <!-- Gráfico Financeiro -->
+                <!-- Gráfico Financeiro 3D Dinâmico -->
                 <div class="card">
-                    <h3><i class="fa-solid fa-chart-column"></i> Gráfico Financeiro (Entradas vs Saídas)</h3>
-                    <div style="position: relative; height: 240px; width: 100%;">
+                    <h3><i class="fa-solid fa-chart-column"></i> Gráfico Financeiro 3D Dinâmico</h3>
+                    <div style="position: relative; height: 260px; width: 100%;">
                         <canvas id="graficoFinanceiro"></canvas>
-                    </div>
-                </div>
-
-                <!-- Relatório Completo de Viagens Atualizado -->
-                <div class="card">
-                    <h3><i class="fa-solid fa-clock-rotate-left"></i> Relatório Completo de Viagens</h3>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Funcionário</th>
-                                    <th>País de Saída → Destino</th>
-                                    <th>Cidade de Saída → Destino</th>
-                                    <th>KM</th>
-                                    <th>Carga / Ton</th>
-                                    <th>Caminhão</th>
-                                    <th>Frete Bruto</th>
-                                    <th>Salário Recebido</th>
-                                    <th style="text-align: right;">Imprevistos</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-ultimas-viagens">
-                                <tr><td colspan="9" class="empty-row">Nenhuma viagem registrada ainda.</td></tr>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
 
@@ -902,11 +877,12 @@
                                 <tr>
                                     <th>Rota</th>
                                     <th>KM</th>
+                                    <th>Tempo</th>
                                     <th>Salário</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-minhas-viagens">
-                                <tr><td colspan="3" class="empty-row">Nenhuma viagem registrada.</td></tr>
+                                <tr><td colspan="4" class="empty-row">Nenhuma viagem registrada.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1466,6 +1442,7 @@
             let observacao = document.getElementById('viagem-observacao').value.trim();
             let dataFim = new Date();
             let tempoMinutos = Math.round((dataFim - new Date(viagemAtiva.dataInicio)) / 60000);
+            if (tempoMinutos < 1) tempoMinutos = 1; // Garante ao menos 1 minuto para testes rápidos
             
             let horas = Math.floor(tempoMinutos / 60);
             let minutos = tempoMinutos % 60;
@@ -1514,7 +1491,9 @@
             document.getElementById('viagem-valor').value = '';
             document.getElementById('viagem-observacao').value = '';
 
-            mostrarToast("Viagem finalizada com sucesso!");
+            // Notifica o funcionário exatamente em quanto tempo ele concluiu a viagem
+            mostrarToast(`🏁 Viagem concluída com sucesso! Tempo total: ${tempoFormatado}`);
+            
             let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
             switchTab({ currentTarget: botoesTab[0] }, 'm-extrato');
             atualizarTelas();
@@ -1571,28 +1550,13 @@
                 });
 
                 let viagensValidas = dados.viagens.filter(v => !v.id.startsWith('man_'));
-                let tbodyViagens = document.getElementById('tabela-ultimas-viagens');
-                tbodyViagens.innerHTML = viagensValidas.length === 0 ? '<tr><td colspan="9" class="empty-row">Nenhuma viagem.</td></tr>' :
-                    viagensValidas.slice().reverse().map(v => `
-                        <tr>
-                            <td><strong>${v.motoristaNome || 'Motorista'}</strong></td>
-                            <td>${v.paisOrigem || 'N/D'} → ${v.paisDestino || 'N/D'}</td>
-                            <td>${v.origem} → ${v.destino}</td>
-                            <td>${v.km} KM</td>
-                            <td>${v.carga} (${v.tonelada || 0} t)</td>
-                            <td><small>${v.caminhao || 'N/D'}</small></td>
-                            <td>R$ ${(Number(v.valorBruto) || 0).toFixed(2)}</td>
-                            <td style="color: var(--warning-color);">R$ ${(Number(v.salarioMotorista) || 0).toFixed(2)}</td>
-                            <td style="text-align: right;">${v.observacao ? '⚠️' : '-'}</td>
-                        </tr>
-                    `).join('');
 
                 // Renderiza a tabela da aba "Serviços Realizados"
                 let tbodyRotas = document.getElementById('tabela-rotas-cadastradas');
                 tbodyRotas.innerHTML = viagensValidas.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhum percurso salvo ainda.</td></tr>' :
                     viagensValidas.slice().reverse().map(v => `
                         <tr>
-                            <td><strong>${v.motoristaNome || 'Motorista'}</strong></td>
+                            <td><strong>${v.motoristaName || v.motoristaNome || 'Motorista'}</strong></td>
                             <td>${v.origem} (${v.paisOrigem})</td>
                             <td>${v.destino} (${v.paisDestino})</td>
                             <td>${v.km} KM</td>
@@ -1663,11 +1627,12 @@
                 document.getElementById('motorista-total-viagens').innerText = minhasViagens.length;
 
                 let tbodyMinhasViagens = document.getElementById('tabela-minhas-viagens');
-                tbodyMinhasViagens.innerHTML = minhasViagens.length === 0 ? '<tr><td colspan="3" class="empty-row">Nenhuma viagem.</td></tr>' :
+                tbodyMinhasViagens.innerHTML = minhasViagens.length === 0 ? '<tr><td colspan="4" class="empty-row">Nenhuma viagem.</td></tr>' :
                     minhasViagens.slice().reverse().map(v => `
                         <tr>
                             <td>${v.origem} → ${v.destino}</td>
                             <td>${v.km} KM</td>
+                            <td style="color: var(--success-color); font-weight: 600;">${v.tempoFormatado || 'N/D'}</td>
                             <td style="color: var(--success-color);">R$ ${Number(v.salarioMotorista).toFixed(2)}</td>
                         </tr>
                     `).join('');
@@ -1681,6 +1646,15 @@
             if (meuGraficoInstance) {
                 meuGraficoInstance.destroy();
             }
+
+            // Gradientes 3D Dinâmicos com efeito de profundidade translúcida e brilho
+            let create3DGradient = (colorStart, colorEnd) => {
+                let gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 260);
+                gradient.addColorStop(0, colorStart);
+                gradient.addColorStop(0.5, colorEnd);
+                gradient.addColorStop(1, '#07090e');
+                return gradient;
+            };
 
             meuGraficoInstance = new Chart(ctx, {
                 type: 'bar',
@@ -1699,24 +1673,48 @@
                             valores.alimentacao
                         ],
                         backgroundColor: [
-                            '#3b82f6', // Faturamento
-                            '#f59e0b', // Combustível
-                            '#ef4444', // Manutenções
-                            '#10b981', // Salários
-                            '#60a5fa', // Pedágios
-                            '#34d399', // Balsas
-                            '#f87171', // Multas
-                            '#fbbf24'  // Alimentação
+                            create3DGradient('#60a5fa', '#1d4ed8'),
+                            create3DGradient('#fbbf24', '#d97706'),
+                            create3DGradient('#f87171', '#b91c1c'),
+                            create3DGradient('#34d399', '#059669'),
+                            create3DGradient('#93c5fd', '#2563eb'),
+                            create3DGradient('#6ee7b7', '#047857'),
+                            create3DGradient('#fca5a5', '#dc2626'),
+                            create3DGradient('#fde047', '#b45309')
                         ],
-                        borderRadius: 6,
-                        borderWidth: 0
+                        borderColor: [
+                            '#93c5fd', '#fde047', '#fca5a5', '#6ee7b7', 
+                            '#bfdbfe', '#a7f3d0', '#fecaca', '#fef08a'
+                        ],
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                        hoverBackgroundColor: '#ffffff'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: {
+                        duration: 1200,
+                        easing: 'easeOutQuart'
+                    },
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                            titleFont: { size: 12, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            padding: 10,
+                            borderColor: 'rgba(59, 130, 246, 0.3)',
+                            borderWidth: 1,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return ` R$ ${context.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
                     },
                     scales: {
                         y: {
