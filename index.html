@@ -1,3 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel da Empresa - Euro Truck Simulator 2</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome para Ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para Gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --dark-bg: #121418;
+            --card-bg: #1e2229;
+            --border-color: #2c323d;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: #e9ecef;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        /* Sistema de Telas */
+        .app-screen {
+            display: none !important;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .app-screen.active {
+            display: flex !important;
+            opacity: 1;
+        }
+
+        /* Menu Inicial Interativo */
+        .hero-container {
+            min-height: 100vh;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(18, 20, 24, 0.9), rgba(13, 110, 253, 0.15)), 
+                        url('https://images.unsplash.com/photo-1519003722824-194d4455a60c?q=80&w=1920&auto=format&fit=crop') no-repeat center center;
+            background-size: cover;
+            position: relative;
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        .role-card {
+            background: rgba(30, 34, 41, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            height: 100%;
+        }
+
+        .role-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent-color, var(--primary-color)), transparent);
             opacity: 0;
             transition: opacity 0.3s ease;
         }
@@ -103,9 +182,9 @@
                 <div class="col-md-5">
                     <div class="role-card" style="--accent-color: #0dcaf0;" onclick="switchScreen('screen-employee-login')">
                         <div class="role-icon text-info">
-                            <i class="fa-solid fa-id-card-clip"></i>
+                            <i class="fa-solid fa-id-card"></i>
                         </div>
-                        <h3 class="text-white fw-bold mb-3">Área do Funcionário</h3>
+                        <h3 class="text-white fw-bold mb-3">Funcionário</h3>
                         <p class="text-muted small mb-4">Registre suas viagens, controle abastecimentos, despesas de estrada (multas, pedágios, balsas) e consulte seu extrato.</p>
                         <button class="btn btn-info fw-bold w-100 py-2">
                             <i class="fa-solid fa-truck me-2"></i>Acessar Motorista
@@ -122,8 +201,8 @@
 
 
     <!-- ================= 2. TELA DE LOGIN DO PATRÃO ================= -->
-    <div id="screen-boss-login" class="app-screen">
-        <div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+    <div id="screen-boss-login" class="app-screen flex-column justify-content-center align-items-center min-vh-100">
+        <div class="container d-flex flex-column justify-content-center align-items-center">
             <div class="card card-custom p-4 w-100" style="max-width: 400px;">
                 <div class="text-center mb-4">
                     <i class="fa-solid fa-user-tie fa-3x text-warning mb-2"></i>
@@ -144,11 +223,11 @@
 
 
     <!-- ================= 3. TELA DE LOGIN DO FUNCIONÁRIO ================= -->
-    <div id="screen-employee-login" class="app-screen">
-        <div class="container d-flex flex-column justify-content-center align-items-center min-vh-100">
+    <div id="screen-employee-login" class="app-screen flex-column justify-content-center align-items-center min-vh-100">
+        <div class="container d-flex flex-column justify-content-center align-items-center">
             <div class="card card-custom p-4 w-100" style="max-width: 400px;">
                 <div class="text-center mb-4">
-                    <i class="fa-solid fa-id-card-clip fa-3x text-info mb-2"></i>
+                    <i class="fa-solid fa-id-card fa-3x text-info mb-2"></i>
                     <h3 class="fw-bold">Identificação do Motorista</h3>
                     <p class="text-muted small">Digite seu nome cadastrado</p>
                 </div>
@@ -166,8 +245,8 @@
 
 
     <!-- ================= 4. PAINEL DO PATRÃO (DASHBOARD COMPLETO) ================= -->
-    <div id="screen-boss-dashboard" class="app-screen">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary px-4">
+    <div id="screen-boss-dashboard" class="app-screen flex-column min-vh-100">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary px-4 w-100">
             <div class="container-fluid">
                 <a class="navbar-brand fw-bold" href="#"><i class="fa-solid fa-chart-line text-warning me-2"></i>Painel do Patrão - Gestão Global</a>
                 <button class="btn btn-outline-danger btn-sm" onclick="switchScreen('screen-home')">
@@ -175,7 +254,7 @@
                 </button>
             </div>
         </nav>
-        <div class="container py-4">
+        <div class="container py-4 flex-grow-1">
             <!-- Métricas Financeiras -->
             <div class="row g-3 mb-4">
                 <div class="col-md-3">
@@ -240,7 +319,7 @@
                                         <th>Caminhão / Placa</th>
                                         <th>Motorista Atribuído</th>
                                         <th>Quilometragem Atual</th>
-                                        <th>Status Manutenção</th>
+                                        <th>Status Atual</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
@@ -288,8 +367,8 @@
 
 
     <!-- ================= 5. PAINEL DO FUNCIONÁRIO (MOTORISTA) ================= -->
-    <div id="screen-employee-dashboard" class="app-screen">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary px-4">
+    <div id="screen-employee-dashboard" class="app-screen flex-column min-vh-100">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary px-4 w-100">
             <div class="container-fluid">
                 <a class="navbar-brand fw-bold" href="#"><i class="fa-solid fa-truck text-info me-2"></i>Painel do Motorista: <span id="logged-driver-name" class="text-warning"></span></a>
                 <button class="btn btn-outline-danger btn-sm" onclick="switchScreen('screen-home')">
@@ -297,7 +376,7 @@
                 </button>
             </div>
         </nav>
-        <div class="container py-4">
+        <div class="container py-4 flex-grow-1">
             <div class="row g-3 mb-4">
                 <div class="col-md-4">
                     <div class="card card-custom p-3 border-start border-info border-4">
@@ -327,7 +406,7 @@
                     <table class="table table-custom table-hover">
                         <thead>
                             <tr>
-                                typeof <th>Rota</th>
+                                <th>Rota</th>
                                 <th>Carga</th>
                                 <th>Frete Recebido</th>
                                 <th>Despesas (Combustível/Pedágio)</th>
