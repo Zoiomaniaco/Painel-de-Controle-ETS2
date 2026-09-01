@@ -4,13 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PAINEL DE CONTROLE - Euro Truck Simulator 2</title>
-    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
-    <!-- Google Fonts & FontAwesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Chart.js para os Gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
@@ -628,11 +625,10 @@
 
     <div class="container">
         
-        <!-- TELA DE LOGIN / CADASTRO -->
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.10 (Área do Funcionário & Alugados 3D)</div>
+                <div class="app-version-badge">Versão 1.10 (Área do Funcionário & Agrupado por Carga)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -675,7 +671,6 @@
                 </div>
             </div>
 
-            <!-- ÁREA DE INFORMAÇÕES DO APLICATIVO -->
             <div class="app-info-card">
                 <h4><i class="fa-solid fa-circle-info"></i> Sobre o aplicativo</h4>
                 <p>Aplicativo desenvolvido por Jeferson Luiz para auxiliar na organização e no gerenciamento da experiência de transporte no Euro Truck Simulator 2 (ETS2). Uso exclusivamente fictício, destinado à simulação e entretenimento.</p>
@@ -685,15 +680,13 @@
             </div>
         </div>
 
-        <!-- PAINEL DO PATRÃO -->
         <div id="painel-patrao" style="display: none;">
             <div class="nav-tabs" style="grid-template-columns: repeat(3, 1fr);">
                 <button class="tab-btn active" onclick="switchTab(event, 'p-visao')"><i class="fa-solid fa-chart-pie"></i> Visão Geral</button>
                 <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
-                <button class="tab-btn" onclick="switchTab(event, 'p-rotas')"><i class="fa-solid fa-map-location-dot"></i> Serviços</button>
+                <button class="tab-btn" onclick="switchTab(event, 'p-rotas')"><i class="fa-solid fa-boxes-stacked"></i> Serviços</button>
             </div>
 
-            <!-- Aba Visão Geral -->
             <div id="p-visao" class="tab-content active">
                 <div class="metrics-grid">
                     <div class="metric-card">
@@ -754,7 +747,6 @@
                     </div>
                 </div>
 
-                <!-- Gráfico Financeiro 3D Dinâmico -->
                 <div class="card">
                     <h3><i class="fa-solid fa-chart-column"></i> Gráfico Financeiro 3D Dinâmico</h3>
                     <div style="position: relative; height: 260px; width: 100%;">
@@ -762,7 +754,6 @@
                     </div>
                 </div>
 
-                <!-- Botões de Ações do Patrão (Funcionários & Zerar Valores) -->
                 <div class="center-btn-container">
                     <button class="btn-funcionarios-patrao" onclick="abrirModalFuncionarios()">
                         <i class="fa-solid fa-users"></i> Área do Funcionário
@@ -773,7 +764,6 @@
                 </div>
             </div>
 
-            <!-- Aba Frota & Manutenção -->
             <div id="p-caminhoes" class="tab-content">
                 <div class="card">
                     <h3><i class="fa-solid fa-truck"></i> Cadastrar Caminhão</h3>
@@ -815,25 +805,29 @@
                 </div>
             </div>
 
-            <!-- Aba Serviços Realizados (Rotas Cadastradas/Concluídas) -->
             <div id="p-rotas" class="tab-content">
                 <div class="card">
-                    <h3><i class="fa-solid fa-route"></i> Rotas Cadastradas (Serviços Realizados)</h3>
+                    <h3><i class="fa-solid fa-boxes-stacked"></i> Rotas Cadastradas (Agrupadas por Carga)</h3>
                     <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
-                        Aqui você acompanha todas as rotas e percursos concluídos pelos motoristas, incluindo a cidade de origem, destino, quilometragem e o tempo levado na viagem.
+                        Visualize o resumo de entregas agrupadas por tipo de carga, incluindo quantidade de viagens, percursos, KM total e horas acumuladas.
                     </p>
+
+                    <div class="form-group" style="margin-bottom: 14px;">
+                        <input type="text" id="filtro-cargas-input" placeholder="🔍 Filtrar por nome da carga..." onkeyup="atualizarTelas()">
+                    </div>
+
                     <div class="table-responsive">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Funcionário</th>
-                                    <th>Cidade de Saída (Origem)</th>
-                                    <th>Cidade de Chegada (Destino)</th>
-                                    <th>KM Percorrido</th>
-                                    <th style="text-align: right;">Tempo da Viagem</th>
+                                    <th>Tipo de Carga</th>
+                                    <th style="text-align: center;">Qtd. Viagens</th>
+                                    <th>Percursos (Origem ➔ Destino)</th>
+                                    <th>KM Total</th>
+                                    <th style="text-align: right;">Tempo Total</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabela-rotas-cadastradas">
+                            <tbody id="tabela-rotas-por-carga">
                                 <tr><td colspan="5" class="empty-row">Nenhum percurso salvo ainda.</td></tr>
                             </tbody>
                         </table>
@@ -842,7 +836,6 @@
             </div>
         </div>
 
-        <!-- PAINEL DO MOTORISTA (FUNCIONÁRIO) -->
         <div id="painel-motorista" style="display: none;">
             <div class="nav-tabs" style="grid-template-columns: repeat(4, 1fr);">
                 <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')"><i class="fa-solid fa-wallet"></i> Extrato</button>
@@ -851,7 +844,6 @@
                 <button class="tab-btn" onclick="switchTab(event, 'm-alugados')"><i class="fa-solid fa-truck-fast"></i> Trab. Rápidos</button>
             </div>
 
-            <!-- Meu Extrato -->
             <div id="m-extrato" class="tab-content active">
                 <div class="metrics-grid">
                     <div class="metric-card">
@@ -890,7 +882,6 @@
                 </div>
             </div>
 
-            <!-- Adicionar Viagem -->
             <div id="m-adicionar" class="tab-content">
                 <div class="card">
                     <h3><i class="fa-solid fa-map-location-dot"></i> Cadastrar Nova Viagem</h3>
@@ -960,7 +951,6 @@
                 </div>
             </div>
 
-            <!-- Viagem Ativa & Lançamento de Gastos -->
             <div id="m-andamento" class="tab-content">
                 <div id="sem-viagem-ativa" class="card" style="text-align: center; padding: 35px 20px;">
                     <i class="fa-solid fa-triangle-exclamation" style="font-size: 32px; color: var(--warning-color); margin-bottom: 12px;"></i>
@@ -976,7 +966,6 @@
                         <p style="margin: 6px 0; font-size: 12px;"><strong>Valor Bruto:</strong> <span id="ativa-valor"></span></p>
                     </div>
 
-                    <!-- Bloco de Parada de Descanso / Alimentação -->
                     <div class="card" style="border-color: rgba(245, 158, 11, 0.3);">
                         <h3><i class="fa-solid fa-utensils" style="color: var(--warning-color);"></i> Registrar Parada de Descanso</h3>
                         <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">Informe os horários da sua parada. Custo fixo de alimentação: **R$ 50,00** (debitado da empresa).</p>
@@ -1047,7 +1036,6 @@
                 </div>
             </div>
 
-            <!-- Aba Caminhões Alugados (Trabalhos Rápidos) na Área do Funcionário -->
             <div id="m-alugados" class="tab-content">
                 <div class="card">
                     <h3><i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> Registrar Trabalho Rápido (Caminhão Alugado)</h3>
@@ -1120,7 +1108,6 @@
 
     </div>
 
-    <!-- Modal de Funcionários Cadastrados -->
     <div id="modal-funcionarios" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
@@ -1379,7 +1366,6 @@
             });
             salvarDados(dados);
 
-            // Limpa formulário
             document.getElementById('alugado-carga').value = '';
             document.getElementById('alugado-tonelada').value = '';
             document.getElementById('alugado-origem').value = '';
@@ -1670,20 +1656,52 @@
                     alimentacao: totalAlimentacaoGeral
                 });
 
+                // Agrupando viagens válidas por Carga para a Aba de Serviços
                 let viagensValidas = dados.viagens.filter(v => !v.id.startsWith('man_'));
+                let filtroCargaTexto = document.getElementById('filtro-cargas-input') ? document.getElementById('filtro-cargas-input').value.toLowerCase() : '';
 
-                // Tabela de Serviços Realizados
-                let tbodyRotas = document.getElementById('tabela-rotas-cadastradas');
-                tbodyRotas.innerHTML = viagensValidas.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhum percurso salvo ainda.</td></tr>' :
-                    viagensValidas.slice().reverse().map(v => `
-                        <tr>
-                            <td><strong>${v.motoristaName || v.motoristaNome || 'Motorista'}</strong></td>
-                            <td>${v.origem} (${v.paisOrigem})</td>
-                            <td>${v.destino} (${v.paisDestino})</td>
-                            <td>${v.km} KM</td>
-                            <td style="text-align: right; color: var(--success-color); font-weight: 600;">${v.tempoFormatado || 'N/D'}</td>
-                        </tr>
-                    `).join('');
+                let cargasAgrupadas = {};
+                viagensValidas.forEach(v => {
+                    let nomeCarga = (v.carga || 'Carga Geral').trim();
+                    if (!cargasAgrupadas[nomeCarga]) {
+                        cargasAgrupadas[nomeCarga] = {
+                            quantidade: 0,
+                            kmTotal: 0,
+                            minutosTotal: 0,
+                            rotasUnicas: new Set()
+                        };
+                    }
+                    cargasAgrupadas[nomeCarga].quantidade += 1;
+                    cargasAgrupadas[nomeCarga].kmTotal += (Number(v.km) || 0);
+                    cargasAgrupadas[nomeCarga].minutosTotal += (Number(v.tempoMinutos) || 0);
+                    cargasAgrupadas[nomeCarga].rotasUnicas.add(`${v.origem} (${v.paisOrigem}) ➔ ${v.destino} (${v.paisDestino})`);
+                });
+
+                let tbodyRotas = document.getElementById('tabela-rotas-por-carga');
+                let chavesCargas = Object.keys(cargasAgrupadas).filter(c => c.toLowerCase().includes(filtroCargaTexto));
+
+                if (chavesCargas.length === 0) {
+                    tbodyRotas.innerHTML = '<tr><td colspan="5" class="empty-row">Nenhuma carga encontrada.</td></tr>';
+                } else {
+                    tbodyRotas.innerHTML = chavesCargas.map(carga => {
+                        let info = cargasAgrupadas[carga];
+                        let listaRotas = Array.from(info.rotasUnicas).join('<br>');
+                        
+                        let horas = Math.floor(info.minutosTotal / 60);
+                        let minutos = info.minutosTotal % 60;
+                        let tempoFormatadoTotal = horas > 0 ? `${horas}h ${minutos}min` : `${minutos}min`;
+
+                        return `
+                            <tr>
+                                <td><i class="fa-solid fa-box" style="color:var(--accent-color); margin-right:6px;"></i> <strong>${carga}</strong></td>
+                                <td style="text-align: center;"><span class="badge-status badge-servico">${info.quantidade}x</span></td>
+                                <td style="white-space: normal; line-height: 1.4; font-size: 11px;">${listaRotas}</td>
+                                <td>${info.kmTotal} KM</td>
+                                <td style="text-align: right; color: var(--success-color); font-weight: 600;">${tempoFormatadoTotal}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
 
                 let tbodyManutencao = document.getElementById('tabela-frota-manutencao');
                 tbodyManutencao.innerHTML = dados.caminhoes.length === 0 ? '<tr><td colspan="6" class="empty-row">Nenhum caminhão.</td></tr>' :
@@ -1758,7 +1776,6 @@
                         </tr>
                     `).join('');
 
-                // Tabela de Caminhões Alugados na Área do Funcionário
                 let tbodyAlugados = document.getElementById('tabela-trabalhos-rapidos');
                 tbodyAlugados.innerHTML = dados.trabalhosAlugados.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>' :
                     dados.trabalhosAlugados.slice().reverse().map(t => `
