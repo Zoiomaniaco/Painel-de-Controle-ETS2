@@ -865,8 +865,8 @@
             <div class="nav-tabs" style="grid-template-columns: repeat(4, 1fr);">
                 <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')"><i class="fa-solid fa-wallet"></i> Extrato</button>
                 <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')"><i class="fa-solid fa-circle-plus"></i> Nova Viagem</button>
+                <button class="tab-btn" onclick="switchTab(event, 'm-alugados')"><i class="fa-solid fa-truck-fast"></i> Outras Viagens</button>
                 <button class="tab-btn" onclick="switchTab(event, 'm-andamento')"><i class="fa-solid fa-road"></i> Viagem Ativa</button>
-                <button class="tab-btn" onclick="switchTab(event, 'm-alugados')"><i class="fa-solid fa-truck-fast"></i> Trab. Normais</button>
             </div>
 
             <div id="m-extrato" class="tab-content active">
@@ -914,8 +914,8 @@
                     <div class="form-group">
                         <label>Tipo de Carga / Viagem</label>
                         <select id="viagem-tipo-especial">
-                            <option value="padrao">📦 Carga Padrão (Comissão 10%)</option>
-                            <option value="especial">🚨 Carga Especial / Batedores (Comissão 14%)</option>
+                            <option value="padrao">📦 Carga Padrão</option>
+                            <option value="especial">🚨 Carga Especial / Batedores</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -981,6 +981,86 @@
                         <input type="number" id="viagem-valor" placeholder="0.00">
                     </div>
                     <button class="btn-submit" onclick="iniciarViagemMotorista()">Iniciar Viagem</button>
+                </div>
+            </div>
+
+            <div id="m-alugados" class="tab-content">
+                <div class="card">
+                    <h3 id="titulo-form-alugado"><i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> OUTRAS REGISTRAR TRABALHO</h3>
+                    <input type="hidden" id="edit-alugado-id" value="">
+                    <div class="form-group">
+                        <label>Tipo de Carga / Trabalho</label>
+                        <select id="alugado-tipo-especial">
+                            <option value="padrao">📦 Carga Padrão</option>
+                            <option value="especial">🚨 Carga Especial / Batedores</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Qual Caminhão Vai Trabalhar</label>
+                        <select id="alugado-caminhao">
+                            <option value="Volvo FH">Volvo FH (Alugado)</option>
+                            <option value="Scania R">Scania R (Alugado)</option>
+                            <option value="Mercedes Actros">Mercedes Actros (Alugado)</option>
+                            <option value="DAF XF">DAF XF (Alugado)</option>
+                            <option value="MAN TGX">MAN TGX (Alugado)</option>
+                            <option value="Renault T">Renault T (Alugado)</option>
+                            <option value="Iveco S-Way">Iveco S-Way (Alugado)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Qual Carga vai Levar</label>
+                        <input type="text" id="alugado-carga" placeholder="Ex: Tratores / Eletrônicos / Alimentos">
+                    </div>
+                    <div class="form-group">
+                        <label>Tonelada a Carregar (t)</label>
+                        <input type="number" id="alugado-tonelada" placeholder="Ex: 22">
+                    </div>
+                    <div class="form-group">
+                        <label>De onde tá saindo (Origem)</label>
+                        <input type="text" id="alugado-origem" placeholder="Ex: Berlim - TransNet">
+                    </div>
+                    <div class="form-group">
+                        <label>Pra onde tá indo (Destino)</label>
+                        <input type="text" id="alugado-destino" placeholder="Ex: Paris - EuroGoodies">
+                    </div>
+                    <div class="form-group">
+                        <label>Valor Bruto do Frete (R$)</label>
+                        <input type="number" id="alugado-valor" placeholder="0.00">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label>Pedágio (R$)</label>
+                            <input type="number" id="alugado-pedagio" placeholder="0.00" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Balsa (R$)</label>
+                            <input type="number" id="alugado-balsa" placeholder="0.00" value="0">
+                        </div>
+                    </div>
+                    <button class="btn-submit" id="btn-salvar-alugado" onclick="cadastrarTrabalhoRapido()"><i class="fa-solid fa-plus"></i> Salvar Trabalho Normal</button>
+                    <button id="btn-cancelar-edicao" class="btn-submit btn-danger" style="display:none; margin-top:6px;" onclick="cancelarEdicaoTrabalhoRapido()">Cancelar Edição</button>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-list-check"></i> Histórico de Trabalho</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>Caminhão</th>
+                                    <th>Carga (Ton)</th>
+                                    <th>Rota (De → Para)</th>
+                                    <th>Valor Bruto</th>
+                                    <th>Pedágio / Balsa</th>
+                                    <th style="text-align: right;">Status / Lucro</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-trabalhos-rapidos">
+                                <tr><td colspan="7" class="empty-row">Nenhum trabalho normal registrado.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -1067,85 +1147,6 @@
                     <button class="btn-submit btn-danger" onclick="finalizarViagemMotorista()" style="padding: 15px; font-size: 14px; margin-top: 6px;">
                         <i class="fa-solid fa-flag-checkered"></i> Finalizar Viagem
                     </button>
-                </div>
-            </div>
-
-            <div id="m-alugados" class="tab-content">
-                <div class="card">
-                    <h3 id="titulo-form-alugado"><i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> Registrar Trabalho Normal (Mercado de Fretes)</h3>
-                    <input type="hidden" id="edit-alugado-id" value="">
-                    <div class="form-group">
-                        <label>Tipo de Carga / Trabalho</label>
-                        <select id="alugado-tipo-especial">
-                            <option value="padrao">📦 Carga Padrão (Comissão 7%)</option>
-                            <option value="especial">🚨 Carga Especial / Batedores (Comissão 14%)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Qual Caminhão Vai Trabalhar</label>
-                        <select id="alugado-caminhao">
-                            <option value="Volvo FH">Volvo FH (Alugado)</option>
-                            <option value="Scania R">Scania R (Alugado)</option>
-                            <option value="Mercedes Actros">Mercedes Actros (Alugado)</option>
-                            <option value="DAF XF">DAF XF (Alugado)</option>
-                            <option value="MAN TGX">MAN TGX (Alugado)</option>
-                            <option value="Renault T">Renault T (Alugado)</option>
-                            <option value="Iveco S-Way">Iveco S-Way (Alugado)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Qual Carga vai Levar</label>
-                        <input type="text" id="alugado-carga" placeholder="Ex: Tratores / Eletrônicos / Alimentos">
-                    </div>
-                    <div class="form-group">
-                        <label>Tonelada a Carregar (t)</label>
-                        <input type="number" id="alugado-tonelada" placeholder="Ex: 22">
-                    </div>
-                    <div class="form-group">
-                        <label>De onde tá saindo (Origem)</label>
-                        <input type="text" id="alugado-origem" placeholder="Ex: Berlim - TransNet">
-                    </div>
-                    <div class="form-group">
-                        <label>Pra onde tá indo (Destino)</label>
-                        <input type="text" id="alugado-destino" placeholder="Ex: Paris - EuroGoodies">
-                    </div>
-                    <div class="form-group">
-                        <label>Valor Bruto do Frete (R$)</label>
-                        <input type="number" id="alugado-valor" placeholder="0.00">
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div class="form-group">
-                            <label>Pedágio (R$)</label>
-                            <input type="number" id="alugado-pedagio" placeholder="0.00" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label>Balsa (R$)</label>
-                            <input type="number" id="alugado-balsa" placeholder="0.00" value="0">
-                        </div>
-                    </div>
-                    <button class="btn-submit" id="btn-salvar-alugado" onclick="cadastrarTrabalhoRapido()"><i class="fa-solid fa-plus"></i> Salvar Trabalho Normal</button>
-                    <button id="btn-cancelar-edicao" class="btn-submit btn-danger" style="display:none; margin-top:6px;" onclick="cancelarEdicaoTrabalhoRapido()">Cancelar Edição</button>
-                </div>
-
-                <div class="card">
-                    <h3><i class="fa-solid fa-list-check"></i> Histórico de Trabalhos Normais</h3>
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Tipo</th>
-                                    <th>Caminhão</th>
-                                    <th>Carga (Ton)</th>
-                                    <th>Rota (De → Para)</th>
-                                    <th>Pedágio / Balsa</th>
-                                    <th style="text-align: right;">Status / Lucro</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-trabalhos-rapidos">
-                                <tr><td colspan="6" class="empty-row">Nenhum trabalho normal registrado.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
             </div>
         </div>
@@ -1408,10 +1409,8 @@
                 return;
             }
 
-            // Cálculo da comissão do funcionário para trabalho normal: 7% para padrão, 14% para especial
             let comissaoPct = tipoEspecial === 'especial' ? 0.14 : 0.07;
             let salarioMotorista = valorBruto * comissaoPct;
-            // Para o patrão, o lucro líquido do trabalho normal desconta o salário do funcionário além de pedágio/balsa
             let lucroLiquido = valorBruto - salarioMotorista - (pedagio + balsa);
             
             let dados = carregarDados();
@@ -1503,7 +1502,7 @@
         window.cancelarEdicaoTrabalhoRapido = function() {
             limparFormularioTrabalhoRapido();
             document.getElementById('edit-alugado-id').value = '';
-            document.getElementById('titulo-form-alugado').innerHTML = `<i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> Registrar Trabalho Normal (Mercado de Fretes)`;
+            document.getElementById('titulo-form-alugado').innerHTML = `<i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> OUTRAS REGISTRAR TRABALHO`;
             document.getElementById('btn-salvar-alugado').innerHTML = `<i class="fa-solid fa-plus"></i> Salvar Trabalho Normal`;
             document.getElementById('btn-cancelar-edicao').style.display = 'none';
         };
@@ -1622,7 +1621,7 @@
             mostrarToast("Viagem iniciada!");
             
             let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
-            switchTab({ currentTarget: botoesTab[2] }, 'm-andamento');
+            switchTab({ currentTarget: botoesTab[3] }, 'm-andamento');
             atualizarTelas();
         };
 
@@ -1714,7 +1713,6 @@
             let totalAlimentacao = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Alimentação').reduce((acc, g) => acc + g.valor, 0);
             let totalGastosExtras = totalPedagios + totalBalsas + totalMultas + totalAlimentacao + custoCombustivel;
 
-            // Comissão do funcionário para viagens normais: 10% se Padrão, 14% se Carga Especial com batedores
             let comissaoPct = viagemAtiva.tipoEspecial === 'especial' ? 0.14 : 0.10;
             let salarioMotorista = viagemAtiva.valorBruto * comissaoPct;
             let caixaEmpresa = viagemAtiva.valorBruto - salarioMotorista - totalGastosExtras;
@@ -1770,7 +1768,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('painel-motorista').style.display = 'block';
             document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('header-title').innerText = `FUNCIONÁRIO: ${sessaoAtual.nome.toUpperCase()}`;
+            document.getElementById('header-title').innerText = "ÁREA DO FUNCIONÁRIO";
             carregarSelectCaminhoes();
             atualizarTelas();
         }
@@ -1900,8 +1898,8 @@
                     divSemViagem.style.display = 'none';
                     divComViagem.style.display = 'block';
                     let badgeTipoHtml = viagemAtiva.tipoEspecial === 'especial' 
-                        ? `<span class="tipo-carga-badge badge-especial"><i class="fa-solid fa-car-side"></i> Carga Especial / Batedores (14%)</span>`
-                        : `<span class="tipo-carga-badge badge-padrao"><i class="fa-solid fa-box"></i> Carga Padrão (10%)</span>`;
+                        ? `<span class="tipo-carga-badge badge-especial"><i class="fa-solid fa-car-side"></i> Carga Especial / Batedores</span>`
+                        : `<span class="tipo-carga-badge badge-padrao"><i class="fa-solid fa-box"></i> Carga Padrão</span>`;
                     
                     document.getElementById('ativa-tipo-carga').innerHTML = badgeTipoHtml;
                     document.getElementById('ativa-pais-rota').innerText = `${viagemAtiva.paisOrigem} → ${viagemAtiva.paisDestino}`;
@@ -1958,7 +1956,7 @@
 
                 let meusAlugados = dados.trabalhosAlugados.filter(t => !t.motoristaId || t.motoristaId === sessaoAtual.id);
                 let tbodyAlugados = document.getElementById('tabela-trabalhos-rapidos');
-                tbodyAlugados.innerHTML = meusAlugados.length === 0 ? '<tr><td colspan="6" class="empty-row">Nenhum trabalho normal registrado.</td></tr>' :
+                tbodyAlugados.innerHTML = meusAlugados.length === 0 ? '<tr><td colspan="7" class="empty-row">Nenhum trabalho normal registrado.</td></tr>' :
                     meusAlugados.slice().reverse().map(t => {
                         let badgeHtml = t.tipoEspecial === 'especial'
                             ? `<span class="tipo-carga-badge badge-especial" title="Carga Especial com Batedores"><i class="fa-solid fa-car-side"></i> Especial</span>`
@@ -1977,6 +1975,7 @@
                                 <td><i class="fa-solid fa-truck" style="color:var(--accent-color); margin-right:4px;"></i> <strong>${t.caminhao}</strong></td>
                                 <td>${t.carga} <small>(${t.tonelada} t)</small></td>
                                 <td>${t.origem} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:var(--text-muted)"></i> ${t.destino}</td>
+                                <td>R$ ${Number(t.valorBruto || 0).toFixed(2)}</td>
                                 <td>Ped: R$ ${Number(t.pedagio || 0).toFixed(2)}<br>Bal: R$ ${Number(t.balsa || 0).toFixed(2)}</td>
                                 <td style="text-align: right;">${acoesStatus}</td>
                             </tr>
