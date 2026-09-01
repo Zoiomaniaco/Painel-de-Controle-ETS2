@@ -401,6 +401,9 @@
             text-overflow: ellipsis;
         }
 
+        .text-positivo { color: var(--success-color) !important; }
+        .text-negativo { color: var(--danger-color) !important; }
+
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -628,7 +631,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.13 (Pedágio e Balsa Separados)</div>
+                <div class="app-version-badge">Versão 1.14 (Trabalhos Rápidos Concluíveis)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -1095,13 +1098,12 @@
                                     <th>Caminhão</th>
                                     <th>Carga (Ton)</th>
                                     <th>Rota (De → Para)</th>
-                                    <th>Pedágio</th>
-                                    <th>Balsa</th>
-                                    <th style="text-align: right;">Ações / Lucro</th>
+                                    <th>Pedágio / Balsa</th>
+                                    <th style="text-align: right;">Status / Lucro</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-trabalhos-rapidos">
-                                <tr><td colspan="6" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>
+                                <tr><td colspan="5" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1161,7 +1163,6 @@
             localStorage.setItem('ets2_viagens_ativas', JSON.stringify(dados.viagensAtivas));
         }
 
-        // Inicialização automática ao carregar a página
         window.onload = function() {
             if (sessaoAtual) {
                 if (sessaoAtual.tipo === 'patrao') {
@@ -1371,11 +1372,10 @@
             let dados = carregarDados();
 
             if (editId) {
-                // Modo Edição
                 let index = dados.trabalhosAlugados.findIndex(t => t.id === editId);
                 if (index !== -1) {
                     dados.trabalhosAlugados[index] = {
-                        id: editId,
+                        ...dados.trabalhosAlugados[index],
                         caminhao,
                         carga,
                         tonelada,
@@ -1390,9 +1390,10 @@
                 }
                 cancelarEdicaoTrabalhoRapido();
             } else {
-                // Modo Novo Cadastro
                 dados.trabalhosAlugados.push({
                     id: 'alg_' + Date.now(),
+                    motoristaId: sessaoAtual.id,
+                    motoristaNome: sessaoAtual.nome,
                     caminhao,
                     carga,
                     tonelada,
@@ -1401,13 +1402,25 @@
                     valorBruto,
                     pedagio,
                     balsa,
-                    lucroLiquido
+                    lucroLiquido,
+                    concluido: false
                 });
                 limparFormularioTrabalhoRapido();
-                mostrarToast("Trabalho rápido lançado com sucesso!");
+                mostrarToast("Trabalho rápido salvo! Não se esqueça de concluí-lo ao terminar a entrega.");
             }
 
             salvarDados(dados);
+            atualizarTelas();
+        };
+
+        window.concluirTrabalhoRapido = function(id) {
+            let dados = carregarDados();
+            let trabalho = dados.trabalhosAlugados.find(t => t.id === id);
+            if (!trabalho) return;
+
+            trabalho.concluido = true;
+            salvarDados(dados);
+            mostrarToast("🏁 Trabalho rápido concluído e registrado no caixa da empresa!");
             atualizarTelas();
         };
 
@@ -1415,6 +1428,10 @@
             let dados = carregarDados();
             let trabalho = dados.trabalhosAlugados.find(t => t.id === id);
             if (!trabalho) return;
+            if (trabalho.concluido) {
+                mostrarToast("Trabalhos já concluídos não podem ser editados.", "error");
+                return;
+            }
 
             document.getElementById('edit-alugado-id').value = trabalho.id;
             document.getElementById('alugado-caminhao').value = trabalho.caminhao;
@@ -1706,21 +1723,26 @@
             let dados = carregarDados();
             
             if (sessaoAtual && sessaoAtual.tipo === 'patrao') {
+                // Considera apenas trabalhos rápidos concluídos para o faturamento do patrão
+                let trabalhosConcluidos = dados.trabalhosAlugados.filter(t => t.concluido);
                 let faturamentoEmpresa = dados.viagens.reduce((acc, v) => acc + (Number(v.caixaEmpresa) || 0), 0) +
-                                         dados.trabalhosAlugados.reduce((acc, t) => acc + (Number(t.lucroLiquido) || 0), 0);
+                                         trabalhosConcluidos.reduce((acc, t) => acc + (Number(t.lucroLiquido) || 0), 0);
                 
                 let totalCombustivelGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.custoCombustivel) || 0), 0);
                 let totalManutencoes = dados.viagens.filter(v => v.id.startsWith('man_')).reduce((acc, v) => acc + Math.abs(v.caixaEmpresa), 0);
                 let totalMultasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalMultas) || 0), 0);
                 let totalPedagiosGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalPedagios) || 0), 0) +
-                                         dados.trabalhosAlugados.reduce((acc, t) => acc + (Number(t.pedagio) || 0), 0);
+                                         trabalhosConcluidos.reduce((acc, t) => acc + (Number(t.pedagio) || 0), 0);
                 let totalBalsasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalBalsas) || 0), 0) +
-                                       dados.trabalhosAlugados.reduce((acc, t) => acc + (Number(t.balsa) || 0), 0);
+                                       trabalhosConcluidos.reduce((acc, t) => acc + (Number(t.balsa) || 0), 0);
                 let totalAlimentacaoGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalAlimentacao) || 0), 0);
                 let totalSalariosGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.salarioMotorista) || 0), 0);
 
-                document.getElementById('patrao-faturamento').innerText = `R$ ${faturamentoEmpresa.toFixed(2)}`;
-                document.getElementById('patrao-total-viagens').innerText = dados.viagens.filter(v => !v.id.startsWith('man_')).length + dados.trabalhosAlugados.length;
+                let elFat = document.getElementById('patrao-faturamento');
+                elFat.innerText = `R$ ${faturamentoEmpresa.toFixed(2)}`;
+                elFat.className = faturamentoEmpresa >= 0 ? 'text-positivo' : 'text-negativo';
+
+                document.getElementById('patrao-total-viagens').innerText = dados.viagens.filter(v => !v.id.startsWith('man_')).length + trabalhosConcluidos.length;
                 document.getElementById('patrao-combustivel').innerText = `R$ ${totalCombustivelGeral.toFixed(2)}`;
                 document.getElementById('patrao-manutencoes').innerText = `R$ ${totalManutencoes.toFixed(2)}`;
                 document.getElementById('patrao-multas').innerText = `R$ ${totalMultasGeral.toFixed(2)}`;
@@ -1845,7 +1867,10 @@
                 let minhasViagens = dados.viagens.filter(v => v.motoristaId === sessaoAtual.id && !v.id.startsWith('man_'));
                 let meuSalarioTotal = minhasViagens.reduce((acc, v) => acc + (Number(v.salarioMotorista) || 0), 0);
 
-                document.getElementById('motorista-meus-ganhos').innerText = `R$ ${meuSalarioTotal.toFixed(2)}`;
+                let elGanhos = document.getElementById('motorista-meus-ganhos');
+                elGanhos.innerText = `R$ ${meuSalarioTotal.toFixed(2)}`;
+                elGanhos.className = meuSalarioTotal >= 0 ? 'text-positivo' : 'text-negativo';
+
                 document.getElementById('motorista-total-viagens').innerText = minhasViagens.length;
 
                 let tbodyMinhasViagens = document.getElementById('tabela-minhas-viagens');
@@ -1855,26 +1880,31 @@
                             <td>${v.origem} → ${v.destino}</td>
                             <td>${v.km} KM</td>
                             <td style="color: var(--success-color); font-weight: 600;">${v.tempoFormatado || 'N/D'}</td>
-                            <td style="color: var(--success-color);">R$ ${Number(v.salarioMotorista).toFixed(2)}</td>
+                            <td class="${v.salarioMotorista >= 0 ? 'text-positivo' : 'text-negativo'}">R$ ${Number(v.salarioMotorista).toFixed(2)}</td>
                         </tr>
                     `).join('');
 
+                let meusAlugados = dados.trabalhosAlugados.filter(t => !t.motoristaId || t.motoristaId === sessaoAtual.id);
                 let tbodyAlugados = document.getElementById('tabela-trabalhos-rapidos');
-                tbodyAlugados.innerHTML = dados.trabalhosAlugados.length === 0 ? '<tr><td colspan="6" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>' :
-                    dados.trabalhosAlugados.slice().reverse().map(t => `
-                        <tr>
-                            <td><i class="fa-solid fa-truck" style="color:var(--accent-color); margin-right:4px;"></i> <strong>${t.caminhao}</strong></td>
-                            <td>${t.carga} <small>(${t.tonelada} t)</small></td>
-                            <td>${t.origem} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:var(--text-muted)"></i> ${t.destino}</td>
-                            <td>R$ ${Number(t.pedagio || 0).toFixed(2)}</td>
-                            <td>R$ ${Number(t.balsa || 0).toFixed(2)}</td>
-                            <td style="text-align: right;">
-                                <button onclick="editarTrabalhoRapido('${t.id}')" title="Editar" style="background:none; border:none; color:var(--accent-color); cursor:pointer; margin-right:8px;"><i class="fa-solid fa-pen-to-square"></i></button>
-                                <button onclick="deletarTrabalhoRapido('${t.id}')" title="Excluir" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
-                                <br><span style="color: var(--success-color); font-weight: 700; font-size:11px;">R$ ${t.lucroLiquido.toFixed(2)}</span>
-                            </td>
-                        </tr>
-                    `).join('');
+                tbodyAlugados.innerHTML = meusAlugados.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>' :
+                    meusAlugados.slice().reverse().map(t => {
+                        let classeLucro = t.lucroLiquido >= 0 ? 'text-positivo' : 'text-negativo';
+                        let acoesStatus = t.concluido 
+                            ? `<span class="badge-status badge-servico"><i class="fa-solid fa-check"></i> Concluído</span><br><strong class="${classeLucro}">R$ ${t.lucroLiquido.toFixed(2)}</strong>`
+                            : `<button class="btn-submit" style="padding:4px 8px; font-size:10px; margin-bottom:4px;" onclick="concluirTrabalhoRapido('${t.id}')"><i class="fa-solid fa-flag-checkered"></i> Concluir</button>
+                               <br><button onclick="editarTrabalhoRapido('${t.id}')" title="Editar" style="background:none; border:none; color:var(--accent-color); cursor:pointer; margin-right:6px;"><i class="fa-solid fa-pen-to-square"></i></button>
+                               <button onclick="deletarTrabalhoRapido('${t.id}')" title="Excluir" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>`;
+
+                        return `
+                            <tr>
+                                <td><i class="fa-solid fa-truck" style="color:var(--accent-color); margin-right:4px;"></i> <strong>${t.caminhao}</strong></td>
+                                <td>${t.carga} <small>(${t.tonelada} t)</small></td>
+                                <td>${t.origem} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:var(--text-muted)"></i> ${t.destino}</td>
+                                <td>Ped: R$ ${Number(t.pedagio || 0).toFixed(2)}<br>Bal: R$ ${Number(t.balsa || 0).toFixed(2)}</td>
+                                <td style="text-align: right;">${acoesStatus}</td>
+                            </tr>
+                        `;
+                    }).join('');
             }
         }
 
