@@ -628,7 +628,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.12 (Edição de Trab. Rápidos & Persistência)</div>
+                <div class="app-version-badge">Versão 1.13 (Pedágio e Balsa Separados)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -1074,11 +1074,11 @@
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div class="form-group">
-                            <label>Pedágio (Desconto)</label>
+                            <label>Pedágio (R$)</label>
                             <input type="number" id="alugado-pedagio" placeholder="0.00" value="0">
                         </div>
                         <div class="form-group">
-                            <label>Balsa (Desconto)</label>
+                            <label>Balsa (R$)</label>
                             <input type="number" id="alugado-balsa" placeholder="0.00" value="0">
                         </div>
                     </div>
@@ -1095,12 +1095,13 @@
                                     <th>Caminhão</th>
                                     <th>Carga (Ton)</th>
                                     <th>Rota (De → Para)</th>
-                                    <th>Pedágio / Balsa</th>
+                                    <th>Pedágio</th>
+                                    <th>Balsa</th>
                                     <th style="text-align: right;">Ações / Lucro</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-trabalhos-rapidos">
-                                <tr><td colspan="5" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>
+                                <tr><td colspan="6" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1429,7 +1430,6 @@
             document.getElementById('btn-salvar-alugado').innerHTML = `<i class="fa-solid fa-check"></i> Salvar Alterações`;
             document.getElementById('btn-cancelar-edicao').style.display = 'block';
 
-            // Leva o usuário ao topo do formulário se necessário
             document.getElementById('m-alugados').scrollTop = 0;
         };
 
@@ -1860,13 +1860,14 @@
                     `).join('');
 
                 let tbodyAlugados = document.getElementById('tabela-trabalhos-rapidos');
-                tbodyAlugados.innerHTML = dados.trabalhosAlugados.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>' :
+                tbodyAlugados.innerHTML = dados.trabalhosAlugados.length === 0 ? '<tr><td colspan="6" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>' :
                     dados.trabalhosAlugados.slice().reverse().map(t => `
                         <tr>
                             <td><i class="fa-solid fa-truck" style="color:var(--accent-color); margin-right:4px;"></i> <strong>${t.caminhao}</strong></td>
                             <td>${t.carga} <small>(${t.tonelada} t)</small></td>
                             <td>${t.origem} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:var(--text-muted)"></i> ${t.destino}</td>
-                            <td>R$ ${(t.pedagio + t.balsa).toFixed(2)}</td>
+                            <td>R$ ${Number(t.pedagio || 0).toFixed(2)}</td>
+                            <td>R$ ${Number(t.balsa || 0).toFixed(2)}</td>
                             <td style="text-align: right;">
                                 <button onclick="editarTrabalhoRapido('${t.id}')" title="Editar" style="background:none; border:none; color:var(--accent-color); cursor:pointer; margin-right:8px;"><i class="fa-solid fa-pen-to-square"></i></button>
                                 <button onclick="deletarTrabalhoRapido('${t.id}')" title="Excluir" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
