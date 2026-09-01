@@ -865,7 +865,7 @@
             <div class="nav-tabs" style="grid-template-columns: repeat(4, 1fr);">
                 <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')"><i class="fa-solid fa-wallet"></i> Extrato</button>
                 <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')"><i class="fa-solid fa-circle-plus"></i> Nova Viagem</button>
-                <button class="tab-btn" onclick="switchTab(event, 'm-alugados')"><i class="fa-solid fa-truck-fast"></i> Outras Viagens</button>
+                <button class="tab-btn" onclick="switchTab(event, 'm-alugados')"><i class="fa-solid fa-truck-fast"></i> Registrar Serviços</button>
                 <button class="tab-btn" onclick="switchTab(event, 'm-andamento')"><i class="fa-solid fa-road"></i> Viagem Ativa</button>
             </div>
 
@@ -986,7 +986,7 @@
 
             <div id="m-alugados" class="tab-content">
                 <div class="card">
-                    <h3 id="titulo-form-alugado"><i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> OUTRAS REGISTRAR TRABALHO</h3>
+                    <h3 id="titulo-form-alugado"><i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> REGISTRAR SERVIÇOS</h3>
                     <input type="hidden" id="edit-alugado-id" value="">
                     <div class="form-group">
                         <label>Tipo de Carga / Trabalho</label>
@@ -1502,7 +1502,7 @@
         window.cancelarEdicaoTrabalhoRapido = function() {
             limparFormularioTrabalhoRapido();
             document.getElementById('edit-alugado-id').value = '';
-            document.getElementById('titulo-form-alugado').innerHTML = `<i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> OUTRAS REGISTRAR TRABALHO`;
+            document.getElementById('titulo-form-alugado').innerHTML = `<i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> REGISTRAR SERVIÇOS`;
             document.getElementById('btn-salvar-alugado').innerHTML = `<i class="fa-solid fa-plus"></i> Salvar Trabalho Normal`;
             document.getElementById('btn-cancelar-edicao').style.display = 'none';
         };
