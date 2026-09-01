@@ -632,14 +632,14 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.09 (3D Chart & Dinâmico)</div>
+                <div class="app-version-badge">Versão 1.10 (Área do Funcionário & Alugados 3D)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
                         <label>Tipo de Acesso</label>
                         <select id="tipo-acceso" onchange="mudarTipoAcesso()">
                             <option value="patrao">Patrão</option>
-                            <option value="motorista">Funcionário</option>
+                            <option value="motorista">Área do Funcionário</option>
                         </select>
                     </div>
 
@@ -687,10 +687,11 @@
 
         <!-- PAINEL DO PATRÃO -->
         <div id="painel-patrao" style="display: none;">
-            <div class="nav-tabs" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="nav-tabs" style="grid-template-columns: repeat(4, 1fr);">
                 <button class="tab-btn active" onclick="switchTab(event, 'p-visao')"><i class="fa-solid fa-chart-pie"></i> Visão Geral</button>
                 <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
-                <button class="tab-btn" onclick="switchTab(event, 'p-rotas')"><i class="fa-solid fa-map-location-dot"></i> Serviços Realizados</button>
+                <button class="tab-btn" onclick="switchTab(event, 'p-alugados')"><i class="fa-solid fa-truck-fast"></i> Caminhões Alugados</button>
+                <button class="tab-btn" onclick="switchTab(event, 'p-rotas')"><i class="fa-solid fa-map-location-dot"></i> Serviços</button>
             </div>
 
             <!-- Aba Visão Geral -->
@@ -765,7 +766,7 @@
                 <!-- Botões de Ações do Patrão (Funcionários & Zerar Valores) -->
                 <div class="center-btn-container">
                     <button class="btn-funcionarios-patrao" onclick="abrirModalFuncionarios()">
-                        <i class="fa-solid fa-users"></i> Funcionários
+                        <i class="fa-solid fa-users"></i> Área do Funcionário
                     </button>
                     <button class="btn-zerar-valores" onclick="confirmarZerarValores()">
                         <i class="fa-solid fa-rotate-left"></i> Zerar Todos os Valores
@@ -809,6 +810,76 @@
                             </thead>
                             <tbody id="tabela-frota-manutencao">
                                 <tr><td colspan="6" class="empty-row">Nenhum caminhão cadastrado.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Aba Caminhões Alugados (Trabalhos Rápidos) -->
+            <div id="p-alugados" class="tab-content">
+                <div class="card">
+                    <h3><i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> Registrar Trabalho Rápido (Caminhão Alugado)</h3>
+                    <div class="form-group">
+                        <label>Qual Caminhão Vai Trabalhar</label>
+                        <select id="alugado-caminhao">
+                            <option value="Volvo FH">Volvo FH (Alugado)</option>
+                            <option value="Scania R">Scania R (Alugado)</option>
+                            <option value="Mercedes Actros">Mercedes Actros (Alugado)</option>
+                            <option value="DAF XF">DAF XF (Alugado)</option>
+                            <option value="MAN TGX">MAN TGX (Alugado)</option>
+                            <option value="Renault T">Renault T (Alugado)</option>
+                            <option value="Iveco S-Way">Iveco S-Way (Alugado)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Qual Carga vai Levar</label>
+                        <input type="text" id="alugado-carga" placeholder="Ex: Tratores / Eletrônicos / Alimentos">
+                    </div>
+                    <div class="form-group">
+                        <label>Tonelada a Carregar (t)</label>
+                        <input type="number" id="alugado-tonelada" placeholder="Ex: 22">
+                    </div>
+                    <div class="form-group">
+                        <label>De onde tá saindo (Origem)</label>
+                        <input type="text" id="alugado-origem" placeholder="Ex: Berlim - TransNet">
+                    </div>
+                    <div class="form-group">
+                        <label>Pra onde tá indo (Destino)</label>
+                        <input type="text" id="alugado-destino" placeholder="Ex: Paris - EuroGoodies">
+                    </div>
+                    <div class="form-group">
+                        <label>Valor Bruto do Frete (R$)</label>
+                        <input type="number" id="alugado-valor" placeholder="0.00">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="form-group">
+                            <label>Pedágio (Desconto)</label>
+                            <input type="number" id="alugado-pedagio" placeholder="0.00" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Balsa (Desconto)</label>
+                            <input type="number" id="alugado-balsa" placeholder="0.00" value="0">
+                        </div>
+                    </div>
+                    <button class="btn-submit" onclick="cadastrarTrabalhoRapido()"><i class="fa-solid fa-plus"></i> Salvar Trabalho Rápido</button>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-list-check"></i> Histórico de Caminhões Alugados</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Caminhão</th>
+                                    <th>Carga (Ton)</th>
+                                    <th>Rota (De → Para)</th>
+                                    <th>Pedágio / Balsa</th>
+                                    <th style="text-align: right;">Lucro Líquido</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-trabalhos-rapidos">
+                                <tr><td colspan="5" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1053,7 +1124,7 @@
     <div id="modal-funcionarios" class="modal-overlay">
         <div class="modal-card">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-users-gear"></i> Funcionários da Empresa</h3>
+                <h3><i class="fa-solid fa-users-gear"></i> Área do Funcionário</h3>
                 <button class="modal-close-btn" onclick="fecharModalFuncionarios()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
@@ -1086,6 +1157,7 @@
             return {
                 funcionarios: JSON.parse(localStorage.getItem('ets2_funcionarios')) || [],
                 caminhoes: JSON.parse(localStorage.getItem('ets2_caminhoes')) || [],
+                trabalhosAlugados: JSON.parse(localStorage.getItem('ets2_trabalhos_alugados')) || [],
                 viagens: JSON.parse(localStorage.getItem('ets2_viagens')) || [],
                 viagensAtivas: JSON.parse(localStorage.getItem('ets2_viagens_ativas')) || {}
             };
@@ -1094,6 +1166,7 @@
         function salvarDados(dados) {
             localStorage.setItem('ets2_funcionarios', JSON.stringify(dados.funcionarios));
             localStorage.setItem('ets2_caminhoes', JSON.stringify(dados.caminhoes));
+            localStorage.setItem('ets2_trabalhos_alugados', JSON.stringify(dados.trabalhosAlugados));
             localStorage.setItem('ets2_viagens', JSON.stringify(dados.viagens));
             localStorage.setItem('ets2_viagens_ativas', JSON.stringify(dados.viagensAtivas));
         }
@@ -1199,6 +1272,7 @@
             if (confirm("⚠️ ATENÇÃO:\nDeseja realmente zerar todos os valores, histórico de viagens e quilometragens? Os cadastros de caminhões e funcionários serão mantidos.")) {
                 let dados = carregarDados();
                 dados.viagens = [];
+                dados.trabalhosAlugados = [];
                 dados.viagensAtivas = {};
                 dados.caminhoes.forEach(c => {
                     c.kmDesdeOleo = 0;
@@ -1271,6 +1345,51 @@
             mostrarToast("Caminhão cadastrado com sucesso!");
             atualizarTelas();
             carregarSelectCaminhoes();
+        };
+
+        window.cadastrarTrabalhoRapido = function() {
+            let caminhao = document.getElementById('alugado-caminhao').value;
+            let carga = document.getElementById('alugado-carga').value.trim();
+            let tonelada = parseFloat(document.getElementById('alugado-tonelada').value) || 0;
+            let origem = document.getElementById('alugado-origem').value.trim();
+            let destino = document.getElementById('alugado-destino').value.trim();
+            let valorBruto = parseFloat(document.getElementById('alugado-valor').value) || 0;
+            let pedagio = parseFloat(document.getElementById('alugado-pedagio').value) || 0;
+            let balsa = parseFloat(document.getElementById('alugado-balsa').value) || 0;
+
+            if (!carga || !origem || !destino || valorBruto <= 0) {
+                mostrarToast("Preencha a carga, origem, destino e o valor bruto!", "error");
+                return;
+            }
+
+            let lucroLiquido = valorBruto - (pedagio + balsa);
+
+            let dados = carregarDados();
+            dados.trabalhosAlugados.push({
+                id: 'alg_' + Date.now(),
+                caminhao,
+                carga,
+                tonelada,
+                origem,
+                destino,
+                valorBruto,
+                pedagio,
+                balsa,
+                lucroLiquido
+            });
+            salvarDados(dados);
+
+            // Limpa formulário
+            document.getElementById('alugado-carga').value = '';
+            document.getElementById('alugado-tonelada').value = '';
+            document.getElementById('alugado-origem').value = '';
+            document.getElementById('alugado-destino').value = '';
+            document.getElementById('alugado-valor').value = '';
+            document.getElementById('alugado-pedagio').value = '0';
+            document.getElementById('alugado-balsa').value = '0';
+
+            mostrarToast("Trabalho rápido lançado com sucesso!");
+            atualizarTelas();
         };
 
         function carregarSelectCaminhoes() {
@@ -1442,7 +1561,7 @@
             let observacao = document.getElementById('viagem-observacao').value.trim();
             let dataFim = new Date();
             let tempoMinutos = Math.round((dataFim - new Date(viagemAtiva.dataInicio)) / 60000);
-            if (tempoMinutos < 1) tempoMinutos = 1; // Garante ao menos 1 minuto para testes rápidos
+            if (tempoMinutos < 1) tempoMinutos = 1;
             
             let horas = Math.floor(tempoMinutos / 60);
             let minutos = tempoMinutos % 60;
@@ -1482,7 +1601,6 @@
             delete dados.viagensAtivas[sessaoAtual.id];
             salvarDados(dados);
 
-            // Reseta formulário de nova viagem
             document.getElementById('viagem-origem').value = '';
             document.getElementById('viagem-destino').value = '';
             document.getElementById('viagem-km').value = '';
@@ -1491,7 +1609,6 @@
             document.getElementById('viagem-valor').value = '';
             document.getElementById('viagem-observacao').value = '';
 
-            // Notifica o funcionário exatamente em quanto tempo ele concluiu a viagem
             mostrarToast(`🏁 Viagem concluída com sucesso! Tempo total: ${tempoFormatado}`);
             
             let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
@@ -1520,17 +1637,21 @@
             let dados = carregarDados();
             
             if (sessaoAtual && sessaoAtual.tipo === 'patrao') {
-                let faturamentoEmpresa = dados.viagens.reduce((acc, v) => acc + (Number(v.caixaEmpresa) || 0), 0);
+                let faturamentoEmpresa = dados.viagens.reduce((acc, v) => acc + (Number(v.caixaEmpresa) || 0), 0) +
+                                         dados.trabalhosAlugados.reduce((acc, t) => acc + (Number(t.lucroLiquido) || 0), 0);
+                
                 let totalCombustivelGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.custoCombustivel) || 0), 0);
                 let totalManutencoes = dados.viagens.filter(v => v.id.startsWith('man_')).reduce((acc, v) => acc + Math.abs(v.caixaEmpresa), 0);
                 let totalMultasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalMultas) || 0), 0);
-                let totalPedagiosGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalPedagios) || 0), 0);
-                let totalBalsasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalBalsas) || 0), 0);
+                let totalPedagiosGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalPedagios) || 0), 0) +
+                                         dados.trabalhosAlugados.reduce((acc, t) => acc + (Number(t.pedagio) || 0), 0);
+                let totalBalsasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalBalsas) || 0), 0) +
+                                       dados.trabalhosAlugados.reduce((acc, t) => acc + (Number(t.balsa) || 0), 0);
                 let totalAlimentacaoGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalAlimentacao) || 0), 0);
                 let totalSalariosGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.salarioMotorista) || 0), 0);
 
                 document.getElementById('patrao-faturamento').innerText = `R$ ${faturamentoEmpresa.toFixed(2)}`;
-                document.getElementById('patrao-total-viagens').innerText = dados.viagens.filter(v => !v.id.startsWith('man_')).length;
+                document.getElementById('patrao-total-viagens').innerText = dados.viagens.filter(v => !v.id.startsWith('man_')).length + dados.trabalhosAlugados.length;
                 document.getElementById('patrao-combustivel').innerText = `R$ ${totalCombustivelGeral.toFixed(2)}`;
                 document.getElementById('patrao-manutencoes').innerText = `R$ ${totalManutencoes.toFixed(2)}`;
                 document.getElementById('patrao-multas').innerText = `R$ ${totalMultasGeral.toFixed(2)}`;
@@ -1551,7 +1672,7 @@
 
                 let viagensValidas = dados.viagens.filter(v => !v.id.startsWith('man_'));
 
-                // Renderiza a tabela da aba "Serviços Realizados"
+                // Tabela de Serviços Realizados
                 let tbodyRotas = document.getElementById('tabela-rotas-cadastradas');
                 tbodyRotas.innerHTML = viagensValidas.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhum percurso salvo ainda.</td></tr>' :
                     viagensValidas.slice().reverse().map(v => `
@@ -1561,6 +1682,19 @@
                             <td>${v.destino} (${v.paisDestino})</td>
                             <td>${v.km} KM</td>
                             <td style="text-align: right; color: var(--success-color); font-weight: 600;">${v.tempoFormatado || 'N/D'}</td>
+                        </tr>
+                    `).join('');
+
+                // Tabela de Caminhões Alugados
+                let tbodyAlugados = document.getElementById('tabela-trabalhos-rapidos');
+                tbodyAlugados.innerHTML = dados.trabalhosAlugados.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhum trabalho rápido registrado.</td></tr>' :
+                    dados.trabalhosAlugados.slice().reverse().map(t => `
+                        <tr>
+                            <td><i class="fa-solid fa-truck" style="color:var(--accent-color); margin-right:4px;"></i> <strong>${t.caminhao}</strong></td>
+                            <td>${t.carga} <small>(${t.tonelada} t)</small></td>
+                            <td>${t.origem} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:var(--text-muted)"></i> ${t.destino}</td>
+                            <td>R$ ${(t.pedagio + t.balsa).toFixed(2)}</td>
+                            <td style="text-align: right; color: var(--success-color); font-weight: 700;">R$ ${t.lucroLiquido.toFixed(2)}</td>
                         </tr>
                     `).join('');
 
@@ -1647,7 +1781,6 @@
                 meuGraficoInstance.destroy();
             }
 
-            // Gradientes 3D Dinâmicos com efeito de profundidade translúcida e brilho
             let create3DGradient = (colorStart, colorEnd) => {
                 let gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 260);
                 gradient.addColorStop(0, colorStart);
