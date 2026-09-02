@@ -234,8 +234,11 @@
             font-weight: 500;
         }
 
+        /* ----- BARRA DE NAVEGAÇÃO HORIZONTAL AJUSTADA ----- */
         .nav-tabs {
-            display: flex;
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: minmax(0, 1fr);
             gap: 6px;
             margin-bottom: 20px;
             width: 100%;
@@ -245,24 +248,33 @@
             border: 1px solid var(--border-color);
             overflow-x: auto;
             backdrop-filter: blur(8px);
+            scrollbar-width: none; /* Oculta a barra de rolagem no Firefox */
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            display: none; /* Oculta a barra de rolagem no Chrome/Safari */
         }
 
         .nav-tabs button {
             background-color: transparent;
             color: var(--text-muted);
             border: none;
-            padding: 10px 12px;
+            padding: 10px 8px;
             cursor: pointer;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 11px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            flex: 1;
             white-space: nowrap;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+        }
+
+        .nav-tabs button i {
+            font-size: 13px;
         }
 
         .nav-tabs button:hover {
@@ -761,11 +773,18 @@
             </div>
         </div>
 
+        <!-- PAINEL DA EMPRESA -->
         <div id="painel-patrao" style="display: none;">
-            <div class="nav-tabs" style="grid-template-columns: repeat(3, 1fr);">
-                <button class="tab-btn active" onclick="switchTab(event, 'p-visao')"><i class="fa-solid fa-chart-pie"></i> Visão Geral</button>
-                <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')"><i class="fa-solid fa-truck-moving"></i> Frota</button>
-                <button class="tab-btn" onclick="switchTab(event, 'p-rotas')"><i class="fa-solid fa-boxes-stacked"></i> Serviços</button>
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab(event, 'p-visao')">
+                    <i class="fa-solid fa-chart-pie"></i> Visão Geral
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'p-caminhoes')">
+                    <i class="fa-solid fa-truck-moving"></i> Frota
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'p-rotas')">
+                    <i class="fa-solid fa-boxes-stacked"></i> Serviços
+                </button>
             </div>
 
             <div id="p-visao" class="tab-content active">
@@ -958,12 +977,21 @@
             </div>
         </div>
 
+        <!-- PAINEL DO MOTORISTA -->
         <div id="painel-motorista" style="display: none;">
-            <div class="nav-tabs" style="grid-template-columns: repeat(4, 1fr);">
-                <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')"><i class="fa-solid fa-wallet"></i> Extrato</button>
-                <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')"><i class="fa-solid fa-circle-plus"></i> VIAGEM ( Caminhão Próprio )</button>
-                <button class="tab-btn" onclick="switchTab(event, 'm-alugados')"><i class="fa-solid fa-truck-fast"></i> VIAGEM ( Caminhão Alugado )</button>
-                <button class="tab-btn" onclick="switchTab(event, 'm-andamento')"><i class="fa-solid fa-road"></i> Viagem Ativa</button>
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')">
+                    <i class="fa-solid fa-wallet"></i> Extrato
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')">
+                    <i class="fa-solid fa-truck-front"></i> V. Próprio
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'm-alugados')">
+                    <i class="fa-solid fa-truck-fast"></i> V. Alugado
+                </button>
+                <button class="tab-btn" onclick="switchTab(event, 'm-andamento')">
+                    <i class="fa-solid fa-route"></i> V. Ativa
+                </button>
             </div>
 
             <div id="m-extrato" class="tab-content active">
@@ -1561,11 +1589,9 @@
             let isAlreadyActive = targetButton.classList.contains('active') && targetContent.classList.contains('active');
 
             if (isAlreadyActive) {
-                // Se clicar novamente na aba ativa, recolhe o conteúdo sem resetar dados
                 targetContent.classList.remove('active');
                 targetButton.classList.remove('active');
             } else {
-                // Alterna normalmente ativando a aba desejada
                 container.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
                 container.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
                 targetContent.classList.add('active');
