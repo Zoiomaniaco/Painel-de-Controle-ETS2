@@ -1222,7 +1222,7 @@
             let tipo = document.getElementById('tipo-acceso').value;
             let inputUsuario = document.getElementById('login-usuario');
             inputUsuario.value = '';
-            inputUsuario.placeholder = (tipo === 'patrao') ? '*****' : 'Seu usuário de funcionário';
+            inputUsuario.placeholder = (tipo === 'patrao') ? 'Empresa' : 'Seu usuário de funcionário';
         };
 
         window.alternarTelaCadastro = function(mostrar) {
@@ -1241,7 +1241,7 @@
             }
 
             if (tipo === 'patrao') {
-                if (usuario === 'Empresa' && senha === 'Empresa' || (usuario === '*****' && senha === '*****')) {
+                if (usuario.toLowerCase() === 'empresa' && senha === 'Empresa' || (usuario === 'Empresa' && senha === 'Empresa')) {
                     sessaoAtual = { tipo: 'patrao', nome: 'Empresa' };
                     localStorage.setItem('ets2_sessao_atual', JSON.stringify(sessaoAtual));
                     iniciarPainelPatrao();
