@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PAINEL DA EMPRESA - Euro Truck Simulator 2</title>
+    <title>DIÁRIO DE BORDO - Euro Truck Simulator 2</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#090d16">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,13 +15,13 @@
             --bg-body: #05070a;
             --panel-bg: #0d1322;
             --panel-card: #161f33;
-            --accent-color: #2563eb;
-            --accent-hover: #1d4ed8;
-            --accent-glow: rgba(37, 99, 235, 0.25);
-            --text-color: #f1f5f9;
-            --text-muted: #8c9cb6;
-            --border-color: rgba(255, 255, 255, 0.06);
-            --border-focus: rgba(37, 99, 235, 0.6);
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --accent-glow: rgba(59, 130, 246, 0.25);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-focus: rgba(59, 130, 246, 0.6);
             --success-color: #059669;
             --danger-color: #dc2626;
             --warning-color: #d97706;
@@ -33,7 +33,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-image: linear-gradient(to bottom, rgba(5, 7, 10, 0.90), rgba(5, 7, 10, 0.98)), url('fundo.jpg');
+            background-image: linear-gradient(to bottom, rgba(5, 7, 10, 0.92), rgba(5, 7, 10, 0.99)), url('fundo.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -45,7 +45,7 @@
         }
 
         header {
-            background-color: rgba(13, 19, 34, 0.9);
+            background-color: rgba(13, 19, 34, 0.95);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border-color);
@@ -108,46 +108,64 @@
             padding: 10px;
         }
 
+        /* Estilo elegante de Diário de Bordo para o card de login */
         .login-card {
-            background: linear-gradient(145deg, rgba(13, 19, 34, 0.92), rgba(8, 12, 20, 0.96));
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 32px 24px;
+            background: linear-gradient(160deg, rgba(17, 24, 39, 0.95), rgba(11, 15, 25, 0.98));
+            backdrop-filter: blur(18px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 20px;
+            padding: 36px 28px;
             width: 100%;
             max-width: 420px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.05);
             text-align: center;
+            position: relative;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--accent-color);
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 0 12px var(--accent-color);
         }
 
         .login-card h2 {
-            margin-top: 0;
+            margin-top: 8px;
             margin-bottom: 6px;
             color: var(--text-color);
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
+            letter-spacing: 0.8px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
         }
 
-        .login-card h2 i { color: var(--accent-color); font-size: 28px; }
+        .login-card h2 i { color: var(--accent-color); font-size: 24px; }
 
         .app-version-badge {
             display: inline-block;
-            background-color: rgba(37, 99, 235, 0.15);
-            color: #60a5fa;
-            border: 1px solid rgba(37, 99, 235, 0.35);
-            padding: 4px 10px;
+            background-color: rgba(59, 130, 246, 0.12);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 5px 12px;
             border-radius: 20px;
             font-size: 11px;
             font-weight: 600;
             margin-bottom: 24px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .app-info-card {
-            background: rgba(13, 19, 34, 0.8);
+            background: rgba(13, 19, 34, 0.85);
             backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
             border-radius: 14px;
@@ -238,10 +256,10 @@
         }
 
         .card {
-            background: linear-gradient(145deg, rgba(13, 19, 34, 0.88), rgba(10, 15, 26, 0.94));
+            background: linear-gradient(145deg, rgba(15, 22, 38, 0.9), rgba(10, 15, 26, 0.95));
             backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
-            border-radius: 14px;
+            border-radius: 16px;
             padding: 20px;
             margin-bottom: 16px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
@@ -252,7 +270,7 @@
             margin-bottom: 18px;
             font-size: 14px;
             font-weight: 600;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.4px;
             color: var(--text-color);
             display: flex;
             align-items: center;
@@ -271,7 +289,7 @@
             font-size: 12px;
             font-weight: 500;
             color: var(--text-muted);
-            letter-spacing: 0.2px;
+            letter-spacing: 0.3px;
         }
 
         input, select, textarea {
@@ -280,7 +298,7 @@
             background-color: var(--input-bg);
             border: 1px solid var(--border-color);
             color: #ffffff;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 13px;
             font-family: 'Inter', sans-serif;
             outline: none;
@@ -302,7 +320,7 @@
             border: none;
             padding: 13px;
             font-weight: 600;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             width: 100%;
             margin-top: 8px;
@@ -345,7 +363,7 @@
         }
 
         .metric-card {
-            background: linear-gradient(145deg, rgba(13, 19, 34, 0.88), rgba(10, 15, 26, 0.94));
+            background: linear-gradient(145deg, rgba(15, 22, 38, 0.9), rgba(10, 15, 26, 0.95));
             backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
             padding: 16px 14px;
@@ -357,14 +375,14 @@
             transition: transform 0.2s, border-color 0.2s;
         }
         .metric-card:hover {
-            border-color: rgba(37, 99, 235, 0.3);
+            border-color: rgba(59, 130, 246, 0.3);
             transform: translateY(-2px);
         }
 
         .metric-icon {
             width: 42px;
             height: 42px;
-            background-color: rgba(37, 99, 235, 0.15);
+            background-color: rgba(59, 130, 246, 0.15);
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -372,7 +390,7 @@
             font-size: 17px;
             color: var(--accent-color);
             flex-shrink: 0;
-            border: 1px solid rgba(37, 99, 235, 0.25);
+            border: 1px solid rgba(59, 130, 246, 0.25);
         }
 
         .metric-info {
@@ -410,7 +428,7 @@
             overflow-x: auto;
             max-height: 380px;
             overflow-y: auto;
-            border-radius: 8px;
+            border-radius: 10px;
             border: 1px solid var(--border-color);
         }
 
@@ -592,7 +610,7 @@
         }
 
         .badge-parado {
-            background-color: rgba(140, 156, 182, 0.1);
+            background-color: rgba(148, 163, 184, 0.1);
             color: var(--text-muted);
             border: 1px solid var(--border-color);
         }
@@ -607,9 +625,9 @@
             font-weight: 600;
         }
         .badge-padrao {
-            background: rgba(37, 99, 235, 0.15);
-            color: #60a5fa;
-            border: 1px solid rgba(37, 99, 235, 0.3);
+            background: rgba(59, 130, 246, 0.15);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.3);
         }
         .badge-especial {
             background: rgba(139, 92, 246, 0.2);
@@ -644,7 +662,7 @@
 <body>
 
     <header id="main-header" style="display: none;">
-        <h1><i class="fa-solid fa-gauge-high"></i> <span id="header-title">PAINEL DA EMPRESA</span></h1>
+        <h1><i class="fa-solid id-badge fa-book-open"></i> <span id="header-title">DIÁRIO DE BORDO</span></h1>
         <button class="btn-logout" onclick="fazerLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</button>
     </header>
 
@@ -652,14 +670,14 @@
         
         <div id="login-screen">
             <div class="login-card">
-                <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
-                <div class="app-version-badge">Versão 1.15 (Gestão Avançada de Fretes)</div>
+                <h2><i class="fa-solid fa-book-bookmark"></i> DIÁRIO DE BORDO</h2>
+                <div class="app-version-badge">Versão 1.15 • Gestão Profissional de Frotas</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
                         <label>Tipo de Acesso</label>
                         <select id="tipo-acceso" onchange="mudarTipoAcesso()">
-                            <option value="patrao">Patrão</option>
+                            <option value="patrao">Empresa</option>
                             <option value="motorista">Área do Funcionário</option>
                         </select>
                     </div>
@@ -750,7 +768,7 @@
                         </div>
                     </div>
                     <div class="metric-card">
-                        <div class="metric-icon" style="color: var(--accent-color); background: rgba(37,99,235,0.15); border-color: rgba(37,99,235,0.25);"><i class="fa-solid fa-road"></i></div>
+                        <div class="metric-icon" style="color: var(--accent-color); background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.25);"><i class="fa-solid fa-road"></i></div>
                         <div class="metric-info">
                             <h3>Pedágios Pagos</h3>
                             <p id="patrao-pedagios">R$ 0,00</p>
@@ -1076,7 +1094,7 @@
                 </div>
 
                 <div id="com-viagem-ativa" style="display: none;">
-                    <div class="card" style="border-color: rgba(37, 99, 235, 0.4);">
+                    <div class="card" style="border-color: rgba(59, 130, 246, 0.4);">
                         <h3><i class="fa-solid fa-truck-ramp-box"></i> Viagem em Andamento</h3>
                         <p style="margin: 6px 0; font-size: 12px;"><strong>Tipo:</strong> <span id="ativa-tipo-carga"></span></p>
                         <p style="margin: 6px 0; font-size: 12px;"><strong>Rota:</strong> <span id="ativa-pais-rota"></span> | <span id="ativa-rota"></span> (<span id="ativa-km"></span> KM)</p>
@@ -1242,11 +1260,11 @@
 
             if (tipo === 'patrao') {
                 if (usuario === '*****' && senha === '*****') {
-                    sessaoAtual = { tipo: 'patrao', nome: 'Patrão' };
+                    sessaoAtual = { tipo: 'patrao', nome: 'Empresa' };
                     localStorage.setItem('ets2_sessao_atual', JSON.stringify(sessaoAtual));
                     iniciarPainelPatrao();
                 } else {
-                    mostrarToast("Credenciais do Patrão incorretas!", "error");
+                    mostrarToast("Credenciais da Empresa incorretas!", "error");
                 }
             } else {
                 let dados = carregarDados();
@@ -1770,7 +1788,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('painel-patrao').style.display = 'block';
             document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('header-title').innerText = "PAINEL DA EMPRESA";
+            document.getElementById('header-title').innerText = "DIÁRIO DE BORDO - EMPRESA";
             atualizarTelas();
         }
 
@@ -1778,7 +1796,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('painel-motorista').style.display = 'block';
             document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('header-title').innerText = "ÁREA DO FUNCIONÁRIO";
+            document.getElementById('header-title').innerText = "DIÁRIO DE BORDO - FUNCIONÁRIO";
             carregarSelectCaminhoes();
             atualizarTelas();
         }
@@ -1965,7 +1983,6 @@
 
                 document.getElementById('motorista-total-viagens').innerText = minhasViagens.length + meusTrabalhosConcluidos.length;
 
-                // Combinando viagens normais + serviços concluídos para o Histórico do Motorista
                 let historicoCombinado = [
                     ...minhasViagens.map(v => ({
                         tipoEspecial: v.tipoEspecial,
@@ -2097,7 +2114,7 @@
                             titleFont: { size: 12, weight: 'bold' },
                             bodyFont: { size: 12 },
                             padding: 10,
-                            borderColor: 'rgba(37, 99, 235, 0.4)',
+                            borderColor: 'rgba(59, 130, 246, 0.4)',
                             borderWidth: 1,
                             displayColors: false,
                             callbacks: {
@@ -2111,11 +2128,11 @@
                         y: {
                             beginAtZero: true,
                             grid: { color: 'rgba(255, 255, 255, 0.04)' },
-                            ticks: { color: '#8c9cb6', font: { size: 10 } }
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: '#8c9cb6', font: { size: 10 } }
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
                         }
                     }
                 }
