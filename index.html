@@ -1831,6 +1831,8 @@
                 let filtroCargaTexto = document.getElementById('filtro-cargas-input') ? document.getElementById('filtro-cargas-input').value.toLowerCase() : '';
 
                 let cargasAgrupadas = {};
+                
+                // Agrupa as viagens normais
                 viagensValidas.forEach(v => {
                     let nomeCarga = (v.carga || 'Carga Geral').trim();
                     if (!cargasAgrupadas[nomeCarga]) {
@@ -1845,6 +1847,25 @@
                     cargasAgrupadas[nomeCarga].kmTotal += (Number(v.km) || 0);
                     cargasAgrupadas[nomeCarga].minutosTotal += (Number(v.tempoMinutos) || 0);
                     cargasAgrupadas[nomeCarga].rotasUnicas.add(`${v.origem} (${v.paisOrigem}) ➔ ${v.destino} (${v.paisDestino})`);
+                });
+
+                // Agrupa também os serviços concluídos da aba "Registrar Serviços"
+                trabalhosConcluidos.forEach(t => {
+                    let nomeCarga = (t.carga || 'Carga Geral').trim();
+                    if (!cargasAgrupadas[nomeCarga]) {
+                        cargasAgrupadas[nomeCarga] = {
+                            quantidade: 0,
+                            kmTotal: 0,
+                            minutosTotal: 0,
+                            rotasUnicas: new Set()
+                        };
+                    }
+                    cargasAgrupadas[nomeCarga].quantidade += 1;
+                    cargasAgrupadas[nomeCarga].kmTotal += (Number(t.km) || 0);
+                    // Como o serviço rápido não mede tempo exato por cronômetro, estimamos proporcionalmente 1 min por KM ou deixamos zerado se preferir
+                    let minEstimado = (Number(t.km) || 0) > 0 ? Math.round((Number(t.km) / 60) * 60) : 0;
+                    cargasAgrupadas[nomeCarga].minutosTotal += minEstimado;
+                    cargasAgrupadas[nomeCarga].rotasUnicas.add(`${t.origem} ➔ ${t.destino}`);
                 });
 
                 let tbodyRotas = document.getElementById('tabela-rotas-por-carga');
