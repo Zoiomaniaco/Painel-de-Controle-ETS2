@@ -146,7 +146,7 @@
             margin-bottom: 24px;
         }
 
-        .app-info-card {
+        .app-changelog-card {
             background: rgba(13, 19, 34, 0.8);
             backdrop-filter: blur(12px);
             border: 1px solid var(--border-color);
@@ -155,6 +155,53 @@
             width: 100%;
             max-width: 420px;
             margin-top: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            text-align: left;
+        }
+
+        .app-changelog-card h4 {
+            margin: 0 0 10px 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .app-changelog-card h4 i { color: var(--accent-color); }
+
+        .changelog-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .changelog-list li {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            line-height: 1.4;
+        }
+
+        .changelog-list li i {
+            color: var(--success-color);
+            font-size: 10px;
+            margin-top: 3px;
+        }
+
+        .app-info-card {
+            background: rgba(13, 19, 34, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 18px 20px;
+            width: 100%;
+            max-width: 420px;
+            margin-top: 12px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
             text-align: left;
         }
@@ -653,7 +700,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-book-open"></i> DIÁRIO DE BORDO</h2>
-                <div class="app-version-badge">Versão 1.16 (Tipos de Carga & Tarifas por KM)</div>
+                <div class="app-version-badge">Versão 1.17 (Abas Retráteis & Histórico de Atualizações)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -694,6 +741,15 @@
                     <button class="btn-submit" onclick="motoristaAutoCadastrar()">Concluir Cadastro</button>
                     <button class="btn-link" onclick="alternarTelaCadastro(false)">Já tem uma conta? Faça login</button>
                 </div>
+            </div>
+
+            <div class="app-changelog-card">
+                <h4><i class="fa-solid fa-arrows-rotate"></i> O que mudou nesta versão (v1.17):</h4>
+                <ul class="changelog-list">
+                    <li><i class="fa-solid fa-check"></i> <strong>Abas Retráteis:</strong> Clique na aba ativa para esconder ou reexibir as opções sem perder dados ou configurações.</li>
+                    <li><i class="fa-solid fa-check"></i> <strong>Histórico de Versões:</strong> Novo painel informativo de notas de atualização diretamente na tela inicial.</li>
+                    <li><i class="fa-solid fa-check"></i> <strong>Preservação de Dados:</strong> Ocultar o menu mantém formulários ativos e preenchimentos intactos.</li>
+                </ul>
             </div>
 
             <div class="app-info-card">
@@ -1259,7 +1315,6 @@
                 cargasSalvas: JSON.parse(localStorage.getItem('ets2_cargas_salvas_obj')) || []
             };
 
-            // Migração de compatibilidade caso existam cargas no formato antigo de Array Simples
             let cargasAntigas = JSON.parse(localStorage.getItem('ets2_cargas_salvas')) || [];
             if (cargasAntigas.length > 0) {
                 cargasAntigas.forEach(nome => {
@@ -1501,10 +1556,21 @@
 
         window.switchTab = function(evt, tabId) {
             let container = evt.currentTarget.closest('.container');
-            container.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-            container.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            evt.currentTarget.classList.add('active');
+            let targetContent = document.getElementById(tabId);
+            let targetButton = evt.currentTarget;
+            let isAlreadyActive = targetButton.classList.contains('active') && targetContent.classList.contains('active');
+
+            if (isAlreadyActive) {
+                // Se clicar novamente na aba ativa, recolhe o conteúdo sem resetar dados
+                targetContent.classList.remove('active');
+                targetButton.classList.remove('active');
+            } else {
+                // Alterna normalmente ativando a aba desejada
+                container.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                container.querySelectorAll('.tab-btn').forEach(tb => tb.classList.remove('active'));
+                targetContent.classList.add('active');
+                targetButton.classList.add('active');
+            }
         };
 
         window.abrirModalFuncionarios = function() {
@@ -2049,7 +2115,6 @@
                     }).join('');
                 }
 
-                // Tabela de Gerenciamento de Cargas da Empresa
                 let tbodyCargasEmpresa = document.getElementById('tabela-cargas-empresa');
                 let todasEntregasRealizadas = [...dados.viagens.filter(v => !v.id.startsWith('man_')), ...dados.trabalhosAlugados];
 
