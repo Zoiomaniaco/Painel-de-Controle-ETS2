@@ -915,58 +915,22 @@
                     <div class="form-group">
                         <label>Tipos de Cargas</label>
                         <select id="viagem-categoria-carga" onchange="atualizarOpcoesCargaViagem()">
-                            <option value="normal">📦 Cargas Normais (R$ 2,00 / km)</option>
-                            <option value="refrigerada">❄️ Cargas Refrigeradas (R$ 2,80 / km)</option>
-                            <option value="perigosa">⚠️ Cargas Perigosas (R$ 3,00 / km)</option>
-                            <option value="pesada">🏋️ Cargas Pesadas (R$ 3,50 / km)</option>
-                            <option value="especial">🚨 Cargas Especiais (R$ 4,00 / km)</option>
+                            <option value="normal">📦 Cargas Normais</option>
+                            <option value="refrigerada">❄️ Cargas Refrigeradas</option>
+                            <option value="perigosa">⚠️ Cargas Perigosas</option>
+                            <option value="pesada">🏋️ Cargas Pesadas</option>
+                            <option value="especial">🚨 Cargas Especiais</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>Carga Específica & Código</label>
+                        <label>Carga Específica</label>
                         <select id="viagem-tipo-especial" onchange="selecionarCargaPredefinidaViagem()">
                             <option value="">Selecione a Carga</option>
                         </select>
+                        <input type="text" id="viagem-carga" placeholder="Ou digite o nome da carga" style="margin-top: 8px;" onchange="salvarNovaCargaSalva(this.value)">
                     </div>
 
-                    <div class="form-group">
-                        <label>Descrição Personalizada da Carga</label>
-                        <input type="text" id="viagem-carga" placeholder="Ex: Código N001 - Eletrônicos">
-                    </div>
-
-                    <div class="form-group">
-                        <label>País de Origem</label>
-                        <select id="viagem-pais-origem">
-                            <option value="Alemanha">Alemanha (Germany)</option>
-                            <option value="França">França (France)</option>
-                            <option value="Países Baixos">Países Baixos (Netherlands)</option>
-                            <option value="Reino Unido">Reino Unido (UK)</option>
-                            <option value="Polônia">Polônia (Poland)</option>
-                            <option value="Itália">Itália (Italy)</option>
-                            <option value="Espanha">Espanha (Spain)</option>
-                            <option value="Áustria">Áustria (Austria)</option>
-                            <option value="Suíça">Suíça (Switzerland)</option>
-                            <option value="Bélgica">Bélgica (Belgium)</option>
-                            <option value="Outro">Outro País</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>País de Destino</label>
-                        <select id="viagem-pais-destino">
-                            <option value="Alemanha">Alemanha (Germany)</option>
-                            <option value="França">França (France)</option>
-                            <option value="Países Baixos">Países Baixos (Netherlands)</option>
-                            <option value="Reino Unido">Reino Unido (UK)</option>
-                            <option value="Polônia">Polônia (Poland)</option>
-                            <option value="Itália">Itália (Italy)</option>
-                            <option value="Espanha">Espanha (Spain)</option>
-                            <option value="Áustria">Áustria (Austria)</option>
-                            <option value="Suíça">Suíça (Switzerland)</option>
-                            <option value="Bélgica">Bélgica (Belgium)</option>
-                            <option value="Outro">Outro País</option>
-                        </select>
-                    </div>
                     <div class="form-group">
                         <label>Cidade de Origem</label>
                         <input type="text" id="viagem-origem" placeholder="Ex: Berlim">
@@ -989,10 +953,9 @@
                         <label>Peso da Carga (Toneladas)</label>
                         <input type="number" id="viagem-tonelada" placeholder="Ex: 22">
                     </div>
-                    <div class="form-group">
-                        <label>Valor do Frete Bruto (R$) - Calculado Automático por KM</label>
-                        <input type="number" id="viagem-valor" placeholder="0.00">
-                    </div>
+                    
+                    <input type="hidden" id="viagem-valor" value="0.00">
+                    
                     <button class="btn-submit" onclick="iniciarViagemMotorista()">Iniciar Viagem</button>
                 </div>
             </div>
@@ -1005,19 +968,20 @@
                     <div class="form-group">
                         <label>Tipos de Cargas</label>
                         <select id="alugado-categoria-carga" onchange="atualizarOpcoesCargaAlugado()">
-                            <option value="normal">📦 Cargas Normais (R$ 2,00 / km)</option>
-                            <option value="refrigerada">❄️ Cargas Refrigeradas (R$ 2,80 / km)</option>
-                            <option value="perigosa">⚠️ Cargas Perigosas (R$ 3,00 / km)</option>
-                            <option value="pesada">🏋️ Cargas Pesadas (R$ 3,50 / km)</option>
-                            <option value="especial">🚨 Cargas Especiais (R$ 4,00 / km)</option>
+                            <option value="normal">📦 Cargas Normais</option>
+                            <option value="refrigerada">❄️ Cargas Refrigeradas</option>
+                            <option value="perigosa">⚠️ Cargas Perigosas</option>
+                            <option value="pesada">🏋️ Cargas Pesadas</option>
+                            <option value="especial">🚨 Cargas Especiais</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>Carga Específica & Código</label>
+                        <label>Carga Específica</label>
                         <select id="alugado-tipo-especial" onchange="selecionarCargaPredefinidaAlugado()">
                             <option value="">Selecione a Carga</option>
                         </select>
+                        <input type="text" id="alugado-carga" placeholder="Ou digite o nome da carga" style="margin-top: 8px;" onchange="salvarNovaCargaSalva(this.value)">
                     </div>
 
                     <div class="form-group">
@@ -1032,10 +996,7 @@
                             <option value="Iveco S-Way">Iveco S-Way (Alugado)</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Descrição Personalizada da Carga</label>
-                        <input type="text" id="alugado-carga" placeholder="Ex: Código N001 - Alimentos">
-                    </div>
+                    
                     <div class="form-group">
                         <label>Tonelada a Carregar (t)</label>
                         <input type="number" id="alugado-tonelada" placeholder="Ex: 22">
@@ -1052,10 +1013,9 @@
                         <label>Quilometragem (KM) da Viagem</label>
                         <input type="number" id="alugado-km" placeholder="0" oninput="calcularValorAutomaticoAlugado()">
                     </div>
-                    <div class="form-group">
-                        <label>Valor Bruto do Frete (R$) - Calculado Automático por KM</label>
-                        <input type="number" id="alugado-valor" placeholder="0.00">
-                    </div>
+                    
+                    <input type="hidden" id="alugado-valor" value="0.00">
+                    
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div class="form-group">
                             <label>Pedágio (R$)</label>
@@ -1081,13 +1041,12 @@
                                     <th>Carga (Ton)</th>
                                     <th>Rota (De → Para)</th>
                                     <th>KM</th>
-                                    <th>Valor Bruto</th>
                                     <th>Pedágio / Balsa</th>
                                     <th style="text-align: right;">Status / Lucro</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-trabalhos-rapidos">
-                                <tr><td colspan="8" class="empty-row">Nenhum trabalho normal registrado.</td></tr>
+                                <tr><td colspan="7" class="empty-row">Nenhum trabalho normal registrado.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1104,10 +1063,9 @@
                     <div class="card" style="border-color: rgba(37, 99, 235, 0.4);">
                         <h3><i class="fa-solid fa-truck-ramp-box"></i> Viagem em Andamento</h3>
                         <p style="margin: 6px 0; font-size: 12px;"><strong>Configuração:</strong> <span id="ativa-tipo-carga"></span></p>
-                        <p style="margin: 6px 0; font-size: 12px;"><strong>Rota:</strong> <span id="ativa-pais-rota"></span> | <span id="ativa-rota"></span> (<span id="ativa-km"></span> KM)</p>
+                        <p style="margin: 6px 0; font-size: 12px;"><strong>Rota:</strong> <span id="ativa-rota"></span> (<span id="ativa-km"></span> KM)</p>
                         <p style="margin: 6px 0; font-size: 12px;"><strong>Caminhão:</strong> <span id="ativa-caminhao"></span></p>
                         <p style="margin: 6px 0; font-size: 12px;"><strong>Carga para Pegar / Toneladas:</strong> <span id="ativa-carga"></span></p>
-                        <p style="margin: 6px 0; font-size: 12px;"><strong>Valor Bruto:</strong> <span id="ativa-valor"></span></p>
                     </div>
 
                     <div class="card" style="border-color: rgba(217, 119, 6, 0.3);">
@@ -1217,56 +1175,31 @@
                 nome: 'Cargas Normais',
                 precoKm: 2.00,
                 badgeClass: 'badge-padrao',
-                icone: 'fa-box',
-                cargas: [
-                    { codigo: 'N001', nome: 'Eletrônicos Diversos' },
-                    { codigo: 'N002', nome: 'Peças Automotivas' },
-                    { codigo: 'N003', nome: 'Materiais de Construção' }
-                ]
+                icone: 'fa-box'
             },
             refrigerada: {
                 nome: 'Cargas Refrigeradas',
                 precoKm: 2.80,
                 badgeClass: 'badge-padrao',
-                icone: 'fa-snowflake',
-                cargas: [
-                    { codigo: 'R001', nome: 'Alimentos Congelados' },
-                    { codigo: 'R002', nome: 'Carnes e Frios' },
-                    { codigo: 'R003', nome: 'Produtos Farmacêuticos' }
-                ]
+                icone: 'fa-snowflake'
             },
             perigosa: {
                 nome: 'Cargas Perigosas',
                 precoKm: 3.00,
                 badgeClass: 'badge-especial',
-                icone: 'fa-triangle-exclamation',
-                cargas: [
-                    { codigo: 'P001', nome: 'Combustível / Derivados de Petróleo' },
-                    { codigo: 'P002', nome: 'Produtos Químicos Corrosivos' },
-                    { codigo: 'P003', nome: 'Gases Industriais' }
-                ]
+                icone: 'fa-triangle-exclamation'
             },
             pesada: {
                 nome: 'Cargas Pesadas',
                 precoKm: 3.50,
                 badgeClass: 'badge-especial',
-                icone: 'fa-weight-hanging',
-                cargas: [
-                    { codigo: 'H001', nome: 'Tratores e Máquinas Agrícolas' },
-                    { codigo: 'H002', nome: 'Transformador de Grande Porte' },
-                    { codigo: 'H003', nome: 'Estruturas Metálicas Pesadas' }
-                ]
+                icone: 'fa-weight-hanging'
             },
             especial: {
                 nome: 'Cargas Especiais',
                 precoKm: 4.00,
                 badgeClass: 'badge-especial',
-                icone: 'fa-car-side',
-                cargas: [
-                    { codigo: 'E001', nome: 'Iate de Luxo em Carreta Extensa' },
-                    { codigo: 'E002', nome: 'Pás de Eólica Gigantes' },
-                    { codigo: 'E003', nome: 'Módulo Habitacional Extra-largo' }
-                ]
+                icone: 'fa-car-side'
             }
         };
 
@@ -1279,7 +1212,8 @@
                 caminhoes: JSON.parse(localStorage.getItem('ets2_caminhoes')) || [],
                 trabalhosAlugados: JSON.parse(localStorage.getItem('ets2_trabalhos_alugados')) || [],
                 viagens: JSON.parse(localStorage.getItem('ets2_viagens')) || [],
-                viagensAtivas: JSON.parse(localStorage.getItem('ets2_viagens_ativas')) || {}
+                viagensAtivas: JSON.parse(localStorage.getItem('ets2_viagens_ativas')) || {},
+                cargasSalvas: JSON.parse(localStorage.getItem('ets2_cargas_salvas')) || []
             };
         }
 
@@ -1289,6 +1223,7 @@
             localStorage.setItem('ets2_trabalhos_alugados', JSON.stringify(dados.trabalhosAlugados));
             localStorage.setItem('ets2_viagens', JSON.stringify(dados.viagens));
             localStorage.setItem('ets2_viagens_ativas', JSON.stringify(dados.viagensAtivas));
+            localStorage.setItem('ets2_cargas_salvas', JSON.stringify(dados.cargasSalvas));
         }
 
         window.onload = function() {
@@ -1303,13 +1238,24 @@
             }
         };
 
+        window.salvarNovaCargaSalva = function(nomeCarga) {
+            if (!nomeCarga || !nomeCarga.trim()) return;
+            let dados = carregarDados();
+            let nomeTrimmed = nomeCarga.trim();
+            if (!dados.cargasSalvas.includes(nomeTrimmed)) {
+                dados.cargasSalvas.push(nomeTrimmed);
+                salvarDados(dados);
+                atualizarOpcoesCargaViagem();
+                atualizarOpcoesCargaAlugado();
+            }
+        };
+
         window.atualizarOpcoesCargaViagem = function() {
-            let cat = document.getElementById('viagem-categoria-carga').value;
-            let config = TABELA_CARGAS_CONFIG[cat];
+            let dados = carregarDados();
             let selectCargas = document.getElementById('viagem-tipo-especial');
             
-            selectCargas.innerHTML = '<option value="">Selecione a Carga</option>' + 
-                config.cargas.map(c => `<option value="${c.codigo} - ${c.nome}">${c.codigo}: ${c.nome}</option>`).join('');
+            selectCargas.innerHTML = '<option value="">Selecione uma Carga Salva</option>' + 
+                dados.cargasSalvas.map(c => `<option value="${c}">${c}</option>`).join('');
             
             calcularValorAutomaticoViagem();
         };
@@ -1331,12 +1277,11 @@
         };
 
         window.atualizarOpcoesCargaAlugado = function() {
-            let cat = document.getElementById('alugado-categoria-carga').value;
-            let config = TABELA_CARGAS_CONFIG[cat];
+            let dados = carregarDados();
             let selectCargas = document.getElementById('alugado-tipo-especial');
             
-            selectCargas.innerHTML = '<option value="">Selecione a Carga</option>' + 
-                config.cargas.map(c => `<option value="${c.codigo} - ${c.nome}">${c.codigo}: ${c.nome}</option>`).join('');
+            selectCargas.innerHTML = '<option value="">Selecione uma Carga Salva</option>' + 
+                dados.cargasSalvas.map(c => `<option value="${c}">${c}</option>`).join('');
             
             calcularValorAutomaticoAlugado();
         };
@@ -1361,7 +1306,7 @@
             let tipo = document.getElementById('tipo-acceso').value;
             let inputUsuario = document.getElementById('login-usuario');
             inputUsuario.value = '';
-            inputUsuario.placeholder = (tipo === 'patrao') ? 'Empresa' : 'Seu usuário de funcionário';
+            inputUsuario.placeholder = (tipo === 'patrao') ? 'Jeferson' : 'Seu usuário de funcionário';
         };
 
         window.alternarTelaCadastro = function(mostrar) {
@@ -1380,8 +1325,8 @@
             }
 
             if (tipo === 'patrao') {
-                if (usuario.toLowerCase() === 'empresa' && senha === 'Empresa' || (usuario === 'Empresa' && senha === 'Empresa')) {
-                    sessaoAtual = { tipo: 'patrao', nome: 'Empresa' };
+                if (usuario.toLowerCase() === 'jeferson' && senha === '1054') {
+                    sessaoAtual = { tipo: 'patrao', nome: 'Empresa (Jeferson)' };
                     localStorage.setItem('ets2_sessao_atual', JSON.stringify(sessaoAtual));
                     iniciarPainelPatrao();
                 } else {
@@ -1549,10 +1494,12 @@
             let pedagio = parseFloat(document.getElementById('alugado-pedagio').value) || 0;
             let balsa = parseFloat(document.getElementById('alugado-balsa').value) || 0;
 
-            if (!carga || !origem || !destino || valorBruto <= 0) {
-                mostrarToast("Preencha a carga para pegar, origem, destino e o valor bruto!", "error");
+            if (!carga || !origem || !destino || km <= 0) {
+                mostrarToast("Preencha a carga, origem, destino e a quilometragem!", "error");
                 return;
             }
+
+            salvarNovaCargaSalva(carga);
 
             let comissaoPct = (categoriaCarga === 'perigosa' || categoriaCarga === 'pesada' || categoriaCarga === 'especial') ? 0.14 : 0.07;
             let salarioMotorista = valorBruto * comissaoPct;
@@ -1664,7 +1611,7 @@
             document.getElementById('alugado-origem').value = '';
             document.getElementById('alugado-destino').value = '';
             document.getElementById('alugado-km').value = '';
-            document.getElementById('alugado-valor').value = '';
+            document.getElementById('alugado-valor').value = '0.00';
             document.getElementById('alugado-pedagio').value = '0';
             document.getElementById('alugado-balsa').value = '0';
         }
@@ -1700,8 +1647,6 @@
                     id: 'man_' + Date.now(),
                     motoristaNome: 'Oficina Mecânica',
                     categoriaCarga: 'normal',
-                    paisOrigem: 'Manutenção',
-                    paisDestino: 'Preventiva',
                     origem: cam.modelo,
                     destino: cam.placa,
                     km: 0,
@@ -1726,8 +1671,6 @@
 
         window.iniciarViagemMotorista = function() {
             let categoriaCarga = document.getElementById('viagem-categoria-carga').value;
-            let paisOrigem = document.getElementById('viagem-pais-origem').value;
-            let paisDestino = document.getElementById('viagem-pais-destino').value;
             let origem = document.getElementById('viagem-origem').value.trim();
             let destino = document.getElementById('viagem-destino').value.trim();
             let km = parseFloat(document.getElementById('viagem-km').value);
@@ -1739,9 +1682,11 @@
             let valor = parseFloat(document.getElementById('viagem-valor').value);
 
             if (!origem || !destino || isNaN(km) || !caminhaoId || !carga || isNaN(valor)) {
-                mostrarToast("Preencha todos os campos obrigatórios (incluindo a carga para pegar)!", "error");
+                mostrarToast("Preencha todos os campos obrigatórios (incluindo a carga e quilometragem)!", "error");
                 return;
             }
+
+            salvarNovaCargaSalva(carga);
 
             let dados = carregarDados();
             if (dados.viagensAtivas[sessaoAtual.id]) {
@@ -1754,8 +1699,6 @@
                 motoristaId: sessaoAtual.id,
                 motoristaNome: sessaoAtual.nome,
                 categoriaCarga,
-                paisOrigem,
-                paisDestino,
                 origem,
                 destino,
                 km,
@@ -1897,7 +1840,7 @@
             document.getElementById('viagem-km').value = '';
             document.getElementById('viagem-carga').value = '';
             document.getElementById('viagem-tonelada').value = '';
-            document.getElementById('viagem-valor').value = '';
+            document.getElementById('viagem-valor').value = '0.00';
             document.getElementById('viagem-observacao').value = '';
 
             mostrarToast(`🏁 Viagem concluída com sucesso! Tempo total: ${tempoFormatado}`);
@@ -1957,297 +1900,237 @@
                 document.getElementById('patrao-balsas').innerText = `R$ ${totalBalsasGeral.toFixed(2)}`;
                 document.getElementById('patrao-alimentacao').innerText = `R$ ${totalAlimentacaoGeral.toFixed(2)}`;
 
-                renderizarGraficoPatrao({
-                    faturamento: faturamentoEmpresa,
-                    combustivel: totalCombustivelGeral,
-                    manutencoes: totalManutencoes,
-                    salarios: totalSalariosGeral,
-                    pedagios: totalPedagiosGeral,
-                    balsas: totalBalsasGeral,
-                    multas: totalMultasGeral,
-                    alimentacao: totalAlimentacaoGeral
-                });
-
-                let viagensValidas = dados.viagens.filter(v => !v.id.startsWith('man_'));
-                let filtroCargaTexto = document.getElementById('filtro-cargas-input') ? document.getElementById('filtro-cargas-input').value.toLowerCase() : '';
-
-                let cargasAgrupadas = {};
-                
-                viagensValidas.forEach(v => {
-                    let nomeCarga = (v.carga || 'Carga Geral').trim();
-                    if (!cargasAgrupadas[nomeCarga]) {
-                        cargasAgrupadas[nomeCarga] = {
-                            quantidade: 0,
-                            kmTotal: 0,
-                            minutosTotal: 0,
-                            rotasUnicas: new Set()
-                        };
-                    }
-                    cargasAgrupadas[nomeCarga].quantidade += 1;
-                    cargasAgrupadas[nomeCarga].kmTotal += (Number(v.km) || 0);
-                    cargasAgrupadas[nomeCarga].minutosTotal += (Number(v.tempoMinutos) || 0);
-                    cargasAgrupadas[nomeCarga].rotasUnicas.add(`${v.origem} (${v.paisOrigem}) ➔ ${v.destino} (${v.paisDestino})`);
-                });
-
-                trabalhosConcluidos.forEach(t => {
-                    let nomeCarga = (t.carga || 'Carga Geral').trim();
-                    if (!cargasAgrupadas[nomeCarga]) {
-                        cargasAgrupadas[nomeCarga] = {
-                            quantidade: 0,
-                            kmTotal: 0,
-                            minutosTotal: 0,
-                            rotasUnicas: new Set()
-                        };
-                    }
-                    cargasAgrupadas[nomeCarga].quantidade += 1;
-                    cargasAgrupadas[nomeCarga].kmTotal += (Number(t.km) || 0);
-                    let minEstimado = (Number(t.km) || 0) > 0 ? Math.round((Number(t.km) / 60) * 60) : 0;
-                    cargasAgrupadas[nomeCarga].minutosTotal += minEstimado;
-                    cargasAgrupadas[nomeCarga].rotasUnicas.add(`${t.origem} ➔ ${t.destino}`);
-                });
-
-                let tbodyRotas = document.getElementById('tabela-rotas-por-carga');
-                let chavesCargas = Object.keys(cargasAgrupadas).filter(c => c.toLowerCase().includes(filtroCargaTexto));
-
-                if (chavesCargas.length === 0) {
-                    tbodyRotas.innerHTML = '<tr><td colspan="5" class="empty-row">Nenhuma carga encontrada.</td></tr>';
+                let tbodyFrota = document.getElementById('tabela-frota-manutencao');
+                if (dados.caminhoes.length === 0) {
+                    tbodyFrota.innerHTML = '<tr><td colspan="6" class="empty-row">Nenhum caminhão cadastrado.</td></tr>';
                 } else {
-                    tbodyRotas.innerHTML = chavesCargas.map(carga => {
-                        let info = cargasAgrupadas[carga];
-                        let listaRotas = Array.from(info.rotasUnicas).join('<br>');
-                        
-                        let horas = Math.floor(info.minutosTotal / 60);
-                        let minutos = info.minutosTotal % 60;
-                        let tempoFormatadoTotal = horas > 0 ? `${horas}h ${minutos}min` : `${minutos}min`;
-
-                        return `
-                            <tr>
-                                <td><i class="fa-solid fa-box" style="color:var(--accent-color); margin-right:6px;"></i> <strong>${carga}</strong></td>
-                                <td style="text-align: center;"><span class="badge-status badge-servico">${info.quantidade}x</span></td>
-                                <td style="white-space: normal; line-height: 1.4; font-size: 11px;">${listaRotas}</td>
-                                <td>${info.kmTotal} KM</td>
-                                <td style="text-align: right; color: var(--success-color); font-weight: 600;">${tempoFormatadoTotal}</td>
-                            </tr>
-                        `;
-                    }).join('');
-                }
-
-                let tbodyManutencao = document.getElementById('tabela-frota-manutencao');
-                tbodyManutencao.innerHTML = dados.caminhoes.length === 0 ? '<tr><td colspan="6" class="empty-row">Nenhum caminhão.</td></tr>' :
-                    dados.caminhoes.map(c => {
+                    tbodyFrota.innerHTML = dados.caminhoes.map(c => {
                         let kmOleo = c.kmDesdeOleo || 0;
                         let kmPneu = c.kmDesdePneu || 0;
                         let kmMotor = c.kmDesdeMotor || 0;
+                        let kmTotal = Math.max(kmOleo, kmPneu, kmMotor);
 
-                        let statusOleo = kmOleo >= 5000 ? `<button class="btn-submit btn-danger" style="padding:4px 8px; font-size:10px;" onclick="realizarManutencao('${c.id}', 'oleo')">Trocar Óleo (R$800)</button>` : `<span style="color:var(--success-color)">OK (${kmOleo}/5000 km)</span>`;
-                        let statusPneu = kmPneu >= 10000 ? `<button class="btn-submit btn-danger" style="padding:4px 8px; font-size:10px;" onclick="realizarManutencao('${c.id}', 'pneu')">Trocar Pneus (R$2500)</button>` : `<span style="color:var(--success-color)">OK (${kmPneu}/10000 km)</span>`;
-                        let statusMotor = kmMotor >= 20000 ? `<button class="btn-submit btn-danger" style="padding:4px 8px; font-size:10px;" onclick="realizarManutencao('${c.id}', 'motor')">Revisão Motor (R$6000)</button>` : `<span style="color:var(--success-color)">OK (${kmMotor}/20000 km)</span>`;
-
-                        let kmTotalGeral = dados.viagens.filter(v => v.caminhaoId === c.id).reduce((acc, v) => acc + v.km, 0);
+                        let oleoBadge = kmOleo >= 5000 ? `<span class="text-negativo">⚠️ Trocar</span>` : `${kmOleo}/5000 KM`;
+                        let pneuBadge = kmPneu >= 10000 ? `<span class="text-negativo">⚠️ Trocar</span>` : `${kmPneu}/10000 KM`;
+                        let motorBadge = kmMotor >= 20000 ? `<span class="text-negativo">⚠️ Trocar</span>` : `${kmMotor}/20000 KM`;
 
                         return `
                             <tr>
-                                <td><strong>${c.modelo}</strong><br><small>${c.placa}</small></td>
-                                <td>${kmTotalGeral} KM</td>
-                                <td>${statusOleo}</td>
-                                <td>${statusPneu}</td>
-                                <td>${statusMotor}</td>
-                                <td style="text-align: right;"><button onclick="deletarItem('caminhoes', '${c.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button></td>
+                                <td><strong>${c.modelo}</strong> (${c.placa})</td>
+                                <td>${kmTotal} KM</td>
+                                <td>${oleoBadge}</td>
+                                <td>${pneuBadge}</td>
+                                <td>${motorBadge}</td>
+                                <td style="text-align: right;">
+                                    <button onclick="realizarManutencao('${c.id}', 'oleo')" style="font-size: 10px; padding: 4px 6px; margin-right: 2px;">Óleo</button>
+                                    <button onclick="realizarManutencao('${c.id}', 'pneu')" style="font-size: 10px; padding: 4px 6px; margin-right: 2px;">Pneu</button>
+                                    <button onclick="realizarManutencao('${c.id}', 'motor')" style="font-size: 10px; padding: 4px 6px;">Motor</button>
+                                </td>
                             </tr>
                         `;
                     }).join('');
+                }
+
+                let filtroText = (document.getElementById('filtro-cargas-input').value || '').toLowerCase();
+                let tbodyRotas = document.getElementById('tabela-rotas-por-carga');
+                let todasAsRotas = [...dados.viagens.filter(v => !v.id.startsWith('man_')), ...trabalhosConcluidos];
+
+                if (todasAsRotas.length === 0) {
+                    tbodyRotas.innerHTML = '<tr><td colspan="5" class="empty-row">Nenhum percurso salvo ainda.</td></tr>';
+                } else {
+                    let cargasAgrupadas = {};
+                    todasAsRotas.forEach(r => {
+                        let nomeCarga = r.carga || 'Não Informada';
+                        if (!cargasAgrupadas[nomeCarga]) {
+                            cargasAgrupadas[nomeCarga] = {
+                                viagensCount: 0,
+                                percursos: new Set(),
+                                kmTotal: 0,
+                                tempoMinutosTotal: 0,
+                                categoria: r.categoriaCarga || 'normal'
+                            };
+                        }
+                        cargasAgrupadas[nomeCarga].viagensCount++;
+                        cargasAgrupadas[nomeCarga].percursos.add(`${r.origem} ➔ ${r.destino}`);
+                        cargasAgrupadas[nomeCarga].kmTotal += Number(r.km) || 0;
+                        cargasAgrupadas[nomeCarga].tempoMinutosTotal += Number(r.tempoMinutos) || 0;
+                    });
+
+                    let chavesFiltradas = Object.keys(cargasAgrupadas).filter(c => c.toLowerCase().includes(filtroText));
+
+                    if (chavesFiltradas.length === 0) {
+                        tbodyRotas.innerHTML = '<tr><td colspan="5" class="empty-row">Nenhum resultado encontrado para o filtro.</td></tr>';
+                    } else {
+                        tbodyRotas.innerHTML = chavesFiltradas.map(cargaNome => {
+                            let item = cargasAgrupadas[cargaNome];
+                            let config = TABELA_CARGAS_CONFIG[item.categoria] || TABELA_CARGAS_CONFIG.normal;
+                            let hrs = Math.floor(item.tempoMinutosTotal / 60);
+                            let mins = item.tempoMinutosTotal % 60;
+                            let tempoStr = hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+
+                            return `
+                                <tr>
+                                    <td>
+                                        <span class="tipo-carga-badge ${config.badgeClass}">
+                                            <i class="fa-solid ${config.icone}"></i> ${cargaNome}
+                                        </span>
+                                    </td>
+                                    <td style="text-align: center;"><strong>${item.viagensCount}</strong></td>
+                                    <td>${Array.from(item.percursos).join('; ')}</td>
+                                    <td>${item.kmTotal} KM</td>
+                                    <td style="text-align: right;">${tempoStr}</td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
+                }
+
+                renderizarGrafico(
+                    faturamentoEmpresa,
+                    totalSalariosGeral,
+                    totalCombustivelGeral,
+                    totalManutencoes,
+                    totalPedagiosGeral + totalBalsasGeral,
+                    totalMultasGeral
+                );
             }
 
             if (sessaoAtual && sessaoAtual.tipo === 'motorista') {
-                let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
-                let divSemViagem = document.getElementById('sem-viagem-ativa');
-                let divComViagem = document.getElementById('com-viagem-ativa');
+                let minhasViagens = dados.viagens.filter(v => v.motoristaId === sessaoAtual.id);
+                let meusTrabalhos = dados.trabalhosAlugados.filter(t => t.motoristaId === sessaoAtual.id && t.concluido);
+                
+                let meusGanhosTotal = minhasViagens.reduce((acc, v) => acc + (Number(v.salarioMotorista) || 0), 0) +
+                                      meusTrabalhos.reduce((acc, t) => acc + (Number(t.salarioMotorista) || 0), 0);
 
+                document.getElementById('motorista-meus-ganhos').innerText = `R$ ${meusGanhosTotal.toFixed(2)}`;
+                document.getElementById('motorista-total-viagens').innerText = minhasViagens.length + meusTrabalhos.length;
+
+                let tbodyMinhas = document.getElementById('tabela-minhas-viagens');
+                let historicoCompleto = [...minhasViagens, ...meusTrabalhos];
+
+                if (historicoCompleto.length === 0) {
+                    tbodyMinhas.innerHTML = '<tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>';
+                } else {
+                    tbodyMinhas.innerHTML = historicoCompleto.map(v => {
+                        let config = TABELA_CARGAS_CONFIG[v.categoriaCarga || 'normal'];
+                        return `
+                            <tr>
+                                <td><span class="tipo-carga-badge ${config.badgeClass}">${v.carga || 'Carga'}</span></td>
+                                <td>${v.origem} ➔ ${v.destino}</td>
+                                <td>${v.km} KM</td>
+                                <td>${v.tempoFormatado || '-'}</td>
+                                <td class="text-positivo"><strong>R$ ${(v.salarioMotorista || 0).toFixed(2)}</strong></td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+
+                let tbodyAlugados = document.getElementById('tabela-trabalhos-rapidos');
+                let meusTrabalhosTodos = dados.trabalhosAlugados.filter(t => t.motoristaId === sessaoAtual.id);
+
+                if (meusTrabalhosTodos.length === 0) {
+                    tbodyAlugados.innerHTML = '<tr><td colspan="7" class="empty-row">Nenhum serviço registrado.</td></tr>';
+                } else {
+                    tbodyAlugados.innerHTML = meusTrabalhosTodos.map(t => {
+                        let statusHtml = t.concluido 
+                            ? `<span class="text-positivo">✔️ Concluído</span>`
+                            : `<button onclick="concluirTrabalhoRapido('${t.id}')" style="font-size: 11px; padding: 4px 8px; background: var(--success-color); color: #fff; border:none; border-radius:6px; cursor:pointer;">Concluir</button>`;
+
+                        let acoesEditar = !t.concluido 
+                            ? `<button onclick="editarTrabalhoRapido('${t.id}')" style="background:none; border:none; color:var(--accent-color); cursor:pointer; margin-right: 6px;"><i class="fa-solid fa-pen"></i></button>`
+                            : ``;
+
+                        return `
+                            <tr>
+                                <td>${t.carga} (${t.tonelada}t)</td>
+                                <td>${t.caminhao}</td>
+                                <td>${t.tonelada} t</td>
+                                <td>${t.origem} ➔ ${t.destino}</td>
+                                <td>${t.km} KM</td>
+                                <td>R$ ${(t.pedagio + t.balsa).toFixed(2)}</td>
+                                <td style="text-align: right;">${acoesEditar} ${statusHtml}</td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+
+                let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
                 if (viagemAtiva) {
-                    divSemViagem.style.display = 'none';
-                    divComViagem.style.display = 'block';
-                    let configCarga = TABELA_CARGAS_CONFIG[viagemAtiva.categoriaCarga] || TABELA_CARGAS_CONFIG['normal'];
-                    let badgeTipoHtml = `<span class="tipo-carga-badge ${configCarga.badgeClass}"><i class="fa-solid ${configCarga.icone}"></i> ${configCarga.nome} (R$ ${configCarga.precoKm.toFixed(2)}/km)</span>`;
-                    
-                    document.getElementById('ativa-tipo-carga').innerHTML = badgeTipoHtml;
-                    document.getElementById('ativa-pais-rota').innerText = `${viagemAtiva.paisOrigem} → ${viagemAtiva.paisDestino}`;
-                    document.getElementById('ativa-rota').innerText = `${viagemAtiva.origem} → ${viagemAtiva.destino}`;
+                    document.getElementById('sem-viagem-ativa').style.display = 'none';
+                    document.getElementById('com-viagem-ativa').style.display = 'block';
+
+                    let configAtiva = TABELA_CARGAS_CONFIG[viagemAtiva.categoriaCarga || 'normal'];
+                    document.getElementById('ativa-tipo-carga').innerText = configAtiva.nome;
+                    document.getElementById('ativa-rota').innerText = `${viagemAtiva.origem} ➔ ${viagemAtiva.destino}`;
                     document.getElementById('ativa-km').innerText = viagemAtiva.km;
                     document.getElementById('ativa-caminhao').innerText = viagemAtiva.caminhao;
-                    document.getElementById('ativa-carga').innerText = `${viagemAtiva.carga} (${viagemAtiva.tonelada || 0} t)`;
-                    document.getElementById('ativa-valor').innerText = `R$ ${Number(viagemAtiva.valorBruto).toFixed(2)}`;
+                    document.getElementById('ativa-carga').innerText = `${viagemAtiva.carga} / ${viagemAtiva.tonelada} T`;
 
                     let tbodyGastos = document.getElementById('tabela-gastos-ativos');
-                    tbodyGastos.innerHTML = viagemAtiva.gastosExtras.length === 0 ? '<tr><td colspan="4" class="empty-row">Nenhuma despesa.</td></tr>' :
-                        viagemAtiva.gastosExtras.map(g => `
+                    if (!viagemAtiva.gastosExtras || viagemAtiva.gastosExtras.length === 0) {
+                        tbodyGastos.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhuma despesa extra.</td></tr>';
+                    } else {
+                        tbodyGastos.innerHTML = viagemAtiva.gastosExtras.map(g => `
                             <tr>
                                 <td>${g.tipo}</td>
                                 <td>${g.descricao}</td>
-                                <td style="color: var(--danger-color);">R$ ${g.valor.toFixed(2)}</td>
+                                <td>R$ ${g.valor.toFixed(2)}</td>
                                 <td style="text-align: right;"><button onclick="deletarGastoAtivo('${g.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash"></i></button></td>
                             </tr>
                         `).join('');
+                    }
                 } else {
-                    divSemViagem.style.display = 'block';
-                    divComViagem.style.display = 'none';
+                    document.getElementById('sem-viagem-ativa').style.display = 'block';
+                    document.getElementById('com-viagem-ativa').style.display = 'none';
                 }
-
-                let minhasViagens = dados.viagens.filter(v => v.motoristaId === sessaoAtual.id && !v.id.startsWith('man_'));
-                let meusTrabalhosConcluidos = dados.trabalhosAlugados.filter(t => (!t.motoristaId || t.motoristaId === sessaoAtual.id) && t.concluido);
-                
-                let meuSalarioViagens = minhasViagens.reduce((acc, v) => acc + (Number(v.salarioMotorista) || 0), 0);
-                let meuSalarioTrabalhos = meusTrabalhosConcluidos.reduce((acc, t) => acc + (Number(t.salarioMotorista) || 0), 0);
-                let meuSalarioTotal = meuSalarioViagens + meuSalarioTrabalhos;
-
-                let elGanhos = document.getElementById('motorista-meus-ganhos');
-                elGanhos.innerText = `R$ ${meuSalarioTotal.toFixed(2)}`;
-                elGanhos.className = meuSalarioTotal >= 0 ? 'text-positivo' : 'text-negativo';
-
-                document.getElementById('motorista-total-viagens').innerText = minhasViagens.length + meusTrabalhosConcluidos.length;
-
-                let historicoCombinado = [
-                    ...minhasViagens.map(v => ({
-                        categoriaCarga: v.categoriaCarga,
-                        rota: `${v.origem} → ${v.destino}`,
-                        km: v.km || 0,
-                        tempo: v.tempoFormatado || 'N/D',
-                        salario: Number(v.salarioMotorista) || 0
-                    })),
-                    ...meusTrabalhosConcluidos.map(t => ({
-                        categoriaCarga: t.categoriaCarga,
-                        rota: `${t.origem} → ${t.destino}`,
-                        km: t.km || 0,
-                        tempo: 'Serviço Alugado',
-                        salario: Number(t.salarioMotorista) || 0
-                    }))
-                ];
-
-                let tbodyMinhasViagens = document.getElementById('tabela-minhas-viagens');
-                tbodyMinhasViagens.innerHTML = historicoCombinado.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhuma viagem.</td></tr>' :
-                    historicoCombinado.slice().reverse().map(item => {
-                        let confCarga = TABELA_CARGAS_CONFIG[item.categoriaCarga] || TABELA_CARGAS_CONFIG['normal'];
-                        let badgeHtml = `<span class="tipo-carga-badge ${confCarga.badgeClass}"><i class="fa-solid ${confCarga.icone}"></i> ${confCarga.nome}</span>`;
-                        return `
-                            <tr>
-                                <td>${badgeHtml}</td>
-                                <td>${item.rota}</td>
-                                <td>${item.km} KM</td>
-                                <td style="color: var(--success-color); font-weight: 600;">${item.tempo}</td>
-                                <td class="${item.salario >= 0 ? 'text-positivo' : 'text-negativo'}">R$ ${item.salario.toFixed(2)}</td>
-                            </tr>
-                        `;
-                    }).join('');
-
-                let meusAlugados = dados.trabalhosAlugados.filter(t => !t.motoristaId || t.motoristaId === sessaoAtual.id);
-                let tbodyAlugados = document.getElementById('tabela-trabalhos-rapidos');
-                tbodyAlugados.innerHTML = meusAlugados.length === 0 ? '<tr><td colspan="8" class="empty-row">Nenhum serviço registrado.</td></tr>' :
-                    meusAlugados.slice().reverse().map(t => {
-                        let confCarga = TABELA_CARGAS_CONFIG[t.categoriaCarga] || TABELA_CARGAS_CONFIG['normal'];
-                        let badgeHtml = `<span class="tipo-carga-badge ${confCarga.badgeClass}"><i class="fa-solid ${confCarga.icone}"></i> ${confCarga.nome}</span>`;
-
-                        let classeLucro = t.lucroLiquido >= 0 ? 'text-positivo' : 'text-negativo';
-                        let acoesStatus = t.concluido 
-                            ? `<span class="badge-status badge-servico"><i class="fa-solid fa-check"></i> Concluído</span><br><strong class="${classeLucro}">Lucro: R$ ${t.lucroLiquido.toFixed(2)}</strong><br><small style="color:var(--text-muted)">Seu Salário: R$ ${(t.salarioMotorista || 0).toFixed(2)}</small>`
-                            : `<button class="btn-submit" style="padding:4px 8px; font-size:10px; margin-bottom:4px;" onclick="concluirTrabalhoRapido('${t.id}')"><i class="fa-solid fa-flag-checkered"></i> Concluir</button>
-                               <br><button onclick="editarTrabalhoRapido('${t.id}')" title="Editar" style="background:none; border:none; color:var(--accent-color); cursor:pointer; margin-right:6px;"><i class="fa-solid fa-pen-to-square"></i></button>
-                               <button onclick="deletarTrabalhoRapido('${t.id}')" title="Excluir" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>`;
-
-                        return `
-                            <tr>
-                                <td>${badgeHtml}</td>
-                                <td><i class="fa-solid fa-truck" style="color:var(--accent-color); margin-right:4px;"></i> <strong>${t.caminhao}</strong></td>
-                                <td>${t.carga} <small>(${t.tonelada} t)</small></td>
-                                <td>${t.origem} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:var(--text-muted)"></i> ${t.destino}</td>
-                                <td>${t.km || 0} KM</td>
-                                <td>R$ ${Number(t.valorBruto || 0).toFixed(2)}</td>
-                                <td>Ped: R$ ${Number(t.pedagio || 0).toFixed(2)}<br>Bal: R$ ${Number(t.balsa || 0).toFixed(2)}</td>
-                                <td style="text-align: right;">${acoesStatus}</td>
-                            </tr>
-                        `;
-                    }).join('');
             }
         }
 
-        function renderizarGraficoPatrao(valores) {
-            let ctx = document.getElementById('graficoFinanceiro');
-            if (!ctx) return;
-
+        function renderizarGrafico(fat, sal, comb, man, pedBals, mul) {
+            let canvas = document.getElementById('graficoFinanceiro');
+            if(!canvas) return;
+            let ctx = canvas.getContext('2d');
+            
             if (meuGraficoInstance) {
                 meuGraficoInstance.destroy();
             }
 
-            let create3DGradient = (colorStart, colorEnd) => {
-                let gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 260);
-                gradient.addColorStop(0, colorStart);
-                gradient.addColorStop(0.5, colorEnd);
-                gradient.addColorStop(1, '#05070a');
-                return gradient;
-            };
-
             meuGraficoInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Faturamento', 'Combustível', 'Manutenções', 'Salários', 'Pedágios', 'Balsas', 'Multas', 'Alimentação'],
+                    labels: ['Faturamento Liquido', 'Salários', 'Combustível', 'Manutenções', 'Pedágios/Balsas', 'Multas'],
                     datasets: [{
-                        label: 'Valores em R$',
-                        data: [
-                            valores.faturamento, 
-                            valores.combustivel, 
-                            valores.manutencoes, 
-                            valores.salarios, 
-                            valores.pedagios, 
-                            valores.balsas, 
-                            valores.multas, 
-                            valores.alimentacao
-                        ],
+                        label: 'Valores (R$)',
+                        data: [fat, sal, comb, man, pedBals, mul],
                         backgroundColor: [
-                            create3DGradient('#3b82f6', '#1d4ed8'),
-                            create3DGradient('#f59e0b', '#b45309'),
-                            create3DGradient('#ef4444', '#b91c1c'),
-                            create3DGradient('#10b981', '#047857'),
-                            create3DGradient('#60a5fa', '#2563eb'),
-                            create3DGradient('#34d399', '#059669'),
-                            create3DGradient('#f87171', '#dc2626'),
-                            create3DGradient('#fbbf24', '#d97706')
+                            'rgba(5, 150, 105, 0.7)',
+                            'rgba(37, 99, 235, 0.7)',
+                            'rgba(217, 119, 6, 0.7)',
+                            'rgba(220, 38, 38, 0.7)',
+                            'rgba(139, 92, 246, 0.7)',
+                            'rgba(220, 38, 38, 0.9)'
                         ],
                         borderColor: [
-                            '#60a5fa', '#fbbf24', '#f87171', '#34d399', 
-                            '#93c5fd', '#6ee7b7', '#fca5a5', '#fde047'
+                            '#059669',
+                            '#2563eb',
+                            '#d97706',
+                            '#dc2626',
+                            '#8b5cf6',
+                            '#dc2626'
                         ],
-                        borderWidth: 2,
-                        borderRadius: 8,
-                        borderSkipped: false,
-                        hoverBackgroundColor: '#ffffff'
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    animation: {
-                        duration: 1200,
-                        easing: 'easeOutQuart'
-                    },
                     plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            backgroundColor: 'rgba(13, 19, 34, 0.95)',
-                            titleFont: { size: 12, weight: 'bold' },
-                            bodyFont: { size: 12 },
-                            padding: 10,
-                            borderColor: 'rgba(37, 99, 235, 0.4)',
-                            borderWidth: 1,
-                            displayColors: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return ` R$ ${context.raw.toFixed(2)}`;
-                                }
-                            }
-                        }
+                        legend: { display: false }
                     },
                     scales: {
                         y: {
                             beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
                             ticks: { color: '#8c9cb6', font: { size: 10 } }
                         },
                         x: {
@@ -2259,21 +2142,14 @@
             });
         }
 
-        window.deletarItem = function(colecao, id) {
-            if (confirm("Deseja excluir este caminhão?")) {
-                let dados = carregarDados();
-                dados.caminhoes = dados.caminhoes.filter(item => item.id !== id);
-                salvarDados(dados);
-                atualizarTelas();
-            }
-        };
-
         function mostrarToast(mensagem, tipo = "success") {
             let toast = document.getElementById('toast');
             toast.innerText = mensagem;
             toast.style.backgroundColor = tipo === "error" ? "var(--danger-color)" : "var(--success-color)";
-            toast.className = "show";
-            setTimeout(() => { toast.className = ""; }, 3000);
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
         }
     </script>
 </body>
