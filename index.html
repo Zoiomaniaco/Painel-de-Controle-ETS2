@@ -832,6 +832,47 @@
 
             <div id="p-rotas" class="tab-content">
                 <div class="card">
+                    <h3><i class="fa-solid fa-boxes-packing"></i> Cadastrar Nova Carga no Sistema</h3>
+                    <div class="form-group">
+                        <label>Nome da Carga</label>
+                        <input type="text" id="empresa-nome-carga" placeholder="Ex: Aço, Gasolina, Peças de Maquinário...">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Carga</label>
+                        <select id="empresa-categoria-carga">
+                            <option value="normal">📦 Carga Normal</option>
+                            <option value="refrigerada">❄️ Carga Refrigerada</option>
+                            <option value="perigosa">⚠️ Carga Perigosa</option>
+                            <option value="pesada">🏋️ Carga Pesada</option>
+                            <option value="especial">🚨 Carga Especial</option>
+                        </select>
+                    </div>
+                    <button class="btn-submit" onclick="cadastrarCargaPelaEmpresa()">Salvar Carga</button>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-warehouse"></i> Gerenciamento de Cargas Cadastradas</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+                        Abaixo estão todas as cargas cadastradas no sistema. Fique ciente de quais materiais sua empresa trabalha e quantas vezes cada carga foi transportada.
+                    </p>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Carga</th>
+                                    <th>Tipo de Carga</th>
+                                    <th style="text-align: center;">Vezes Pega / Transportada</th>
+                                    <th style="text-align: right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-cargas-empresa">
+                                <tr><td colspan="4" class="empty-row">Nenhuma carga cadastrada no momento.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card">
                     <h3><i class="fa-solid fa-boxes-stacked"></i> Rotas Cadastradas</h3>
                     <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
                         Visualize o resumo de entregas agrupadas por tipo de carga, incluindo quantidade de viagens, percursos, KM total e horas acumuladas.
@@ -864,8 +905,8 @@
         <div id="painel-motorista" style="display: none;">
             <div class="nav-tabs" style="grid-template-columns: repeat(4, 1fr);">
                 <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')"><i class="fa-solid fa-wallet"></i> Extrato</button>
-                <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')"><i class="fa-solid fa-circle-plus"></i> Nova Viagem</button>
-                <button class="tab-btn" onclick="switchTab(event, 'm-alugados')"><i class="fa-solid fa-truck-fast"></i> Registrar Serviços</button>
+                <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')"><i class="fa-solid fa-circle-plus"></i> VIAGEM ( Caminhão Próprio )</button>
+                <button class="tab-btn" onclick="switchTab(event, 'm-alugados')"><i class="fa-solid fa-truck-fast"></i> VIAGEM ( Caminhão Alugado )</button>
                 <button class="tab-btn" onclick="switchTab(event, 'm-andamento')"><i class="fa-solid fa-road"></i> Viagem Ativa</button>
             </div>
 
@@ -893,6 +934,7 @@
                         <table>
                             <thead>
                                 <tr>
+                                    <th>Data</th>
                                     <th>Tipo</th>
                                     <th>Rota</th>
                                     <th>KM</th>
@@ -901,7 +943,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tabela-minhas-viagens">
-                                <tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>
+                                <tr><td colspan="6" class="empty-row">Nenhuma viagem registrada.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -924,9 +966,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Carga Específica</label>
+                        <label>Carga Especificada</label>
                         <select id="viagem-tipo-especial" onchange="selecionarCargaPredefinidaViagem()">
-                            <option value="">Selecione a Carga</option>
+                            <option value="">Selecione a Carga Especificada</option>
                         </select>
                         <input type="text" id="viagem-carga" placeholder="Ou digite o nome da carga" style="margin-top: 8px;" onchange="salvarNovaCargaSalva(this.value)">
                     </div>
@@ -977,9 +1019,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Carga Específica</label>
+                        <label>Carga Especificada</label>
                         <select id="alugado-tipo-especial" onchange="selecionarCargaPredefinidaAlugado()">
-                            <option value="">Selecione a Carga</option>
+                            <option value="">Selecione a Carga Especificada</option>
                         </select>
                         <input type="text" id="alugado-carga" placeholder="Ou digite o nome da carga" style="margin-top: 8px;" onchange="salvarNovaCargaSalva(this.value)">
                     </div>
@@ -987,13 +1029,13 @@
                     <div class="form-group">
                         <label>Qual Caminhão Vai Trabalhar</label>
                         <select id="alugado-caminhao">
-                            <option value="Volvo FH">Volvo FH (Alugado)</option>
-                            <option value="Scania R">Scania R (Alugado)</option>
-                            <option value="Mercedes Actros">Mercedes Actros (Alugado)</option>
-                            <option value="DAF XF">DAF XF (Alugado)</option>
-                            <option value="MAN TGX">MAN TGX (Alugado)</option>
-                            <option value="Renault T">Renault T (Alugado)</option>
-                            <option value="Iveco S-Way">Iveco S-Way (Alugado)</option>
+                            <option value="Volvo FH">Volvo FH</option>
+                            <option value="Scania R">Scania R</option>
+                            <option value="Mercedes Actros">Mercedes Actros</option>
+                            <option value="DAF XF">DAF XF</option>
+                            <option value="MAN TGX">MAN TGX</option>
+                            <option value="Renault T">Renault T</option>
+                            <option value="Iveco S-Way">Iveco S-Way</option>
                         </select>
                     </div>
                     
@@ -1036,6 +1078,7 @@
                         <table>
                             <thead>
                                 <tr>
+                                    <th>Data</th>
                                     <th>Configuração</th>
                                     <th>Caminhão</th>
                                     <th>Carga (Ton)</th>
@@ -1046,7 +1089,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tabela-trabalhos-rapidos">
-                                <tr><td colspan="7" class="empty-row">Nenhum trabalho normal registrado.</td></tr>
+                                <tr><td colspan="8" class="empty-row">Nenhum trabalho registrado.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1207,14 +1250,28 @@
         let meuGraficoInstance = null;
 
         function carregarDados() {
-            return {
+            let dados = {
                 funcionarios: JSON.parse(localStorage.getItem('ets2_funcionarios')) || [],
                 caminhoes: JSON.parse(localStorage.getItem('ets2_caminhoes')) || [],
                 trabalhosAlugados: JSON.parse(localStorage.getItem('ets2_trabalhos_alugados')) || [],
                 viagens: JSON.parse(localStorage.getItem('ets2_viagens')) || [],
                 viagensAtivas: JSON.parse(localStorage.getItem('ets2_viagens_ativas')) || {},
-                cargasSalvas: JSON.parse(localStorage.getItem('ets2_cargas_salvas')) || []
+                cargasSalvas: JSON.parse(localStorage.getItem('ets2_cargas_salvas_obj')) || []
             };
+
+            // Migração de compatibilidade caso existam cargas no formato antigo de Array Simples
+            let cargasAntigas = JSON.parse(localStorage.getItem('ets2_cargas_salvas')) || [];
+            if (cargasAntigas.length > 0) {
+                cargasAntigas.forEach(nome => {
+                    if (!dados.cargasSalvas.some(c => c.nome.toLowerCase() === nome.toLowerCase())) {
+                        dados.cargasSalvas.push({ nome, categoria: 'normal' });
+                    }
+                });
+                localStorage.removeItem('ets2_cargas_salvas');
+                localStorage.setItem('ets2_cargas_salvas_obj', JSON.stringify(dados.cargasSalvas));
+            }
+
+            return dados;
         }
 
         function salvarDados(dados) {
@@ -1223,7 +1280,16 @@
             localStorage.setItem('ets2_trabalhos_alugados', JSON.stringify(dados.trabalhosAlugados));
             localStorage.setItem('ets2_viagens', JSON.stringify(dados.viagens));
             localStorage.setItem('ets2_viagens_ativas', JSON.stringify(dados.viagensAtivas));
-            localStorage.setItem('ets2_cargas_salvas', JSON.stringify(dados.cargasSalvas));
+            localStorage.setItem('ets2_cargas_salvas_obj', JSON.stringify(dados.cargasSalvas));
+        }
+
+        function formatarDataBR(isoOuDate) {
+            let d = isoOuDate ? new Date(isoOuDate) : new Date();
+            if (isNaN(d.getTime())) d = new Date();
+            let dia = String(d.getDate()).padStart(2, '0');
+            let mes = String(d.getMonth() + 1).padStart(2, '0');
+            let ano = d.getFullYear();
+            return `${dia}/${mes}/${ano}`;
         }
 
         window.onload = function() {
@@ -1238,24 +1304,57 @@
             }
         };
 
-        window.salvarNovaCargaSalva = function(nomeCarga) {
+        window.salvarNovaCargaSalva = function(nomeCarga, categoria = 'normal') {
             if (!nomeCarga || !nomeCarga.trim()) return;
             let dados = carregarDados();
             let nomeTrimmed = nomeCarga.trim();
-            if (!dados.cargasSalvas.includes(nomeTrimmed)) {
-                dados.cargasSalvas.push(nomeTrimmed);
+            let existente = dados.cargasSalvas.find(c => c.nome.toLowerCase() === nomeTrimmed.toLowerCase());
+            
+            if (!existente) {
+                dados.cargasSalvas.push({ nome: nomeTrimmed, categoria });
+            } else if (categoria !== 'normal') {
+                existente.categoria = categoria;
+            }
+
+            salvarDados(dados);
+            atualizarOpcoesCargaViagem();
+            atualizarOpcoesCargaAlugado();
+        };
+
+        window.cadastrarCargaPelaEmpresa = function() {
+            let nome = document.getElementById('empresa-nome-carga').value.trim();
+            let categoria = document.getElementById('empresa-categoria-carga').value;
+
+            if (!nome) {
+                mostrarToast("Digite o nome da carga para cadastrá-la!", "error");
+                return;
+            }
+
+            salvarNovaCargaSalva(nome, categoria);
+            document.getElementById('empresa-nome-carga').value = '';
+            mostrarToast("Carga salva com sucesso na área da empresa!");
+            atualizarTelas();
+        };
+
+        window.excluirCargaSalva = function(nomeCarga) {
+            if (confirm(`Deseja remover a carga "${nomeCarga}" do cadastro da empresa?`)) {
+                let dados = carregarDados();
+                dados.cargasSalvas = dados.cargasSalvas.filter(c => c.nome.toLowerCase() !== nomeCarga.toLowerCase());
                 salvarDados(dados);
+                mostrarToast("Carga removida com sucesso!");
                 atualizarOpcoesCargaViagem();
                 atualizarOpcoesCargaAlugado();
+                atualizarTelas();
             }
         };
 
         window.atualizarOpcoesCargaViagem = function() {
             let dados = carregarDados();
             let selectCargas = document.getElementById('viagem-tipo-especial');
-            
-            selectCargas.innerHTML = '<option value="">Selecione uma Carga Salva</option>' + 
-                dados.cargasSalvas.map(c => `<option value="${c}">${c}</option>`).join('');
+            if (!selectCargas) return;
+
+            selectCargas.innerHTML = '<option value="">Selecione a Carga Especificada</option>' + 
+                dados.cargasSalvas.map(c => `<option value="${c.nome}" data-categoria="${c.categoria}">${c.nome}</option>`).join('');
             
             calcularValorAutomaticoViagem();
         };
@@ -1263,9 +1362,16 @@
         window.selecionarCargaPredefinidaViagem = function() {
             let selectCargas = document.getElementById('viagem-tipo-especial');
             let inputCarga = document.getElementById('viagem-carga');
+            let optSelecionada = selectCargas.options[selectCargas.selectedIndex];
+
             if (selectCargas.value) {
                 inputCarga.value = selectCargas.value;
+                let cat = optSelecionada.getAttribute('data-categoria');
+                if (cat) {
+                    document.getElementById('viagem-categoria-carga').value = cat;
+                }
             }
+            calcularValorAutomaticoViagem();
         };
 
         window.calcularValorAutomaticoViagem = function() {
@@ -1279,9 +1385,10 @@
         window.atualizarOpcoesCargaAlugado = function() {
             let dados = carregarDados();
             let selectCargas = document.getElementById('alugado-tipo-especial');
-            
-            selectCargas.innerHTML = '<option value="">Selecione uma Carga Salva</option>' + 
-                dados.cargasSalvas.map(c => `<option value="${c}">${c}</option>`).join('');
+            if (!selectCargas) return;
+
+            selectCargas.innerHTML = '<option value="">Selecione a Carga Especificada</option>' + 
+                dados.cargasSalvas.map(c => `<option value="${c.nome}" data-categoria="${c.categoria}">${c.nome}</option>`).join('');
             
             calcularValorAutomaticoAlugado();
         };
@@ -1289,9 +1396,16 @@
         window.selecionarCargaPredefinidaAlugado = function() {
             let selectCargas = document.getElementById('alugado-tipo-especial');
             let inputCarga = document.getElementById('alugado-carga');
+            let optSelecionada = selectCargas.options[selectCargas.selectedIndex];
+
             if (selectCargas.value) {
                 inputCarga.value = selectCargas.value;
+                let cat = optSelecionada.getAttribute('data-categoria');
+                if (cat) {
+                    document.getElementById('alugado-categoria-carga').value = cat;
+                }
             }
+            calcularValorAutomaticoAlugado();
         };
 
         window.calcularValorAutomaticoAlugado = function() {
@@ -1499,7 +1613,7 @@
                 return;
             }
 
-            salvarNovaCargaSalva(carga);
+            salvarNovaCargaSalva(carga, categoriaCarga);
 
             let comissaoPct = (categoriaCarga === 'perigosa' || categoriaCarga === 'pesada' || categoriaCarga === 'especial') ? 0.14 : 0.07;
             let salarioMotorista = valorBruto * comissaoPct;
@@ -1545,7 +1659,8 @@
                     pedagio,
                     balsa,
                     lucroLiquido,
-                    concluido: false
+                    concluido: false,
+                    dataCriacao: new Date().toISOString()
                 });
                 limparFormularioTrabalhoRapido();
                 mostrarToast("Serviço pego com sucesso! Não se esqueça de concluí-lo ao terminar a entrega.");
@@ -1561,6 +1676,7 @@
             if (!trabalho) return;
 
             trabalho.concluido = true;
+            trabalho.dataConclusao = new Date().toISOString();
             salvarDados(dados);
             mostrarToast("🏁 Serviço concluído e registrado no caixa da empresa!");
             atualizarTelas();
@@ -1656,7 +1772,8 @@
                     totalBalsas: 0,
                     totalMultas: 0,
                     totalAlimentacao: 0,
-                    caixaEmpresa: -custoServico
+                    caixaEmpresa: -custoServico,
+                    dataConclusao: new Date().toISOString()
                 });
 
                 if (tipo === 'oleo') cam.kmDesdeOleo = 0;
@@ -1686,7 +1803,7 @@
                 return;
             }
 
-            salvarNovaCargaSalva(carga);
+            salvarNovaCargaSalva(carga, categoriaCarga);
 
             let dados = carregarDados();
             if (dados.viagensAtivas[sessaoAtual.id]) {
@@ -1829,7 +1946,8 @@
                 caixaEmpresa,
                 tempoMinutos,
                 tempoFormatado,
-                observacao
+                observacao,
+                dataConclusao: dataFim.toISOString()
             });
 
             delete dados.viagensAtivas[sessaoAtual.id];
@@ -1931,6 +2049,33 @@
                     }).join('');
                 }
 
+                // Tabela de Gerenciamento de Cargas da Empresa
+                let tbodyCargasEmpresa = document.getElementById('tabela-cargas-empresa');
+                let todasEntregasRealizadas = [...dados.viagens.filter(v => !v.id.startsWith('man_')), ...dados.trabalhosAlugados];
+
+                if (dados.cargasSalvas.length === 0) {
+                    tbodyCargasEmpresa.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhuma carga cadastrada no momento.</td></tr>';
+                } else {
+                    tbodyCargasEmpresa.innerHTML = dados.cargasSalvas.map(cargaObj => {
+                        let qtdPega = todasEntregasRealizadas.filter(r => r.carga && r.carga.toLowerCase() === cargaObj.nome.toLowerCase()).length;
+                        let config = TABELA_CARGAS_CONFIG[cargaObj.categoria] || TABELA_CARGAS_CONFIG.normal;
+                        return `
+                            <tr>
+                                <td><strong>${cargaObj.nome}</strong></td>
+                                <td>
+                                    <span class="tipo-carga-badge ${config.badgeClass}">
+                                        <i class="fa-solid ${config.icone}"></i> ${config.nome}
+                                    </span>
+                                </td>
+                                <td style="text-align: center;"><strong>${qtdPega}</strong></td>
+                                <td style="text-align: right;">
+                                    <button onclick="excluirCargaSalva('${cargaObj.nome}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+
                 let filtroText = (document.getElementById('filtro-cargas-input').value || '').toLowerCase();
                 let tbodyRotas = document.getElementById('tabela-rotas-por-carga');
                 let todasAsRotas = [...dados.viagens.filter(v => !v.id.startsWith('man_')), ...trabalhosConcluidos];
@@ -2009,12 +2154,14 @@
                 let historicoCompleto = [...minhasViagens, ...meusTrabalhos];
 
                 if (historicoCompleto.length === 0) {
-                    tbodyMinhas.innerHTML = '<tr><td colspan="5" class="empty-row">Nenhuma viagem registrada.</td></tr>';
+                    tbodyMinhas.innerHTML = '<tr><td colspan="6" class="empty-row">Nenhuma viagem registrada.</td></tr>';
                 } else {
                     tbodyMinhas.innerHTML = historicoCompleto.map(v => {
                         let config = TABELA_CARGAS_CONFIG[v.categoriaCarga || 'normal'];
+                        let dataFormatada = formatarDataBR(v.dataConclusao || v.dataInicio || v.dataCriacao);
                         return `
                             <tr>
+                                <td>${dataFormatada}</td>
                                 <td><span class="tipo-carga-badge ${config.badgeClass}">${v.carga || 'Carga'}</span></td>
                                 <td>${v.origem} ➔ ${v.destino}</td>
                                 <td>${v.km} KM</td>
@@ -2029,7 +2176,7 @@
                 let meusTrabalhosTodos = dados.trabalhosAlugados.filter(t => t.motoristaId === sessaoAtual.id);
 
                 if (meusTrabalhosTodos.length === 0) {
-                    tbodyAlugados.innerHTML = '<tr><td colspan="7" class="empty-row">Nenhum serviço registrado.</td></tr>';
+                    tbodyAlugados.innerHTML = '<tr><td colspan="8" class="empty-row">Nenhum serviço registrado.</td></tr>';
                 } else {
                     tbodyAlugados.innerHTML = meusTrabalhosTodos.map(t => {
                         let statusHtml = t.concluido 
@@ -2040,8 +2187,11 @@
                             ? `<button onclick="editarTrabalhoRapido('${t.id}')" style="background:none; border:none; color:var(--accent-color); cursor:pointer; margin-right: 6px;"><i class="fa-solid fa-pen"></i></button>`
                             : ``;
 
+                        let dataFormatada = formatarDataBR(t.dataConclusao || t.dataCriacao);
+
                         return `
                             <tr>
+                                <td>${dataFormatada}</td>
                                 <td>${t.carga} (${t.tonelada}t)</td>
                                 <td>${t.caminhao}</td>
                                 <td>${t.tonelada} t</td>
