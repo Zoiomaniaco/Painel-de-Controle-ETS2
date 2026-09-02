@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PAINEL DA EMPRESA - Euro Truck Simulator 2</title>
+    <title>DIÁRIO DE BORDO - Euro Truck Simulator 2</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#090d16">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
@@ -32,7 +32,7 @@
         * { box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background-image: linear-gradient(to bottom, rgba(5, 7, 10, 0.90), rgba(5, 7, 10, 0.98)), url('fundo.jpg');
             background-size: cover;
             background-position: center;
@@ -62,7 +62,7 @@
         header h1 {
             margin: 0;
             color: var(--text-color);
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             letter-spacing: 0.5px;
             display: flex;
@@ -70,7 +70,7 @@
             gap: 10px;
         }
 
-        header h1 i { color: var(--accent-color); font-size: 16px; }
+        header h1 i { color: var(--accent-color); font-size: 17px; }
 
         .btn-logout {
             background: rgba(220, 38, 38, 0.12);
@@ -282,7 +282,7 @@
             color: #ffffff;
             border-radius: 8px;
             font-size: 13px;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             outline: none;
             transition: all 0.2s ease;
         }
@@ -644,7 +644,7 @@
 <body>
 
     <header id="main-header" style="display: none;">
-        <h1><i class="fa-solid fa-gauge-high"></i> <span id="header-title">PAINEL DA EMPRESA</span></h1>
+        <h1><i class="fa-solid fa-gauge-high"></i> <span id="header-title">DIÁRIO DE BORDO</span></h1>
         <button class="btn-logout" onclick="fazerLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</button>
     </header>
 
@@ -652,14 +652,14 @@
         
         <div id="login-screen">
             <div class="login-card">
-                <h2><i class="fa-solid fa-truck-fast"></i> ETS2 Gestão</h2>
+                <h2><i class="fa-solid fa-truck-fast"></i> DIÁRIO DE BORDO</h2>
                 <div class="app-version-badge">Versão 1.15 (Gestão Avançada de Fretes)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
                         <label>Tipo de Acesso</label>
                         <select id="tipo-acceso" onchange="mudarTipoAcesso()">
-                            <option value="patrao">Patrão</option>
+                            <option value="patrao">Empresa</option>
                             <option value="motorista">Área do Funcionário</option>
                         </select>
                     </div>
@@ -912,7 +912,7 @@
                 <div class="card">
                     <h3><i class="fa-solid fa-map-location-dot"></i> Cadastrar Nova Viagem</h3>
                     <div class="form-group">
-                        <label>Tipo de Carga / Viagem</label>
+                        <label>Configuração de Carga</label>
                         <select id="viagem-tipo-especial">
                             <option value="padrao">📦 Carga Padrão</option>
                             <option value="especial">🚨 Carga Especial / Batedores</option>
@@ -969,7 +969,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Nome da Carga</label>
+                        <label>Configuração da Carga para Pegar</label>
                         <input type="text" id="viagem-carga" placeholder="Ex: Eletrônicos / Transformador Pesado">
                     </div>
                     <div class="form-group">
@@ -989,7 +989,7 @@
                     <h3 id="titulo-form-alugado"><i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> REGISTRAR SERVIÇOS</h3>
                     <input type="hidden" id="edit-alugado-id" value="">
                     <div class="form-group">
-                        <label>Tipo de Carga / Trabalho</label>
+                        <label>Configuração de Carga / Trabalho</label>
                         <select id="alugado-tipo-especial">
                             <option value="padrao">📦 Carga Padrão</option>
                             <option value="especial">🚨 Carga Especial / Batedores</option>
@@ -1008,7 +1008,7 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Qual Carga vai Levar</label>
+                        <label>Configuração da Carga para Pegar</label>
                         <input type="text" id="alugado-carga" placeholder="Ex: Tratores / Eletrônicos / Alimentos">
                     </div>
                     <div class="form-group">
@@ -1051,7 +1051,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Tipo</th>
+                                    <th>Configuração</th>
                                     <th>Caminhão</th>
                                     <th>Carga (Ton)</th>
                                     <th>Rota (De → Para)</th>
@@ -1078,10 +1078,10 @@
                 <div id="com-viagem-ativa" style="display: none;">
                     <div class="card" style="border-color: rgba(37, 99, 235, 0.4);">
                         <h3><i class="fa-solid fa-truck-ramp-box"></i> Viagem em Andamento</h3>
-                        <p style="margin: 6px 0; font-size: 12px;"><strong>Tipo:</strong> <span id="ativa-tipo-carga"></span></p>
+                        <p style="margin: 6px 0; font-size: 12px;"><strong>Configuração:</strong> <span id="ativa-tipo-carga"></span></p>
                         <p style="margin: 6px 0; font-size: 12px;"><strong>Rota:</strong> <span id="ativa-pais-rota"></span> | <span id="ativa-rota"></span> (<span id="ativa-km"></span> KM)</p>
                         <p style="margin: 6px 0; font-size: 12px;"><strong>Caminhão:</strong> <span id="ativa-caminhao"></span></p>
-                        <p style="margin: 6px 0; font-size: 12px;"><strong>Carga / Toneladas:</strong> <span id="ativa-carga"></span></p>
+                        <p style="margin: 6px 0; font-size: 12px;"><strong>Carga para Pegar / Toneladas:</strong> <span id="ativa-carga"></span></p>
                         <p style="margin: 6px 0; font-size: 12px;"><strong>Valor Bruto:</strong> <span id="ativa-valor"></span></p>
                     </div>
 
@@ -1242,11 +1242,11 @@
 
             if (tipo === 'patrao') {
                 if (usuario === '*****' && senha === '*****') {
-                    sessaoAtual = { tipo: 'patrao', nome: 'Patrão' };
+                    sessaoAtual = { tipo: 'patrao', nome: 'Empresa' };
                     localStorage.setItem('ets2_sessao_atual', JSON.stringify(sessaoAtual));
                     iniciarPainelPatrao();
                 } else {
-                    mostrarToast("Credenciais do Patrão incorretas!", "error");
+                    mostrarToast("Credenciais da Empresa incorretas!", "error");
                 }
             } else {
                 let dados = carregarDados();
@@ -1411,7 +1411,7 @@
             let balsa = parseFloat(document.getElementById('alugado-balsa').value) || 0;
 
             if (!carga || !origem || !destino || valorBruto <= 0) {
-                mostrarToast("Preencha a carga, origem, destino e o valor bruto!", "error");
+                mostrarToast("Preencha a carga para pegar, origem, destino e o valor bruto!", "error");
                 return;
             }
 
@@ -1598,7 +1598,7 @@
             let valor = parseFloat(document.getElementById('viagem-valor').value);
 
             if (!origem || !destino || isNaN(km) || !caminhaoId || !carga || isNaN(valor)) {
-                mostrarToast("Preencha todos os campos obrigatórios!", "error");
+                mostrarToast("Preencha todos os campos obrigatórios (incluindo a carga para pegar)!", "error");
                 return;
             }
 
@@ -1770,7 +1770,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('painel-patrao').style.display = 'block';
             document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('header-title').innerText = "PAINEL DA EMPRESA";
+            document.getElementById('header-title').innerText = "DIÁRIO DE BORDO";
             atualizarTelas();
         }
 
@@ -1965,7 +1965,6 @@
 
                 document.getElementById('motorista-total-viagens').innerText = minhasViagens.length + meusTrabalhosConcluidos.length;
 
-                // Combinando viagens normais + serviços concluídos para o Histórico do Motorista
                 let historicoCombinado = [
                     ...minhasViagens.map(v => ({
                         tipoEspecial: v.tipoEspecial,
