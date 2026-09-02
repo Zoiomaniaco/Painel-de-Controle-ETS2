@@ -1024,6 +1024,10 @@
                         <input type="text" id="alugado-destino" placeholder="Ex: Paris - EuroGoodies">
                     </div>
                     <div class="form-group">
+                        <label>Quilometragem (KM) da Viagem</label>
+                        <input type="number" id="alugado-km" placeholder="0">
+                    </div>
+                    <div class="form-group">
                         <label>Valor Bruto do Frete (R$)</label>
                         <input type="number" id="alugado-valor" placeholder="0.00">
                     </div>
@@ -1037,7 +1041,7 @@
                             <input type="number" id="alugado-balsa" placeholder="0.00" value="0">
                         </div>
                     </div>
-                    <button class="btn-submit" id="btn-salvar-alugado" onclick="cadastrarTrabalhoRapido()"><i class="fa-solid fa-plus"></i> Salvar Trabalho Normal</button>
+                    <button class="btn-submit" id="btn-salvar-alugado" onclick="cadastrarTrabalhoRapido()"><i class="fa-solid fa-plus"></i> PEGAR SERVIÇO</button>
                     <button id="btn-cancelar-edicao" class="btn-submit btn-danger" style="display:none; margin-top:6px;" onclick="cancelarEdicaoTrabalhoRapido()">Cancelar Edição</button>
                 </div>
 
@@ -1051,13 +1055,14 @@
                                     <th>Caminhão</th>
                                     <th>Carga (Ton)</th>
                                     <th>Rota (De → Para)</th>
+                                    <th>KM</th>
                                     <th>Valor Bruto</th>
                                     <th>Pedágio / Balsa</th>
                                     <th style="text-align: right;">Status / Lucro</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-trabalhos-rapidos">
-                                <tr><td colspan="7" class="empty-row">Nenhum trabalho normal registrado.</td></tr>
+                                <tr><td colspan="8" class="empty-row">Nenhum trabalho normal registrado.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1400,6 +1405,7 @@
             let tonelada = parseFloat(document.getElementById('alugado-tonelada').value) || 0;
             let origem = document.getElementById('alugado-origem').value.trim();
             let destino = document.getElementById('alugado-destino').value.trim();
+            let km = parseFloat(document.getElementById('alugado-km').value) || 0;
             let valorBruto = parseFloat(document.getElementById('alugado-valor').value) || 0;
             let pedagio = parseFloat(document.getElementById('alugado-pedagio').value) || 0;
             let balsa = parseFloat(document.getElementById('alugado-balsa').value) || 0;
@@ -1426,13 +1432,14 @@
                         tonelada,
                         origem,
                         destino,
+                        km,
                         valorBruto,
                         salarioMotorista,
                         pedagio,
                         balsa,
                         lucroLiquido
                     };
-                    mostrarToast("Trabalho normal atualizado com sucesso!");
+                    mostrarToast("Serviço atualizado com sucesso!");
                 }
                 cancelarEdicaoTrabalhoRapido();
             } else {
@@ -1446,6 +1453,7 @@
                     tonelada,
                     origem,
                     destino,
+                    km,
                     valorBruto,
                     salarioMotorista,
                     pedagio,
@@ -1454,7 +1462,7 @@
                     concluido: false
                 });
                 limparFormularioTrabalhoRapido();
-                mostrarToast("Trabalho normal salvo! Não se esqueça de concluí-lo ao terminar a entrega.");
+                mostrarToast("Serviço pego com sucesso! Não se esqueça de concluí-lo ao terminar a entrega.");
             }
 
             salvarDados(dados);
@@ -1468,7 +1476,7 @@
 
             trabalho.concluido = true;
             salvarDados(dados);
-            mostrarToast("🏁 Trabalho normal concluído e registrado no caixa da empresa!");
+            mostrarToast("🏁 Serviço concluído e registrado no caixa da empresa!");
             atualizarTelas();
         };
 
@@ -1477,7 +1485,7 @@
             let trabalho = dados.trabalhosAlugados.find(t => t.id === id);
             if (!trabalho) return;
             if (trabalho.concluido) {
-                mostrarToast("Trabalhos já concluídos não podem ser editados.", "error");
+                mostrarToast("Serviços já concluídos não podem ser editados.", "error");
                 return;
             }
 
@@ -1488,11 +1496,12 @@
             document.getElementById('alugado-tonelada').value = trabalho.tonelada;
             document.getElementById('alugado-origem').value = trabalho.origem;
             document.getElementById('alugado-destino').value = trabalho.destino;
+            document.getElementById('alugado-km').value = trabalho.km || 0;
             document.getElementById('alugado-valor').value = trabalho.valorBruto;
             document.getElementById('alugado-pedagio').value = trabalho.pedagio;
             document.getElementById('alugado-balsa').value = trabalho.balsa;
 
-            document.getElementById('titulo-form-alugado').innerHTML = `<i class="fa-solid fa-pen-to-square" style="color: var(--accent-color);"></i> Editar Trabalho Normal`;
+            document.getElementById('titulo-form-alugado').innerHTML = `<i class="fa-solid fa-pen-to-square" style="color: var(--accent-color);"></i> Editar Serviço`;
             document.getElementById('btn-salvar-alugado').innerHTML = `<i class="fa-solid fa-check"></i> Salvar Alterações`;
             document.getElementById('btn-cancelar-edicao').style.display = 'block';
 
@@ -1503,7 +1512,7 @@
             limparFormularioTrabalhoRapido();
             document.getElementById('edit-alugado-id').value = '';
             document.getElementById('titulo-form-alugado').innerHTML = `<i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> REGISTRAR SERVIÇOS`;
-            document.getElementById('btn-salvar-alugado').innerHTML = `<i class="fa-solid fa-plus"></i> Salvar Trabalho Normal`;
+            document.getElementById('btn-salvar-alugado').innerHTML = `<i class="fa-solid fa-plus"></i> PEGAR SERVIÇO`;
             document.getElementById('btn-cancelar-edicao').style.display = 'none';
         };
 
@@ -1513,17 +1522,18 @@
             document.getElementById('alugado-tonelada').value = '';
             document.getElementById('alugado-origem').value = '';
             document.getElementById('alugado-destino').value = '';
+            document.getElementById('alugado-km').value = '';
             document.getElementById('alugado-valor').value = '';
             document.getElementById('alugado-pedagio').value = '0';
             document.getElementById('alugado-balsa').value = '0';
         }
 
         window.deletarTrabalhoRapido = function(id) {
-            if (confirm("Deseja excluir este trabalho normal?")) {
+            if (confirm("Deseja excluir este serviço?")) {
                 let dados = carregarDados();
                 dados.trabalhosAlugados = dados.trabalhosAlugados.filter(t => t.id !== id);
                 salvarDados(dados);
-                mostrarToast("Trabalho normal excluído!");
+                mostrarToast("Serviço excluído!");
                 atualizarTelas();
             }
         };
@@ -1956,7 +1966,7 @@
 
                 let meusAlugados = dados.trabalhosAlugados.filter(t => !t.motoristaId || t.motoristaId === sessaoAtual.id);
                 let tbodyAlugados = document.getElementById('tabela-trabalhos-rapidos');
-                tbodyAlugados.innerHTML = meusAlugados.length === 0 ? '<tr><td colspan="7" class="empty-row">Nenhum trabalho normal registrado.</td></tr>' :
+                tbodyAlugados.innerHTML = meusAlugados.length === 0 ? '<tr><td colspan="8" class="empty-row">Nenhum serviço registrado.</td></tr>' :
                     meusAlugados.slice().reverse().map(t => {
                         let badgeHtml = t.tipoEspecial === 'especial'
                             ? `<span class="tipo-carga-badge badge-especial" title="Carga Especial com Batedores"><i class="fa-solid fa-car-side"></i> Especial</span>`
@@ -1975,6 +1985,7 @@
                                 <td><i class="fa-solid fa-truck" style="color:var(--accent-color); margin-right:4px;"></i> <strong>${t.caminhao}</strong></td>
                                 <td>${t.carga} <small>(${t.tonelada} t)</small></td>
                                 <td>${t.origem} <i class="fa-solid fa-arrow-right" style="font-size:10px; color:var(--text-muted)"></i> ${t.destino}</td>
+                                <td>${t.km || 0} KM</td>
                                 <td>R$ ${Number(t.valorBruto || 0).toFixed(2)}</td>
                                 <td>Ped: R$ ${Number(t.pedagio || 0).toFixed(2)}<br>Bal: R$ ${Number(t.balsa || 0).toFixed(2)}</td>
                                 <td style="text-align: right;">${acoesStatus}</td>
