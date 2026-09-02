@@ -653,7 +653,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-book-open"></i> DIÁRIO DE BORDO</h2>
-                <div class="app-version-badge">Versão 1.15 (Gestão Profissional)</div>
+                <div class="app-version-badge">Versão 1.16 (Tipos de Carga & Tarifas por KM)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -911,13 +911,30 @@
             <div id="m-adicionar" class="tab-content">
                 <div class="card">
                     <h3><i class="fa-solid fa-map-location-dot"></i> Cadastrar Nova Viagem</h3>
+                    
                     <div class="form-group">
-                        <label>Configuração de Carga</label>
-                        <select id="viagem-tipo-especial">
-                            <option value="padrao">📦 Carga Padrão</option>
-                            <option value="especial">🚨 Carga Especial / Batedores</option>
+                        <label>Tipos de Cargas</label>
+                        <select id="viagem-categoria-carga" onchange="atualizarOpcoesCargaViagem()">
+                            <option value="normal">📦 Cargas Normais (R$ 2,00 / km)</option>
+                            <option value="refrigerada">❄️ Cargas Refrigeradas (R$ 2,80 / km)</option>
+                            <option value="perigosa">⚠️ Cargas Perigosas (R$ 3,00 / km)</option>
+                            <option value="pesada">🏋️ Cargas Pesadas (R$ 3,50 / km)</option>
+                            <option value="especial">🚨 Cargas Especiais (R$ 4,00 / km)</option>
                         </select>
                     </div>
+
+                    <div class="form-group">
+                        <label>Carga Específica & Código</label>
+                        <select id="viagem-tipo-especial" onchange="selecionarCargaPredefinidaViagem()">
+                            <option value="">Selecione a Carga</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Descrição Personalizada da Carga</label>
+                        <input type="text" id="viagem-carga" placeholder="Ex: Código N001 - Eletrônicos">
+                    </div>
+
                     <div class="form-group">
                         <label>País de Origem</label>
                         <select id="viagem-pais-origem">
@@ -960,7 +977,7 @@
                     </div>
                     <div class="form-group">
                         <label>Distância (KM)</label>
-                        <input type="number" id="viagem-km" placeholder="0">
+                        <input type="number" id="viagem-km" placeholder="0" oninput="calcularValorAutomaticoViagem()">
                     </div>
                     <div class="form-group">
                         <label>Caminhão Utilizado</label>
@@ -969,15 +986,11 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Configuração da Carga para Pegar</label>
-                        <input type="text" id="viagem-carga" placeholder="Ex: Eletrônicos / Transformador Pesado">
-                    </div>
-                    <div class="form-group">
                         <label>Peso da Carga (Toneladas)</label>
                         <input type="number" id="viagem-tonelada" placeholder="Ex: 22">
                     </div>
                     <div class="form-group">
-                        <label>Valor do Frete Bruto (R$)</label>
+                        <label>Valor do Frete Bruto (R$) - Calculado Automático por KM</label>
                         <input type="number" id="viagem-valor" placeholder="0.00">
                     </div>
                     <button class="btn-submit" onclick="iniciarViagemMotorista()">Iniciar Viagem</button>
@@ -988,13 +1001,25 @@
                 <div class="card">
                     <h3 id="titulo-form-alugado"><i class="fa-solid fa-truck-fast" style="color: var(--accent-color);"></i> REGISTRAR SERVIÇOS</h3>
                     <input type="hidden" id="edit-alugado-id" value="">
+                    
                     <div class="form-group">
-                        <label>Configuração de Carga / Trabalho</label>
-                        <select id="alugado-tipo-especial">
-                            <option value="padrao">📦 Carga Padrão</option>
-                            <option value="especial">🚨 Carga Especial / Batedores</option>
+                        <label>Tipos de Cargas</label>
+                        <select id="alugado-categoria-carga" onchange="atualizarOpcoesCargaAlugado()">
+                            <option value="normal">📦 Cargas Normais (R$ 2,00 / km)</option>
+                            <option value="refrigerada">❄️ Cargas Refrigeradas (R$ 2,80 / km)</option>
+                            <option value="perigosa">⚠️ Cargas Perigosas (R$ 3,00 / km)</option>
+                            <option value="pesada">🏋️ Cargas Pesadas (R$ 3,50 / km)</option>
+                            <option value="especial">🚨 Cargas Especiais (R$ 4,00 / km)</option>
                         </select>
                     </div>
+
+                    <div class="form-group">
+                        <label>Carga Específica & Código</label>
+                        <select id="alugado-tipo-especial" onchange="selecionarCargaPredefinidaAlugado()">
+                            <option value="">Selecione a Carga</option>
+                        </select>
+                    </div>
+
                     <div class="form-group">
                         <label>Qual Caminhão Vai Trabalhar</label>
                         <select id="alugado-caminhao">
@@ -1008,8 +1033,8 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Configuração da Carga para Pegar</label>
-                        <input type="text" id="alugado-carga" placeholder="Ex: Tratores / Eletrônicos / Alimentos">
+                        <label>Descrição Personalizada da Carga</label>
+                        <input type="text" id="alugado-carga" placeholder="Ex: Código N001 - Alimentos">
                     </div>
                     <div class="form-group">
                         <label>Tonelada a Carregar (t)</label>
@@ -1025,10 +1050,10 @@
                     </div>
                     <div class="form-group">
                         <label>Quilometragem (KM) da Viagem</label>
-                        <input type="number" id="alugado-km" placeholder="0">
+                        <input type="number" id="alugado-km" placeholder="0" oninput="calcularValorAutomaticoAlugado()">
                     </div>
                     <div class="form-group">
-                        <label>Valor Bruto do Frete (R$)</label>
+                        <label>Valor Bruto do Frete (R$) - Calculado Automático por KM</label>
                         <input type="number" id="alugado-valor" placeholder="0.00">
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -1187,6 +1212,64 @@
     <div id="toast">Operação realizada com sucesso!</div>
 
     <script>
+        const TABELA_CARGAS_CONFIG = {
+            normal: {
+                nome: 'Cargas Normais',
+                precoKm: 2.00,
+                badgeClass: 'badge-padrao',
+                icone: 'fa-box',
+                cargas: [
+                    { codigo: 'N001', nome: 'Eletrônicos Diversos' },
+                    { codigo: 'N002', nome: 'Peças Automotivas' },
+                    { codigo: 'N003', nome: 'Materiais de Construção' }
+                ]
+            },
+            refrigerada: {
+                nome: 'Cargas Refrigeradas',
+                precoKm: 2.80,
+                badgeClass: 'badge-padrao',
+                icone: 'fa-snowflake',
+                cargas: [
+                    { codigo: 'R001', nome: 'Alimentos Congelados' },
+                    { codigo: 'R002', nome: 'Carnes e Frios' },
+                    { codigo: 'R003', nome: 'Produtos Farmacêuticos' }
+                ]
+            },
+            perigosa: {
+                nome: 'Cargas Perigosas',
+                precoKm: 3.00,
+                badgeClass: 'badge-especial',
+                icone: 'fa-triangle-exclamation',
+                cargas: [
+                    { codigo: 'P001', nome: 'Combustível / Derivados de Petróleo' },
+                    { codigo: 'P002', nome: 'Produtos Químicos Corrosivos' },
+                    { codigo: 'P003', nome: 'Gases Industriais' }
+                ]
+            },
+            pesada: {
+                nome: 'Cargas Pesadas',
+                precoKm: 3.50,
+                badgeClass: 'badge-especial',
+                icone: 'fa-weight-hanging',
+                cargas: [
+                    { codigo: 'H001', nome: 'Tratores e Máquinas Agrícolas' },
+                    { codigo: 'H002', nome: 'Transformador de Grande Porte' },
+                    { codigo: 'H003', nome: 'Estruturas Metálicas Pesadas' }
+                ]
+            },
+            especial: {
+                nome: 'Cargas Especiais',
+                precoKm: 4.00,
+                badgeClass: 'badge-especial',
+                icone: 'fa-car-side',
+                cargas: [
+                    { codigo: 'E001', nome: 'Iate de Luxo em Carreta Extensa' },
+                    { codigo: 'E002', nome: 'Pás de Eólica Gigantes' },
+                    { codigo: 'E003', nome: 'Módulo Habitacional Extra-largo' }
+                ]
+            }
+        };
+
         let sessaoAtual = JSON.parse(localStorage.getItem('ets2_sessao_atual')) || null;
         let meuGraficoInstance = null;
 
@@ -1209,6 +1292,8 @@
         }
 
         window.onload = function() {
+            atualizarOpcoesCargaViagem();
+            atualizarOpcoesCargaAlugado();
             if (sessaoAtual) {
                 if (sessaoAtual.tipo === 'patrao') {
                     iniciarPainelPatrao();
@@ -1216,6 +1301,60 @@
                     iniciarPainelMotorista();
                 }
             }
+        };
+
+        window.atualizarOpcoesCargaViagem = function() {
+            let cat = document.getElementById('viagem-categoria-carga').value;
+            let config = TABELA_CARGAS_CONFIG[cat];
+            let selectCargas = document.getElementById('viagem-tipo-especial');
+            
+            selectCargas.innerHTML = '<option value="">Selecione a Carga</option>' + 
+                config.cargas.map(c => `<option value="${c.codigo} - ${c.nome}">${c.codigo}: ${c.nome}</option>`).join('');
+            
+            calcularValorAutomaticoViagem();
+        };
+
+        window.selecionarCargaPredefinidaViagem = function() {
+            let selectCargas = document.getElementById('viagem-tipo-especial');
+            let inputCarga = document.getElementById('viagem-carga');
+            if (selectCargas.value) {
+                inputCarga.value = selectCargas.value;
+            }
+        };
+
+        window.calcularValorAutomaticoViagem = function() {
+            let cat = document.getElementById('viagem-categoria-carga').value;
+            let km = parseFloat(document.getElementById('viagem-km').value) || 0;
+            let precoKm = TABELA_CARGAS_CONFIG[cat] ? TABELA_CARGAS_CONFIG[cat].precoKm : 2.00;
+            let valorBruto = km * precoKm;
+            document.getElementById('viagem-valor').value = valorBruto.toFixed(2);
+        };
+
+        window.atualizarOpcoesCargaAlugado = function() {
+            let cat = document.getElementById('alugado-categoria-carga').value;
+            let config = TABELA_CARGAS_CONFIG[cat];
+            let selectCargas = document.getElementById('alugado-tipo-especial');
+            
+            selectCargas.innerHTML = '<option value="">Selecione a Carga</option>' + 
+                config.cargas.map(c => `<option value="${c.codigo} - ${c.nome}">${c.codigo}: ${c.nome}</option>`).join('');
+            
+            calcularValorAutomaticoAlugado();
+        };
+
+        window.selecionarCargaPredefinidaAlugado = function() {
+            let selectCargas = document.getElementById('alugado-tipo-especial');
+            let inputCarga = document.getElementById('alugado-carga');
+            if (selectCargas.value) {
+                inputCarga.value = selectCargas.value;
+            }
+        };
+
+        window.calcularValorAutomaticoAlugado = function() {
+            let cat = document.getElementById('alugado-categoria-carga').value;
+            let km = parseFloat(document.getElementById('alugado-km').value) || 0;
+            let precoKm = TABELA_CARGAS_CONFIG[cat] ? TABELA_CARGAS_CONFIG[cat].precoKm : 2.00;
+            let valorBruto = km * precoKm;
+            document.getElementById('alugado-valor').value = valorBruto.toFixed(2);
         };
 
         window.mudarTipoAcesso = function() {
@@ -1399,7 +1538,7 @@
 
         window.cadastrarTrabalhoRapido = function() {
             let editId = document.getElementById('edit-alugado-id').value;
-            let tipoEspecial = document.getElementById('alugado-tipo-especial').value;
+            let categoriaCarga = document.getElementById('alugado-categoria-carga').value;
             let caminhao = document.getElementById('alugado-caminhao').value;
             let carga = document.getElementById('alugado-carga').value.trim();
             let tonelada = parseFloat(document.getElementById('alugado-tonelada').value) || 0;
@@ -1415,7 +1554,7 @@
                 return;
             }
 
-            let comissaoPct = tipoEspecial === 'especial' ? 0.14 : 0.07;
+            let comissaoPct = (categoriaCarga === 'perigosa' || categoriaCarga === 'pesada' || categoriaCarga === 'especial') ? 0.14 : 0.07;
             let salarioMotorista = valorBruto * comissaoPct;
             let lucroLiquido = valorBruto - salarioMotorista - (pedagio + balsa);
             
@@ -1426,7 +1565,7 @@
                 if (index !== -1) {
                     dados.trabalhosAlugados[index] = {
                         ...dados.trabalhosAlugados[index],
-                        tipoEspecial,
+                        categoriaCarga,
                         caminhao,
                         carga,
                         tonelada,
@@ -1447,7 +1586,7 @@
                     id: 'alg_' + Date.now(),
                     motoristaId: sessaoAtual.id,
                     motoristaNome: sessaoAtual.nome,
-                    tipoEspecial,
+                    categoriaCarga,
                     caminhao,
                     carga,
                     tonelada,
@@ -1490,7 +1629,8 @@
             }
 
             document.getElementById('edit-alugado-id').value = trabalho.id;
-            document.getElementById('alugado-tipo-especial').value = trabalho.tipoEspecial || 'padrao';
+            document.getElementById('alugado-categoria-carga').value = trabalho.categoriaCarga || 'normal';
+            atualizarOpcoesCargaAlugado();
             document.getElementById('alugado-caminhao').value = trabalho.caminhao;
             document.getElementById('alugado-carga').value = trabalho.carga;
             document.getElementById('alugado-tonelada').value = trabalho.tonelada;
@@ -1517,7 +1657,8 @@
         };
 
         function limparFormularioTrabalhoRapido() {
-            document.getElementById('alugado-tipo-especial').value = 'padrao';
+            document.getElementById('alugado-categoria-carga').value = 'normal';
+            atualizarOpcoesCargaAlugado();
             document.getElementById('alugado-carga').value = '';
             document.getElementById('alugado-tonelada').value = '';
             document.getElementById('alugado-origem').value = '';
@@ -1558,7 +1699,7 @@
                 dados.viagens.push({
                     id: 'man_' + Date.now(),
                     motoristaNome: 'Oficina Mecânica',
-                    tipoEspecial: 'padrao',
+                    categoriaCarga: 'normal',
                     paisOrigem: 'Manutenção',
                     paisDestino: 'Preventiva',
                     origem: cam.modelo,
@@ -1584,7 +1725,7 @@
         };
 
         window.iniciarViagemMotorista = function() {
-            let tipoEspecial = document.getElementById('viagem-tipo-especial').value;
+            let categoriaCarga = document.getElementById('viagem-categoria-carga').value;
             let paisOrigem = document.getElementById('viagem-pais-origem').value;
             let paisDestino = document.getElementById('viagem-pais-destino').value;
             let origem = document.getElementById('viagem-origem').value.trim();
@@ -1612,7 +1753,7 @@
                 id: 'vig_' + Date.now(),
                 motoristaId: sessaoAtual.id,
                 motoristaNome: sessaoAtual.nome,
-                tipoEspecial,
+                categoriaCarga,
                 paisOrigem,
                 paisDestino,
                 origem,
@@ -1723,7 +1864,7 @@
             let totalAlimentacao = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Alimentação').reduce((acc, g) => acc + g.valor, 0);
             let totalGastosExtras = totalPedagios + totalBalsas + totalMultas + totalAlimentacao + custoCombustivel;
 
-            let comissaoPct = viagemAtiva.tipoEspecial === 'especial' ? 0.14 : 0.10;
+            let comissaoPct = (viagemAtiva.categoriaCarga === 'perigosa' || viagemAtiva.categoriaCarga === 'pesada' || viagemAtiva.categoriaCarga === 'especial') ? 0.14 : 0.10;
             let salarioMotorista = viagemAtiva.valorBruto * comissaoPct;
             let caixaEmpresa = viagemAtiva.valorBruto - salarioMotorista - totalGastosExtras;
 
@@ -1925,9 +2066,8 @@
                 if (viagemAtiva) {
                     divSemViagem.style.display = 'none';
                     divComViagem.style.display = 'block';
-                    let badgeTipoHtml = viagemAtiva.tipoEspecial === 'especial' 
-                        ? `<span class="tipo-carga-badge badge-especial"><i class="fa-solid fa-car-side"></i> Carga Especial / Batedores</span>`
-                        : `<span class="tipo-carga-badge badge-padrao"><i class="fa-solid fa-box"></i> Carga Padrão</span>`;
+                    let configCarga = TABELA_CARGAS_CONFIG[viagemAtiva.categoriaCarga] || TABELA_CARGAS_CONFIG['normal'];
+                    let badgeTipoHtml = `<span class="tipo-carga-badge ${configCarga.badgeClass}"><i class="fa-solid ${configCarga.icone}"></i> ${configCarga.nome} (R$ ${configCarga.precoKm.toFixed(2)}/km)</span>`;
                     
                     document.getElementById('ativa-tipo-carga').innerHTML = badgeTipoHtml;
                     document.getElementById('ativa-pais-rota').innerText = `${viagemAtiva.paisOrigem} → ${viagemAtiva.paisDestino}`;
@@ -1967,14 +2107,14 @@
 
                 let historicoCombinado = [
                     ...minhasViagens.map(v => ({
-                        tipoEspecial: v.tipoEspecial,
+                        categoriaCarga: v.categoriaCarga,
                         rota: `${v.origem} → ${v.destino}`,
                         km: v.km || 0,
                         tempo: v.tempoFormatado || 'N/D',
                         salario: Number(v.salarioMotorista) || 0
                     })),
                     ...meusTrabalhosConcluidos.map(t => ({
-                        tipoEspecial: t.tipoEspecial,
+                        categoriaCarga: t.categoriaCarga,
                         rota: `${t.origem} → ${t.destino}`,
                         km: t.km || 0,
                         tempo: 'Serviço Alugado',
@@ -1985,9 +2125,8 @@
                 let tbodyMinhasViagens = document.getElementById('tabela-minhas-viagens');
                 tbodyMinhasViagens.innerHTML = historicoCombinado.length === 0 ? '<tr><td colspan="5" class="empty-row">Nenhuma viagem.</td></tr>' :
                     historicoCombinado.slice().reverse().map(item => {
-                        let badgeHtml = item.tipoEspecial === 'especial'
-                            ? `<span class="tipo-carga-badge badge-especial" title="Carga Especial com Batedores"><i class="fa-solid fa-car-side"></i> Especial</span>`
-                            : `<span class="tipo-carga-badge badge-padrao" title="Carga Padrão"><i class="fa-solid fa-box"></i> Padrão</span>`;
+                        let confCarga = TABELA_CARGAS_CONFIG[item.categoriaCarga] || TABELA_CARGAS_CONFIG['normal'];
+                        let badgeHtml = `<span class="tipo-carga-badge ${confCarga.badgeClass}"><i class="fa-solid ${confCarga.icone}"></i> ${confCarga.nome}</span>`;
                         return `
                             <tr>
                                 <td>${badgeHtml}</td>
@@ -2003,9 +2142,8 @@
                 let tbodyAlugados = document.getElementById('tabela-trabalhos-rapidos');
                 tbodyAlugados.innerHTML = meusAlugados.length === 0 ? '<tr><td colspan="8" class="empty-row">Nenhum serviço registrado.</td></tr>' :
                     meusAlugados.slice().reverse().map(t => {
-                        let badgeHtml = t.tipoEspecial === 'especial'
-                            ? `<span class="tipo-carga-badge badge-especial" title="Carga Especial com Batedores"><i class="fa-solid fa-car-side"></i> Especial</span>`
-                            : `<span class="tipo-carga-badge badge-padrao" title="Carga Padrão"><i class="fa-solid fa-box"></i> Padrão</span>`;
+                        let confCarga = TABELA_CARGAS_CONFIG[t.categoriaCarga] || TABELA_CARGAS_CONFIG['normal'];
+                        let badgeHtml = `<span class="tipo-carga-badge ${confCarga.badgeClass}"><i class="fa-solid ${confCarga.icone}"></i> ${confCarga.nome}</span>`;
 
                         let classeLucro = t.lucroLiquido >= 0 ? 'text-positivo' : 'text-negativo';
                         let acoesStatus = t.concluido 
