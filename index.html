@@ -234,7 +234,6 @@
             font-weight: 500;
         }
 
-        /* ----- BARRA DE NAVEGAÇÃO HORIZONTAL AJUSTADA ----- */
         .nav-tabs {
             display: grid;
             grid-auto-flow: column;
@@ -248,11 +247,11 @@
             border: 1px solid var(--border-color);
             overflow-x: auto;
             backdrop-filter: blur(8px);
-            scrollbar-width: none; /* Oculta a barra de rolagem no Firefox */
+            scrollbar-width: none;
         }
 
         .nav-tabs::-webkit-scrollbar {
-            display: none; /* Oculta a barra de rolagem no Chrome/Safari */
+            display: none;
         }
 
         .nav-tabs button {
@@ -463,6 +462,35 @@
 
         .text-positivo { color: var(--success-color) !important; }
         .text-negativo { color: var(--danger-color) !important; }
+
+        /* BANNER DO CONTADOR DE TEMPO DA VIAGEM ATIVA */
+        .timer-banner {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(13, 19, 34, 0.8));
+            border: 1px solid var(--accent-color);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 16px;
+            box-shadow: 0 0 15px rgba(37, 99, 235, 0.2);
+        }
+        .timer-title {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .timer-clock {
+            font-size: 28px;
+            font-weight: 700;
+            color: #60a5fa;
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
 
         .table-responsive {
             width: 100%;
@@ -712,7 +740,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-book-open"></i> DIÁRIO DE BORDO</h2>
-                <div class="app-version-badge">Versão 1.17 (Abas Retráteis & Histórico de Atualizações)</div>
+                <div class="app-version-badge">Versão 1.18 (Contador de Tempo em Tempo Real)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -756,11 +784,11 @@
             </div>
 
             <div class="app-changelog-card">
-                <h4><i class="fa-solid fa-arrows-rotate"></i> O que mudou nesta versão (v1.17):</h4>
+                <h4><i class="fa-solid fa-arrows-rotate"></i> O que mudou nesta versão (v1.18):</h4>
                 <ul class="changelog-list">
-                    <li><i class="fa-solid fa-check"></i> <strong>Abas Retráteis:</strong> Clique na aba ativa para esconder ou reexibir as opções sem perder dados ou configurações.</li>
-                    <li><i class="fa-solid fa-check"></i> <strong>Histórico de Versões:</strong> Novo painel informativo de notas de atualização diretamente na tela inicial.</li>
-                    <li><i class="fa-solid fa-check"></i> <strong>Preservação de Dados:</strong> Ocultar o menu mantém formulários ativos e preenchimentos intactos.</li>
+                    <li><i class="fa-solid fa-check"></i> <strong>Contador de Tempo da Viagem:</strong> Relógio ao vivo exibindo o tempo decorrido ao iniciar uma viagem.</li>
+                    <li><i class="fa-solid fa-check"></i> <strong>Exibição Discreta:</strong> Visível apenas no painel ativo da viagem e guardado no histórico.</li>
+                    <li><i class="fa-solid fa-check"></i> <strong>Sincronização do Tempo:</strong> Duração total registrada no histórico do motorista e no consolidado da empresa.</li>
                 </ul>
             </div>
 
@@ -1187,6 +1215,13 @@
                 </div>
 
                 <div id="com-viagem-ativa" style="display: none;">
+                    
+                    <!-- PAINEL DO CRONÔMETRO DE VIAGEM ATIVA -->
+                    <div class="timer-banner">
+                        <div class="timer-title"><i class="fa-solid fa-stopwatch"></i> Tempo em Viagem</div>
+                        <div class="timer-clock" id="relogio-viagem-ativa">00:00:00</div>
+                    </div>
+
                     <div class="card" style="border-color: rgba(37, 99, 235, 0.4);">
                         <h3><i class="fa-solid fa-truck-ramp-box"></i> Viagem em Andamento</h3>
                         <p style="margin: 6px 0; font-size: 12px;"><strong>Configuração:</strong> <span id="ativa-tipo-carga"></span></p>
@@ -1332,6 +1367,7 @@
 
         let sessaoAtual = JSON.parse(localStorage.getItem('ets2_sessao_atual')) || null;
         let meuGraficoInstance = null;
+        let timerViagemInterval = null;
 
         function carregarDados() {
             let dados = {
@@ -1373,6 +1409,42 @@
             let mes = String(d.getMonth() + 1).padStart(2, '0');
             let ano = d.getFullYear();
             return `${dia}/${mes}/${ano}`;
+        }
+
+        function mostrarToast(mensagem, tipo = 'success') {
+            let toast = document.getElementById('toast');
+            toast.innerText = mensagem;
+            toast.style.backgroundColor = tipo === 'error' ? 'var(--danger-color)' : 'var(--success-color)';
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+        }
+
+        function atualizarCronometroViagemAtiva() {
+            if (!sessaoAtual || sessaoAtual.tipo !== 'motorista') return;
+            
+            let dados = carregarDados();
+            let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
+            let displayRelogio = document.getElementById('relogio-viagem-ativa');
+
+            if (viagemAtiva && displayRelogio) {
+                let dataInicio = new Date(viagemAtiva.dataInicio);
+                let agora = new Date();
+                let diffSegundos = Math.floor((agora - dataInicio) / 1000);
+
+                if (diffSegundos < 0) diffSegundos = 0;
+
+                let hrs = String(Math.floor(diffSegundos / 3600)).padStart(2, '0');
+                let mins = String(Math.floor((diffSegundos % 3600) / 60)).padStart(2, '0');
+                let segs = String(diffSegundos % 60).padStart(2, '0');
+
+                displayRelogio.innerText = `${hrs}:${mins}:${segs}`;
+            }
+        }
+
+        function iniciarLoopTimer() {
+            if (timerViagemInterval) clearInterval(timerViagemInterval);
+            atualizarCronometroViagemAtiva();
+            timerViagemInterval = setInterval(atualizarCronometroViagemAtiva, 1000);
         }
 
         window.onload = function() {
@@ -1572,6 +1644,7 @@
         };
 
         window.fazerLogout = function() {
+            if (timerViagemInterval) clearInterval(timerViagemInterval);
             sessaoAtual = null;
             localStorage.removeItem('ets2_sessao_atual');
             document.getElementById('login-screen').style.display = 'flex';
@@ -1921,11 +1994,12 @@
             };
 
             salvarDados(dados);
-            mostrarToast("Viagem iniciada!");
+            mostrarToast("Viagem iniciada com cronômetro ativado!");
             
             let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
             switchTab({ currentTarget: botoesTab[3] }, 'm-andamento');
             atualizarTelas();
+            iniciarLoopTimer();
         };
 
         window.registrarParadaDescanso = function() {
@@ -2045,6 +2119,8 @@
             delete dados.viagensAtivas[sessaoAtual.id];
             salvarDados(dados);
 
+            if (timerViagemInterval) clearInterval(timerViagemInterval);
+
             document.getElementById('viagem-origem').value = '';
             document.getElementById('viagem-destino').value = '';
             document.getElementById('viagem-km').value = '';
@@ -2053,7 +2129,7 @@
             document.getElementById('viagem-valor').value = '0.00';
             document.getElementById('viagem-observacao').value = '';
 
-            mostrarToast(`🏁 Viagem concluída com sucesso! Tempo total: ${tempoFormatado}`);
+            mostrarToast(`🏁 Viagem concluída com sucesso! Tempo total registrado: ${tempoFormatado}`);
             
             let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
             switchTab({ currentTarget: botoesTab[0] }, 'm-extrato');
@@ -2075,6 +2151,44 @@
             document.getElementById('header-title').innerText = "ÁREA DO FUNCIONÁRIO";
             carregarSelectCaminhoes();
             atualizarTelas();
+            iniciarLoopTimer();
+        }
+
+        function renderizarGrafico(faturamento, salarios, combustivel, manutencao, taxas, multas) {
+            let canvas = document.getElementById('graficoFinanceiro');
+            if (!canvas) return;
+            let ctx = canvas.getContext('2d');
+
+            if (meuGraficoInstance) meuGraficoInstance.destroy();
+
+            meuGraficoInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Caixa Líquido', 'Salários', 'Combustível', 'Manutenção', 'Pedágio/Balsa', 'Multas'],
+                    datasets: [{
+                        label: 'Valores (R$)',
+                        data: [faturamento, salarios, combustivel, manutencao, taxas, multas],
+                        backgroundColor: [
+                            'rgba(37, 99, 235, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(245, 158, 11, 0.7)',
+                            'rgba(239, 68, 68, 0.7)',
+                            'rgba(139, 92, 246, 0.7)',
+                            'rgba(220, 38, 38, 0.7)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { ticks: { color: '#8c9cb6' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                        x: { ticks: { color: '#8c9cb6' }, grid: { display: false } }
+                    }
+                }
+            });
         }
 
         function atualizarTelas() {
@@ -2249,148 +2363,89 @@
                 } else {
                     tbodyMinhas.innerHTML = historicoCompleto.map(v => {
                         let config = TABELA_CARGAS_CONFIG[v.categoriaCarga || 'normal'];
-                        let dataFormatada = formatarDataBR(v.dataConclusao || v.dataInicio || v.dataCriacao);
+                        let dataFormatada = formatarDataBR(v.dataConclusao || v.dataCriacao);
+                        let tempoTexto = v.tempoFormatado || '-';
+
                         return `
                             <tr>
                                 <td>${dataFormatada}</td>
-                                <td><span class="tipo-carga-badge ${config.badgeClass}">${v.carga || 'Carga'}</span></td>
+                                <td><span class="tipo-carga-badge ${config.badgeClass}"><i class="fa-solid ${config.icone}"></i> ${v.carga || 'Carga'}</span></td>
                                 <td>${v.origem} ➔ ${v.destino}</td>
                                 <td>${v.km} KM</td>
-                                <td>${v.tempoFormatado || '-'}</td>
-                                <td class="text-positivo"><strong>R$ ${(v.salarioMotorista || 0).toFixed(2)}</strong></td>
+                                <td>${tempoTexto}</td>
+                                <td class="text-positivo"><strong>R$ ${(Number(v.salarioMotorista) || 0).toFixed(2)}</strong></td>
                             </tr>
                         `;
                     }).join('');
                 }
 
-                let tbodyAlugados = document.getElementById('tabela-trabalhos-rapidos');
+                let tbodyTrabalhos = document.getElementById('tabela-trabalhos-rapidos');
                 let meusTrabalhosTodos = dados.trabalhosAlugados.filter(t => t.motoristaId === sessaoAtual.id);
 
                 if (meusTrabalhosTodos.length === 0) {
-                    tbodyAlugados.innerHTML = '<tr><td colspan="8" class="empty-row">Nenhum serviço registrado.</td></tr>';
+                    tbodyTrabalhos.innerHTML = '<tr><td colspan="8" class="empty-row">Nenhum trabalho registrado.</td></tr>';
                 } else {
-                    tbodyAlugados.innerHTML = meusTrabalhosTodos.map(t => {
+                    tbodyTrabalhos.innerHTML = meusTrabalhosTodos.map(t => {
+                        let config = TABELA_CARGAS_CONFIG[t.categoriaCarga || 'normal'];
                         let statusHtml = t.concluido 
-                            ? `<span class="text-positivo">✔️ Concluído</span>`
-                            : `<button onclick="concluirTrabalhoRapido('${t.id}')" style="font-size: 11px; padding: 4px 8px; background: var(--success-color); color: #fff; border:none; border-radius:6px; cursor:pointer;">Concluir</button>`;
+                            ? `<span style="color: var(--success-color); font-weight: 600;">✓ Concluído</span>`
+                            : `<button onclick="concluirTrabalhoRapido('${t.id}')" style="background: var(--success-color); color: #fff; border:none; padding: 4px 8px; border-radius: 6px; font-size: 10px; cursor:pointer;">Concluir</button>`;
 
-                        let acoesEditar = !t.concluido 
-                            ? `<button onclick="editarTrabalhoRapido('${t.id}')" style="background:none; border:none; color:var(--accent-color); cursor:pointer; margin-right: 6px;"><i class="fa-solid fa-pen"></i></button>`
-                            : ``;
-
-                        let dataFormatada = formatarDataBR(t.dataConclusao || t.dataCriacao);
+                        let acoesEdit = !t.concluido 
+                            ? `<button onclick="editarTrabalhoRapido('${t.id}')" style="background:none; border:none; color:var(--accent-color); cursor:pointer; margin-right: 6px;"><i class="fa-solid fa-pen-to-square"></i></button>
+                               <button onclick="deletarTrabalhoRapido('${t.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>`
+                            : '';
 
                         return `
                             <tr>
-                                <td>${dataFormatada}</td>
-                                <td>${t.carga} (${t.tonelada}t)</td>
+                                <td>${formatarDataBR(t.dataConclusao || t.dataCriacao)}</td>
+                                <td><span class="tipo-carga-badge ${config.badgeClass}"><i class="fa-solid ${config.icone}"></i> ${t.carga}</span></td>
                                 <td>${t.caminhao}</td>
-                                <td>${t.tonelada} t</td>
+                                <td>${t.tonelada}t</td>
                                 <td>${t.origem} ➔ ${t.destino}</td>
                                 <td>${t.km} KM</td>
                                 <td>R$ ${(t.pedagio + t.balsa).toFixed(2)}</td>
-                                <td style="text-align: right;">${acoesEditar} ${statusHtml}</td>
+                                <td style="text-align: right;">${statusHtml} ${acoesEdit}</td>
                             </tr>
                         `;
                     }).join('');
                 }
 
                 let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
-                if (viagemAtiva) {
-                    document.getElementById('sem-viagem-ativa').style.display = 'none';
-                    document.getElementById('com-viagem-ativa').style.display = 'block';
+                let semViagemDiv = document.getElementById('sem-viagem-ativa');
+                let comViagemDiv = document.getElementById('com-viagem-ativa');
 
-                    let configAtiva = TABELA_CARGAS_CONFIG[viagemAtiva.categoriaCarga || 'normal'];
-                    document.getElementById('ativa-tipo-carga').innerText = configAtiva.nome;
+                if (!viagemAtiva) {
+                    semViagemDiv.style.display = 'block';
+                    comViagemDiv.style.display = 'none';
+                } else {
+                    semViagemDiv.style.display = 'none';
+                    comViagemDiv.style.display = 'block';
+
+                    let config = TABELA_CARGAS_CONFIG[viagemAtiva.categoriaCarga || 'normal'];
+                    document.getElementById('ativa-tipo-carga').innerHTML = `<span class="tipo-carga-badge ${config.badgeClass}"><i class="fa-solid ${config.icone}"></i> ${config.nome}</span>`;
                     document.getElementById('ativa-rota').innerText = `${viagemAtiva.origem} ➔ ${viagemAtiva.destino}`;
                     document.getElementById('ativa-km').innerText = viagemAtiva.km;
                     document.getElementById('ativa-caminhao').innerText = viagemAtiva.caminhao;
-                    document.getElementById('ativa-carga').innerText = `${viagemAtiva.carga} / ${viagemAtiva.tonelada} T`;
+                    document.getElementById('ativa-carga').innerText = `${viagemAtiva.carga} (${viagemAtiva.tonelada} Toneladas)`;
 
                     let tbodyGastos = document.getElementById('tabela-gastos-ativos');
-                    if (!viagemAtiva.gastosExtras || viagemAtiva.gastosExtras.length === 0) {
+                    if (viagemAtiva.gastosExtras.length === 0) {
                         tbodyGastos.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhuma despesa extra.</td></tr>';
                     } else {
                         tbodyGastos.innerHTML = viagemAtiva.gastosExtras.map(g => `
                             <tr>
-                                <td>${g.tipo}</td>
+                                <td><strong>${g.tipo}</strong></td>
                                 <td>${g.descricao}</td>
                                 <td>R$ ${g.valor.toFixed(2)}</td>
-                                <td style="text-align: right;"><button onclick="deletarGastoAtivo('${g.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash"></i></button></td>
+                                <td style="text-align: right;">
+                                    <button onclick="deletarGastoAtivo('${g.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;"><i class="fa-solid fa-trash-can"></i></button>
+                                </td>
                             </tr>
                         `).join('');
                     }
-                } else {
-                    document.getElementById('sem-viagem-ativa').style.display = 'block';
-                    document.getElementById('com-viagem-ativa').style.display = 'none';
                 }
             }
-        }
-
-        function renderizarGrafico(fat, sal, comb, man, pedBals, mul) {
-            let canvas = document.getElementById('graficoFinanceiro');
-            if(!canvas) return;
-            let ctx = canvas.getContext('2d');
-            
-            if (meuGraficoInstance) {
-                meuGraficoInstance.destroy();
-            }
-
-            meuGraficoInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Faturamento Liquido', 'Salários', 'Combustível', 'Manutenções', 'Pedágios/Balsas', 'Multas'],
-                    datasets: [{
-                        label: 'Valores (R$)',
-                        data: [fat, sal, comb, man, pedBals, mul],
-                        backgroundColor: [
-                            'rgba(5, 150, 105, 0.7)',
-                            'rgba(37, 99, 235, 0.7)',
-                            'rgba(217, 119, 6, 0.7)',
-                            'rgba(220, 38, 38, 0.7)',
-                            'rgba(139, 92, 246, 0.7)',
-                            'rgba(220, 38, 38, 0.9)'
-                        ],
-                        borderColor: [
-                            '#059669',
-                            '#2563eb',
-                            '#d97706',
-                            '#dc2626',
-                            '#8b5cf6',
-                            '#dc2626'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-                            ticks: { color: '#8c9cb6', font: { size: 10 } }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#8c9cb6', font: { size: 10 } }
-                        }
-                    }
-                }
-            });
-        }
-
-        function mostrarToast(mensagem, tipo = "success") {
-            let toast = document.getElementById('toast');
-            toast.innerText = mensagem;
-            toast.style.backgroundColor = tipo === "error" ? "var(--danger-color)" : "var(--success-color)";
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
         }
     </script>
 </body>
