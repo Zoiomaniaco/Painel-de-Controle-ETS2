@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DIÁRIO DE BORDO - Euro Truck Simulator 2</title>
+    <meta name="description" content="Aplicativo de gerenciamento e diário de bordo fictício para motoristas e empresas no Euro Truck Simulator 2 (ETS2).">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#090d16">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -30,6 +31,11 @@
         }
 
         * { box-sizing: border-box; }
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -210,9 +216,7 @@
         }
 
         .nav-tabs {
-            display: grid;
-            grid-auto-flow: column;
-            grid-auto-columns: minmax(0, 1fr);
+            display: flex;
             gap: 6px;
             margin-bottom: 20px;
             width: 100%;
@@ -228,6 +232,8 @@
         .nav-tabs::-webkit-scrollbar { display: none; }
 
         .nav-tabs button {
+            flex: 1;
+            min-width: 110px;
             background-color: transparent;
             color: var(--text-muted);
             border: none;
@@ -242,7 +248,6 @@
             gap: 6px;
             white-space: nowrap;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 100%;
         }
 
         .nav-tabs button i { font-size: 13px; }
@@ -373,6 +378,12 @@
             margin-bottom: 16px;
         }
 
+        @media (max-width: 480px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .metric-card {
             background: linear-gradient(145deg, rgba(13, 19, 34, 0.88), rgba(10, 15, 26, 0.94));
             backdrop-filter: blur(12px);
@@ -472,6 +483,7 @@
             overflow-y: auto;
             border-radius: 8px;
             border: 1px solid var(--border-color);
+            -webkit-overflow-scrolling: touch;
         }
 
         table {
@@ -702,10 +714,10 @@
 
     <header id="main-header" style="display: none;">
         <h1><i class="fa-solid fa-book-open-reader"></i> <span id="header-title">DIÁRIO DE BORDO</span></h1>
-        <button class="btn-logout" onclick="fazerLogout()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</button>
+        <button class="btn-logout" onclick="fazerLogout()" aria-label="Sair do sistema"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</button>
     </header>
 
-    <div class="container">
+    <main class="container">
         
         <div id="login-screen">
             <div class="login-card">
@@ -723,11 +735,11 @@
 
                     <div class="form-group">
                         <label for="login-usuario">Usuário</label>
-                        <input type="text" id="login-usuario" placeholder="*****">
+                        <input type="text" id="login-usuario" placeholder="*****" autocomplete="username">
                     </div>
                     <div class="form-group">
                         <label for="login-senha">Senha</label>
-                        <input type="password" id="login-senha" placeholder="*****">
+                        <input type="password" id="login-senha" placeholder="*****" autocomplete="current-password">
                     </div>
 
                     <button class="btn-submit" onclick="entrarNoSistema()">Acessar Sistema</button>
@@ -741,11 +753,11 @@
                     </div>
                     <div class="form-group">
                         <label for="cad-usuario">Crie seu Usuário de Login</label>
-                        <input type="text" id="cad-usuario" placeholder="Ex: funcionario123">
+                        <input type="text" id="cad-usuario" placeholder="Ex: funcionario123" autocomplete="username">
                     </div>
                     <div class="form-group">
                         <label for="cad-senha">Crie sua Senha</label>
-                        <input type="password" id="cad-senha" placeholder="Sua senha">
+                        <input type="password" id="cad-senha" placeholder="Sua senha" autocomplete="new-password">
                     </div>
 
                     <button class="btn-submit" onclick="motoristaAutoCadastrar()">Concluir Cadastro</button>
@@ -773,7 +785,7 @@
 
         <!-- PAINEL DA EMPRESA -->
         <div id="painel-patrao" style="display: none;">
-            <div class="nav-tabs">
+            <nav class="nav-tabs">
                 <button class="tab-btn active" onclick="switchTab(event, 'p-visao')">
                     <i class="fa-solid fa-chart-pie"></i> Visão Geral
                 </button>
@@ -783,7 +795,7 @@
                 <button class="tab-btn" onclick="switchTab(event, 'p-rotas')">
                     <i class="fa-solid fa-boxes-stacked"></i> Serviços
                 </button>
-            </div>
+            </nav>
 
             <div id="p-visao" class="tab-content active">
                 <div class="metrics-grid">
@@ -977,17 +989,17 @@
 
         <!-- PAINEL DO MOTORISTA -->
         <div id="painel-motorista" style="display: none;">
-            <div class="nav-tabs">
+            <nav class="nav-tabs">
                 <button class="tab-btn active" onclick="switchTab(event, 'm-extrato')">
                     <i class="fa-solid fa-wallet"></i> Extrato
                 </button>
                 <button class="tab-btn" onclick="switchTab(event, 'm-adicionar')">
-                    <i class="fa-solid fa-truck-front"></i> V. Próprio
+                    <i class="fa-solid fa-truck-front"></i> Cadastrar Viagem
                 </button>
                 <button class="tab-btn" onclick="switchTab(event, 'm-andamento')">
-                    <i class="fa-solid fa-route"></i> V. Ativa
+                    <i class="fa-solid fa-route"></i> Status de Viagem
                 </button>
-            </div>
+            </nav>
 
             <div id="m-extrato" class="tab-content active">
                 <div class="metrics-grid">
@@ -1188,7 +1200,7 @@
             </div>
         </div>
 
-    </div>
+    </main>
 
     <div id="modal-funcionarios" class="modal-overlay">
         <div class="modal-card">
@@ -1216,7 +1228,7 @@
         </div>
     </div>
 
-    <div id="toast">Operação realizada com sucesso!</div>
+    <div id="toast" role="alert" aria-live="assertive">Operação realizada com sucesso!</div>
 
     <!-- Firebase SDKs -->
     <script type="module">
@@ -1531,7 +1543,7 @@
         };
 
         window.switchTab = function(evt, tabId) {
-            let container = evt.currentTarget.closest('.container');
+            let container = evt.currentTarget.closest('.container, main');
             let targetContent = document.getElementById(tabId);
             let targetButton = evt.currentTarget;
             let isAlreadyActive = targetButton.classList.contains('active') && targetContent.classList.contains('active');
@@ -1590,7 +1602,7 @@
                         <td><strong>${m.nome}</strong></td>
                         <td>${m.usuario}</td>
                         <td style="text-align: center;">${statusBadge}</td>
-                        <td style="text-align: right;"><button onclick="excluirFuncionario('${m.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;" aria-label="Excluir"><i class="fa-solid fa-trash-can"></i></button></td>
+                        <td style="text-align: right;"><button onclick="excluirFuncionario('${m.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;" aria-label="Excluir funcionário ${m.nome}"><i class="fa-solid fa-trash-can"></i></button></td>
                     </tr>
                 `;
             }).join('');
@@ -2004,7 +2016,7 @@
                                 <td><span class="tipo-carga-badge ${conf.badgeClass}"><i class="fa-solid ${conf.icone}"></i> ${conf.nome}</span></td>
                                 <td style="text-align: center;"><strong>${totalVezes}</strong>x</td>
                                 <td style="text-align: right;">
-                                    <button onclick="excluirCargaSalva('${c.nome}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;" aria-label="Excluir"><i class="fa-solid fa-trash-can"></i></button>
+                                    <button onclick="excluirCargaSalva('${c.nome}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;" aria-label="Excluir carga ${c.nome}"><i class="fa-solid fa-trash-can"></i></button>
                                 </td>
                             </tr>
                         `;
@@ -2129,7 +2141,7 @@
                                 <td><strong>${g.tipo}</strong></td>
                                 <td>${g.descricao}</td>
                                 <td>R$ ${g.valor.toFixed(2)}</td>
-                                <td style="text-align: right;"><button onclick="deletarGastoAtivo('${g.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;" aria-label="Excluir"><i class="fa-solid fa-trash-can"></i></button></td>
+                                <td style="text-align: right;"><button onclick="deletarGastoAtivo('${g.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;" aria-label="Excluir despesa ${g.descricao}"><i class="fa-solid fa-trash-can"></i></button></td>
                             </tr>
                         `).join('');
                     }
