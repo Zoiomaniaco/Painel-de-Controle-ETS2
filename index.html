@@ -721,7 +721,7 @@
         <div id="login-screen">
             <div class="login-card">
                 <h2><i class="fa-solid fa-book-open"></i> DIÁRIO DE BORDO</h2>
-                <div class="app-version-badge">Versão 1.18 (Contador de Tempo em Tempo Real)</div>
+                <div class="app-version-badge">Versão 1.18 (Sincronizado via Firebase Firestore)</div>
                 
                 <div id="form-login-div">
                     <div class="form-group">
@@ -767,9 +767,9 @@
             <div class="app-changelog-card">
                 <h4><i class="fa-solid fa-arrows-rotate"></i> O que mudou nesta versão (v1.18):</h4>
                 <ul class="changelog-list">
+                    <li><i class="fa-solid fa-check"></i> <strong>Sincronização em Tempo Real:</strong> Integração completa com o Cloud Firestore.</li>
                     <li><i class="fa-solid fa-check"></i> <strong>Contador de Tempo da Viagem:</strong> Relógio ao vivo exibindo o tempo decorrido ao iniciar uma viagem.</li>
-                    <li><i class="fa-solid fa-check"></i> <strong>Exibição Discreta:</strong> Visível apenas no painel ativo da viagem e guardado no histórico.</li>
-                    <li><i class="fa-solid fa-check"></i> <strong>Sincronização do Tempo:</strong> Duração total registrada no histórico do motorista e no consolidado da empresa.</li>
+                    <li><i class="fa-solid fa-check"></i> <strong>Consolidação dos Dados:</strong> Registro automático de despesas e lucros no painel da Empresa.</li>
                 </ul>
             </div>
 
@@ -1194,10 +1194,11 @@
 
     <div id="toast" role="alert" aria-live="assertive">Operação realizada com sucesso!</div>
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase & Firestore SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
+        import { getFirestore, collection, onSnapshot, setDoc, doc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD6_ZyuEEYEVQgHc4ykXZlUX7iD_Kot2-M",
@@ -1209,16 +1210,6 @@
             measurementId: "G-N5M6BQXBPD"
         };
 
-        try {
-            const app = initializeApp(firebaseConfig);
-            window.firebaseApp = app;
-            window.firebaseAnalytics = getAnalytics(app);
-        } catch (erro) {
-            console.warn("Firebase não pôde ser completamente inicializado:", erro);
-        }
-    </script>
-
-    <script>
         const TABELA_CARGAS_CONFIG = {
             normal: { nome: 'Cargas Normais', precoKm: 2.00, badgeClass: 'badge-padrao', icone: 'fa-box' },
             refrigerada: { nome: 'Cargas Refrigeradas', precoKm: 2.80, badgeClass: 'badge-padrao', icone: 'fa-snowflake' },
@@ -1227,6 +1218,7 @@
             especial: { nome: 'Cargas Especiais', precoKm: 4.00, badgeClass: 'badge-especial', icone: 'fa-car-side' }
         };
 
+        let db = null;
         let sessaoAtual = null;
         try {
             sessaoAtual = JSON.parse(localStorage.getItem('ets2_sessao_atual')) || null;
@@ -1236,46 +1228,63 @@
 
         let timerViagemInterval = null;
 
-        function carregarDados() {
-            try {
-                let dados = {
-                    funcionarios: JSON.parse(localStorage.getItem('ets2_funcionarios')) || [],
-                    caminhoes: JSON.parse(localStorage.getItem('ets2_caminhoes')) || [],
-                    trabalhosAlugados: JSON.parse(localStorage.getItem('ets2_trabalhos_alugados')) || [],
-                    viagens: JSON.parse(localStorage.getItem('ets2_viagens')) || [],
-                    viagensAtivas: JSON.parse(localStorage.getItem('ets2_viagens_ativas')) || {},
-                    cargasSalvas: JSON.parse(localStorage.getItem('ets2_cargas_salvas_obj')) || []
-                };
+        let dadosMemoria = {
+            funcionarios: [],
+            caminhoes: [],
+            viagens: [],
+            viagensAtivas: {},
+            cargasSalvas: []
+        };
 
-                let cargasAntigas = JSON.parse(localStorage.getItem('ets2_cargas_salvas')) || [];
-                if (cargasAntigas.length > 0) {
-                    cargasAntigas.forEach(nome => {
-                        if (!dados.cargasSalvas.some(c => c.nome.toLowerCase() === nome.toLowerCase())) {
-                            dados.cargasSalvas.push({ nome, categoria: 'normal' });
-                        }
-                    });
-                    localStorage.removeItem('ets2_cargas_salvas');
-                    localStorage.setItem('ets2_cargas_salvas_obj', JSON.stringify(dados.cargasSalvas));
-                }
-                return dados;
-            } catch (e) {
-                console.error("Erro ao carregar dados do LocalStorage:", e);
-                return { funcionarios: [], caminhoes: [], trabalhosAlugados: [], viagens: [], viagensAtivas: {}, cargasSalvas: [] };
-            }
+        try {
+            const app = initializeApp(firebaseConfig);
+            window.firebaseApp = app;
+            window.firebaseAnalytics = getAnalytics(app);
+            db = getFirestore(app);
+            window.db = db;
+            
+            iniciarOuvintesFirestore();
+        } catch (erro) {
+            console.warn("Erro ao inicializar Firestore:", erro);
         }
 
-        function salvarDados(dados) {
-            try {
-                localStorage.setItem('ets2_funcionarios', JSON.stringify(dados.funcionarios));
-                localStorage.setItem('ets2_caminhoes', JSON.stringify(dados.caminhoes));
-                localStorage.setItem('ets2_trabalhos_alugados', JSON.stringify(dados.trabalhosAlugados));
-                localStorage.setItem('ets2_viagens', JSON.stringify(dados.viagens));
-                localStorage.setItem('ets2_viagens_ativas', JSON.stringify(dados.viagensAtivas));
-                localStorage.setItem('ets2_cargas_salvas_obj', JSON.stringify(dados.cargasSalvas));
-            } catch (e) {
-                console.error("Erro ao salvar dados no LocalStorage:", e);
-                mostrarToast("Erro de memória no navegador!", "error");
-            }
+        function iniciarOuvintesFirestore() {
+            if (!db) return;
+
+            onSnapshot(collection(db, "funcionarios"), (snapshot) => {
+                dadosMemoria.funcionarios = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                atualizarTelas();
+            });
+
+            onSnapshot(collection(db, "caminhoes"), (snapshot) => {
+                dadosMemoria.caminhoes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                carregarSelectCaminhoes();
+                atualizarTelas();
+            });
+
+            onSnapshot(collection(db, "viagens"), (snapshot) => {
+                dadosMemoria.viagens = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                atualizarTelas();
+            });
+
+            onSnapshot(collection(db, "viagensAtivas"), (snapshot) => {
+                let ativas = {};
+                snapshot.docs.forEach(doc => {
+                    ativas[doc.id] = doc.data();
+                });
+                dadosMemoria.viagensAtivas = ativas;
+                atualizarTelas();
+            });
+
+            onSnapshot(collection(db, "cargasSalvas"), (snapshot) => {
+                dadosMemoria.cargasSalvas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                window.atualizarOpcoesCargaViagem();
+                atualizarTelas();
+            });
+        }
+
+        function carregarDados() {
+            return dadosMemoria;
         }
 
         function formatarDataBR(isoOuDate) {
@@ -1335,20 +1344,20 @@
             }
         };
 
-        window.salvarNovaCargaSalva = function(nomeCarga, categoria = 'normal') {
+        window.salvarNovaCargaSalva = async function(nomeCarga, categoria = 'normal') {
             if (!nomeCarga || !nomeCarga.trim()) return;
-            let dados = carregarDados();
             let nomeTrimmed = nomeCarga.trim();
-            let existente = dados.cargasSalvas.find(c => c.nome.toLowerCase() === nomeTrimmed.toLowerCase());
-            
-            if (!existente) {
-                dados.cargasSalvas.push({ nome: nomeTrimmed, categoria });
-            } else if (categoria !== 'normal') {
-                existente.categoria = categoria;
-            }
+            let docId = nomeTrimmed.toLowerCase().replace(/[^a-z0-0]/g, "_");
 
-            salvarDados(dados);
-            window.atualizarOpcoesCargaViagem();
+            try {
+                await setDoc(doc(db, "cargasSalvas", docId), {
+                    nome: nomeTrimmed,
+                    categoria: categoria
+                }, { merge: true });
+                window.atualizarOpcoesCargaViagem();
+            } catch (e) {
+                console.error("Erro ao salvar carga no Firestore:", e);
+            }
         };
 
         window.cadastrarCargaPelaEmpresa = function() {
@@ -1363,18 +1372,18 @@
 
             window.salvarNovaCargaSalva(nome, categoria);
             inputNome.value = '';
-            mostrarToast("Carga salva com sucesso na área da empresa!");
-            atualizarTelas();
+            mostrarToast("Carga salva com sucesso no Firestore!");
         };
 
-        window.excluirCargaSalva = function(nomeCarga) {
+        window.excluirCargaSalva = async function(nomeCarga) {
             if (confirm(`Deseja remover a carga "${nomeCarga}" do cadastro da empresa?`)) {
-                let dados = carregarDados();
-                dados.cargasSalvas = dados.cargasSalvas.filter(c => c.nome.toLowerCase() !== nomeCarga.toLowerCase());
-                salvarDados(dados);
-                mostrarToast("Carga removida com sucesso!");
-                window.atualizarOpcoesCargaViagem();
-                atualizarTelas();
+                let docId = nomeCarga.toLowerCase().replace(/[^a-z0-0]/g, "_");
+                try {
+                    await deleteDoc(doc(db, "cargasSalvas", docId));
+                    mostrarToast("Carga removida com sucesso!");
+                } catch (e) {
+                    console.error("Erro ao excluir carga:", e);
+                }
             }
         };
 
@@ -1467,7 +1476,7 @@
             }
         };
 
-        window.motoristaAutoCadastrar = function() {
+        window.motoristaAutoCadastrar = async function() {
             let nome = document.getElementById('cad-nome').value.trim();
             let usuario = document.getElementById('cad-usuario').value.trim();
             let senha = document.getElementById('cad-senha').value.trim();
@@ -1483,14 +1492,21 @@
                 return;
             }
 
-            dados.funcionarios.push({ id: 'mot_' + Date.now(), nome, usuario, senha });
-            salvarDados(dados);
+            let id = 'mot_' + Date.now();
+            try {
+                await setDoc(doc(db, "funcionarios", id), {
+                    nome, usuario, senha
+                });
 
-            mostrarToast("Cadastro realizado com sucesso!");
-            document.getElementById('login-usuario').value = usuario;
-            document.getElementById('login-senha').value = senha;
-            document.getElementById('tipo-acceso').value = 'motorista';
-            window.alternarTelaCadastro(false);
+                mostrarToast("Cadastro realizado com sucesso!");
+                document.getElementById('login-usuario').value = usuario;
+                document.getElementById('login-senha').value = senha;
+                document.getElementById('tipo-acceso').value = 'motorista';
+                window.alternarTelaCadastro(false);
+            } catch (e) {
+                console.error("Erro ao cadastrar funcionário:", e);
+                mostrarToast("Erro ao realizar cadastro no banco!", "error");
+            }
         };
 
         window.fazerLogout = function() {
@@ -1531,20 +1547,35 @@
             document.getElementById('modal-funcionarios').style.display = 'none';
         };
 
-        window.confirmarZerarValores = function() {
+        window.confirmarZerarValores = async function() {
             if (confirm("⚠️ ATENÇÃO:\nDeseja realmente zerar todos os valores, histórico de viagens e quilometragens? Os cadastros de caminhões e funcionários serão mantidos.")) {
                 let dados = carregarDados();
-                dados.viagens = [];
-                dados.trabalhosAlugados = [];
-                dados.viagensAtivas = {};
-                dados.caminhoes.forEach(c => {
-                    c.kmDesdeOleo = 0;
-                    c.kmDesdePneu = 0;
-                    c.kmDesdeMotor = 0;
-                });
-                salvarDados(dados);
-                mostrarToast("Todos os valores e manutenções foram zerados!");
-                atualizarTelas();
+                
+                try {
+                    let batch = writeBatch(db);
+
+                    dados.viagens.forEach(v => {
+                        batch.delete(doc(db, "viagens", v.id));
+                    });
+
+                    Object.keys(dados.viagensAtivas).forEach(id => {
+                        batch.delete(doc(db, "viagensAtivas", id));
+                    });
+
+                    dados.caminhoes.forEach(c => {
+                        batch.update(doc(db, "caminhoes", c.id), {
+                            kmDesdeOleo: 0,
+                            kmDesdePneu: 0,
+                            kmDesdeMotor: 0
+                        });
+                    });
+
+                    await batch.commit();
+                    mostrarToast("Todos os valores e manutenções foram zerados!");
+                } catch (e) {
+                    console.error("Erro ao zerar dados:", e);
+                    mostrarToast("Erro ao zerar dados no banco de dados!", "error");
+                }
             }
         };
 
@@ -1571,18 +1602,19 @@
             }).join('');
         }
 
-        window.excluirFuncionario = function(idFuncionario) {
+        window.excluirFuncionario = async function(idFuncionario) {
             if (confirm("Deseja excluir este funcionário?")) {
-                let dados = carregarDados();
-                dados.funcionarios = dados.funcionarios.filter(f => f.id !== idFuncionario);
-                delete dados.viagensAtivas[idFuncionario];
-                salvarDados(dados);
-                atualizarTabelaModalFuncionarios();
-                atualizarTelas();
+                try {
+                    await deleteDoc(doc(db, "funcionarios", idFuncionario));
+                    await deleteDoc(doc(db, "viagensAtivas", idFuncionario));
+                    mostrarToast("Funcionário excluído com sucesso!");
+                } catch (e) {
+                    console.error("Erro ao excluir funcionário:", e);
+                }
             }
         };
 
-        window.cadastrarCaminhao = function() {
+        window.cadastrarCaminhao = async function() {
             let modelo = document.getElementById('cam-modelo').value.trim();
             let placa = document.getElementById('cam-placa').value.trim();
 
@@ -1591,23 +1623,24 @@
                 return;
             }
 
-            let dados = carregarDados();
-            dados.caminhoes.push({ 
-                id: 'cam_' + Date.now(), 
-                modelo, 
-                placa,
-                kmDesdeOleo: 0,
-                kmDesdePneu: 0,
-                kmDesdeMotor: 0
-            });
-            salvarDados(dados);
+            let id = 'cam_' + Date.now();
+            try {
+                await setDoc(doc(db, "caminhoes", id), {
+                    modelo, 
+                    placa,
+                    kmDesdeOleo: 0,
+                    kmDesdePneu: 0,
+                    kmDesdeMotor: 0
+                });
 
-            document.getElementById('cam-modelo').value = '';
-            document.getElementById('cam-placa').value = '';
-            
-            mostrarToast("Caminhão cadastrado com sucesso!");
-            atualizarTelas();
-            carregarSelectCaminhoes();
+                document.getElementById('cam-modelo').value = '';
+                document.getElementById('cam-placa').value = '';
+                
+                mostrarToast("Caminhão cadastrado com sucesso!");
+            } catch (e) {
+                console.error("Erro ao cadastrar caminhão:", e);
+                mostrarToast("Erro ao cadastrar caminhão no banco!", "error");
+            }
         };
 
         function carregarSelectCaminhoes() {
@@ -1618,7 +1651,7 @@
                 dados.caminhoes.map(c => `<option value="${c.id}" data-modelo="${c.modelo} (${c.placa})">${c.modelo} - ${c.placa}</option>`).join('');
         }
 
-        window.realizarManutencao = function(caminhaoId, tipo) {
+        window.realizarManutencao = async function(caminhaoId, tipo) {
             let dados = carregarDados();
             let cam = dados.caminhoes.find(c => c.id === caminhaoId);
             if (!cam) return;
@@ -1627,34 +1660,40 @@
             let custoServico = custos[tipo];
             
             if (confirm(`Deseja realizar a manutenção (${tipo.toUpperCase()}) no caminhão ${cam.modelo}? Custo: R$ ${custoServico}.`)) {
-                dados.viagens.push({
-                    id: 'man_' + Date.now(),
-                    motoristaNome: 'Oficina Mecânica',
-                    categoriaCarga: 'normal',
-                    origem: cam.modelo,
-                    destino: cam.placa,
-                    km: 0,
-                    salarioMotorista: 0,
-                    custoCombustivel: 0,
-                    totalPedagios: 0,
-                    totalBalsas: 0,
-                    totalMultas: 0,
-                    totalAlimentacao: 0,
-                    caixaEmpresa: -custoServico,
-                    dataConclusao: new Date().toISOString()
-                });
+                let manId = 'man_' + Date.now();
+                let atualizacaoKm = {};
+                if (tipo === 'oleo') atualizacaoKm.kmDesdeOleo = 0;
+                if (tipo === 'pneu') atualizacaoKm.kmDesdePneu = 0;
+                if (tipo === 'motor') atualizacaoKm.kmDesdeMotor = 0;
 
-                if (tipo === 'oleo') cam.kmDesdeOleo = 0;
-                if (tipo === 'pneu') cam.kmDesdePneu = 0;
-                if (tipo === 'motor') cam.kmDesdeMotor = 0;
+                try {
+                    await setDoc(doc(db, "viagens", manId), {
+                        motoristaNome: 'Oficina Mecânica',
+                        categoriaCarga: 'normal',
+                        origem: cam.modelo,
+                        destino: cam.placa,
+                        km: 0,
+                        salarioMotorista: 0,
+                        custoCombustivel: 0,
+                        totalPedagios: 0,
+                        totalBalsas: 0,
+                        totalMultas: 0,
+                        totalAlimentacao: 0,
+                        caixaEmpresa: -custoServico,
+                        dataConclusao: new Date().toISOString()
+                    });
 
-                salvarDados(dados);
-                mostrarToast("Manutenção concluída com sucesso!");
-                atualizarTelas();
+                    await setDoc(doc(db, "caminhoes", caminhaoId), atualizacaoKm, { merge: true });
+
+                    mostrarToast("Manutenção concluída com sucesso!");
+                } catch (e) {
+                    console.error("Erro ao registrar manutenção:", e);
+                    mostrarToast("Erro ao salvar manutenção no banco!", "error");
+                }
             }
         };
 
-        window.iniciarViagemMotorista = function() {
+        window.iniciarViagemMotorista = async function() {
             let categoriaCarga = document.getElementById('viagem-categoria-carga').value;
             let origem = document.getElementById('viagem-origem').value.trim();
             let destino = document.getElementById('viagem-destino').value.trim();
@@ -1690,33 +1729,35 @@
                 return;
             }
 
-            dados.viagensAtivas[sessaoAtual.id] = {
-                id: 'vig_' + Date.now(),
-                motoristaId: sessaoAtual.id,
-                motoristaNome: sessaoAtual.nome,
-                categoriaCarga,
-                origem,
-                destino,
-                km,
-                caminhaoId,
-                caminhao: caminhaoNome,
-                carga,
-                tonelada,
-                valorBruto: valor,
-                gastosExtras: [],
-                dataInicio: new Date().toISOString()
-            };
+            try {
+                await setDoc(doc(db, "viagensAtivas", sessaoAtual.id), {
+                    motoristaId: sessaoAtual.id,
+                    motoristaNome: sessaoAtual.nome,
+                    categoriaCarga,
+                    origem,
+                    destino,
+                    km,
+                    caminhaoId,
+                    caminhao: caminhaoNome,
+                    carga,
+                    tonelada,
+                    valorBruto: valor,
+                    gastosExtras: [],
+                    dataInicio: new Date().toISOString()
+                });
 
-            salvarDados(dados);
-            mostrarToast("Viagem iniciada com cronômetro ativado!");
-            
-            let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
-            window.switchTab({ currentTarget: botoesTab[2] }, 'm-andamento');
-            atualizarTelas();
-            iniciarLoopTimer();
+                mostrarToast("Viagem iniciada com cronômetro ativado!");
+                
+                let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
+                window.switchTab({ currentTarget: botoesTab[2] }, 'm-andamento');
+                iniciarLoopTimer();
+            } catch (e) {
+                console.error("Erro ao iniciar viagem:", e);
+                mostrarToast("Erro ao salvar viagem no banco!", "error");
+            }
         };
 
-        window.registrarParadaDescanso = function() {
+        window.registrarParadaDescanso = async function() {
             let entrada = document.getElementById('descanso-entrada').value;
             let saida = document.getElementById('descanso-saida').value;
 
@@ -1729,21 +1770,27 @@
             let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
             if (!viagemAtiva) return;
 
-            viagemAtiva.gastosExtras.push({
+            let novaLista = [...(viagemAtiva.gastosExtras || []), {
                 id: 'gst_' + Date.now(),
                 tipo: 'Alimentação',
                 descricao: `Descanso (Das ${entrada} às ${saida})`,
                 valor: 50.00
-            });
+            }];
 
-            salvarDados(dados);
-            document.getElementById('descanso-entrada').value = '';
-            document.getElementById('descanso-saida').value = '';
-            mostrarToast("Parada de descanso registrada e R$ 50,00 descontados!");
-            atualizarTelas();
+            try {
+                await setDoc(doc(db, "viagensAtivas", sessaoAtual.id), {
+                    gastosExtras: novaLista
+                }, { merge: true });
+
+                document.getElementById('descanso-entrada').value = '';
+                document.getElementById('descanso-saida').value = '';
+                mostrarToast("Parada de descanso registrada e R$ 50,00 descontados!");
+            } catch (e) {
+                console.error("Erro ao registrar descanso:", e);
+            }
         };
 
-        window.adicionarGastoViagem = function() {
+        window.adicionarGastoViagem = async function() {
             let tipo = document.getElementById('gasto-tipo').value;
             let descricao = document.getElementById('gasto-descricao').value.trim();
             let valorGasto = parseFloat(document.getElementById('gasto-valor').value);
@@ -1757,31 +1804,42 @@
             let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
             if (!viagemAtiva) return;
 
-            viagemAtiva.gastosExtras.push({ 
+            let novaLista = [...(viagemAtiva.gastosExtras || []), {
                 id: 'gst_' + Date.now(), 
                 tipo, 
                 descricao: descricao || (tipo === 'Combustível' ? 'Abastecimento' : tipo), 
                 valor: valorGasto 
-            });
-            salvarDados(dados);
+            }];
 
-            document.getElementById('gasto-descricao').value = '';
-            document.getElementById('gasto-valor').value = '';
-            mostrarToast("Despesa adicionada com sucesso!");
-            atualizarTelas();
-        };
+            try {
+                await setDoc(doc(db, "viagensAtivas", sessaoAtual.id), {
+                    gastosExtras: novaLista
+                }, { merge: true });
 
-        window.deletarGastoAtivo = function(gastoId) {
-            let dados = carregarDados();
-            let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
-            if (viagemAtiva) {
-                viagemAtiva.gastosExtras = viagemAtiva.gastosExtras.filter(g => g.id !== gastoId);
-                salvarDados(dados);
-                atualizarTelas();
+                document.getElementById('gasto-descricao').value = '';
+                document.getElementById('gasto-valor').value = '';
+                mostrarToast("Despesa adicionada com sucesso!");
+            } catch (e) {
+                console.error("Erro ao adicionar gasto:", e);
             }
         };
 
-        window.finalizarViagemMotorista = function() {
+        window.deletarGastoAtivo = async function(gastoId) {
+            let dados = carregarDados();
+            let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
+            if (viagemAtiva) {
+                let novaLista = viagemAtiva.gastosExtras.filter(g => g.id !== gastoId);
+                try {
+                    await setDoc(doc(db, "viagensAtivas", sessaoAtual.id), {
+                        gastosExtras: novaLista
+                    }, { merge: true });
+                } catch (e) {
+                    console.error("Erro ao deletar gasto:", e);
+                }
+            }
+        };
+
+        window.finalizarViagemMotorista = async function() {
             if (!confirm("Deseja finalizar esta viagem?")) return;
 
             let dados = carregarDados();
@@ -1808,49 +1866,55 @@
             let salarioMotorista = viagemAtiva.valorBruto * comissaoPct;
             let caixaEmpresa = viagemAtiva.valorBruto - salarioMotorista - totalGastosExtras;
 
-            if (viagemAtiva.caminhaoId !== "alugado") {
-                let caminhao = dados.caminhoes.find(c => c.id === viagemAtiva.caminhaoId);
-                if (caminhao) {
-                    caminhao.kmDesdeOleo = (caminhao.kmDesdeOleo || 0) + viagemAtiva.km;
-                    caminhao.kmDesdePneu = (caminhao.kmDesdePneu || 0) + viagemAtiva.km;
-                    caminhao.kmDesdeMotor = (caminhao.kmDesdeMotor || 0) + viagemAtiva.km;
+            try {
+                if (viagemAtiva.caminhaoId !== "alugado") {
+                    let caminhao = dados.caminhoes.find(c => c.id === viagemAtiva.caminhaoId);
+                    if (caminhao) {
+                        await setDoc(doc(db, "caminhoes", caminhao.id), {
+                            kmDesdeOleo: (caminhao.kmDesdeOleo || 0) + viagemAtiva.km,
+                            kmDesdePneu: (caminhao.kmDesdePneu || 0) + viagemAtiva.km,
+                            kmDesdeMotor: (caminhao.kmDesdeMotor || 0) + viagemAtiva.km
+                        }, { merge: true });
+                    }
                 }
+
+                let vigId = 'vig_' + Date.now();
+                await setDoc(doc(db, "viagens", vigId), {
+                    ...viagemAtiva,
+                    salarioMotorista,
+                    custoCombustivel,
+                    totalPedagios,
+                    totalBalsas,
+                    totalMultas,
+                    totalAlimentacao,
+                    caixaEmpresa,
+                    tempoMinutos,
+                    tempoFormatado,
+                    observacao,
+                    dataConclusao: dataFim.toISOString()
+                });
+
+                await deleteDoc(doc(db, "viagensAtivas", sessaoAtual.id));
+
+                if (timerViagemInterval) clearInterval(timerViagemInterval);
+
+                document.getElementById('viagem-origem').value = '';
+                document.getElementById('viagem-destino').value = '';
+                document.getElementById('viagem-km').value = '';
+                document.getElementById('viagem-carga').value = '';
+                document.getElementById('viagem-tonelada').value = '';
+                document.getElementById('viagem-valor').value = '0.00';
+                document.getElementById('viagem-caminhao-alugado').value = '';
+                document.getElementById('viagem-observacao').value = '';
+
+                mostrarToast(`🏁 Viagem concluída com sucesso! Tempo total registrado: ${tempoFormatado}`);
+                
+                let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
+                window.switchTab({ currentTarget: botoesTab[0] }, 'm-extrato');
+            } catch (e) {
+                console.error("Erro ao finalizar viagem:", e);
+                mostrarToast("Erro ao concluir viagem no banco!", "error");
             }
-
-            dados.viagens.push({
-                ...viagemAtiva,
-                salarioMotorista,
-                custoCombustivel,
-                totalPedagios,
-                totalBalsas,
-                totalMultas,
-                totalAlimentacao,
-                caixaEmpresa,
-                tempoMinutos,
-                tempoFormatado,
-                observacao,
-                dataConclusao: dataFim.toISOString()
-            });
-
-            delete dados.viagensAtivas[sessaoAtual.id];
-            salvarDados(dados);
-
-            if (timerViagemInterval) clearInterval(timerViagemInterval);
-
-            document.getElementById('viagem-origem').value = '';
-            document.getElementById('viagem-destino').value = '';
-            document.getElementById('viagem-km').value = '';
-            document.getElementById('viagem-carga').value = '';
-            document.getElementById('viagem-tonelada').value = '';
-            document.getElementById('viagem-valor').value = '0.00';
-            document.getElementById('viagem-caminhao-alugado').value = '';
-            document.getElementById('viagem-observacao').value = '';
-
-            mostrarToast(`🏁 Viagem concluída com sucesso! Tempo total registrado: ${tempoFormatado}`);
-            
-            let botoesTab = document.querySelectorAll('#painel-motorista .tab-btn');
-            window.switchTab({ currentTarget: botoesTab[0] }, 'm-extrato');
-            atualizarTelas();
         };
 
         function iniciarPainelPatrao() {
@@ -1885,67 +1949,72 @@
                 let totalAlimentacaoGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalAlimentacao) || 0), 0);
 
                 let elFat = document.getElementById('patrao-faturamento');
-                elFat.innerText = `R$ ${faturamentoEmpresa.toFixed(2)}`;
-                elFat.className = faturamentoEmpresa >= 0 ? 'text-positivo' : 'text-negativo';
-
-                document.getElementById('patrao-total-viagens').innerText = dados.viagens.filter(v => !v.id.startsWith('man_')).length;
-                document.getElementById('patrao-combustivel').innerText = `R$ ${totalCombustivelGeral.toFixed(2)}`;
-                document.getElementById('patrao-manutencoes').innerText = `R$ ${totalManutencoes.toFixed(2)}`;
-                document.getElementById('patrao-multas').innerText = `R$ ${totalMultasGeral.toFixed(2)}`;
-                document.getElementById('patrao-pedagios').innerText = `R$ ${totalPedagiosGeral.toFixed(2)}`;
-                document.getElementById('patrao-balsas').innerText = `R$ ${totalBalsasGeral.toFixed(2)}`;
-                document.getElementById('patrao-alimentacao').innerText = `R$ ${totalAlimentacaoGeral.toFixed(2)}`;
-
-                let tbodyFrota = document.getElementById('tabela-frota-manutencao');
-                if (dados.caminhoes.length === 0) {
-                    tbodyFrota.innerHTML = '<tr><td colspan="6" class="empty-row">Nenhum caminhão cadastrado.</td></tr>';
-                } else {
-                    tbodyFrota.innerHTML = dados.caminhoes.map(c => {
-                        let kmOleo = c.kmDesdeOleo || 0;
-                        let kmPneu = c.kmDesdePneu || 0;
-                        let kmMotor = c.kmDesdeMotor || 0;
-                        let kmTotal = Math.max(kmOleo, kmPneu, kmMotor);
-
-                        let oleoBadge = kmOleo >= 5000 ? `<span class="text-negativo">⚠️ Trocar</span>` : `${kmOleo}/5000 KM`;
-                        let pneuBadge = kmPneu >= 10000 ? `<span class="text-negativo">⚠️ Trocar</span>` : `${kmPneu}/10000 KM`;
-                        let motorBadge = kmMotor >= 20000 ? `<span class="text-negativo">⚠️ Trocar</span>` : `${kmMotor}/20000 KM`;
-
-                        return `
-                            <tr>
-                                <td><strong>${c.modelo}</strong> (${c.placa})</td>
-                                <td>${kmTotal} KM</td>
-                                <td>${oleoBadge}</td>
-                                <td>${pneuBadge}</td>
-                                <td>${motorBadge}</td>
-                                <td style="text-align: right;">
-                                    <button onclick="realizarManutencao('${c.id}', 'oleo')" style="font-size: 10px; padding: 4px 6px; margin-right: 2px;">Óleo</button>
-                                    <button onclick="realizarManutencao('${c.id}', 'pneu')" style="font-size: 10px; padding: 4px 6px; margin-right: 2px;">Pneus</button>
-                                    <button onclick="realizarManutencao('${c.id}', 'motor')" style="font-size: 10px; padding: 4px 6px;">Motor</button>
-                                </td>
-                            </tr>
-                        `;
-                    }).join('');
+                if (elFat) {
+                    elFat.innerText = `R$ ${faturamentoEmpresa.toFixed(2)}`;
+                    elFat.className = faturamentoEmpresa >= 0 ? 'text-positivo' : 'text-negativo';
                 }
 
-                // Gerenciamento de cargas
+                if (document.getElementById('patrao-total-viagens')) document.getElementById('patrao-total-viagens').innerText = dados.viagens.filter(v => !v.id.startsWith('man_')).length;
+                if (document.getElementById('patrao-combustivel')) document.getElementById('patrao-combustivel').innerText = `R$ ${totalCombustivelGeral.toFixed(2)}`;
+                if (document.getElementById('patrao-manutencoes')) document.getElementById('patrao-manutencoes').innerText = `R$ ${totalManutencoes.toFixed(2)}`;
+                if (document.getElementById('patrao-multas')) document.getElementById('patrao-multas').innerText = `R$ ${totalMultasGeral.toFixed(2)}`;
+                if (document.getElementById('patrao-pedagios')) document.getElementById('patrao-pedagios').innerText = `R$ ${totalPedagiosGeral.toFixed(2)}`;
+                if (document.getElementById('patrao-balsas')) document.getElementById('patrao-balsas').innerText = `R$ ${totalBalsasGeral.toFixed(2)}`;
+                if (document.getElementById('patrao-alimentacao')) document.getElementById('patrao-alimentacao').innerText = `R$ ${totalAlimentacaoGeral.toFixed(2)}`;
+
+                let tbodyFrota = document.getElementById('tabela-frota-manutencao');
+                if (tbodyFrota) {
+                    if (dados.caminhoes.length === 0) {
+                        tbodyFrota.innerHTML = '<tr><td colspan="6" class="empty-row">Nenhum caminhão cadastrado.</td></tr>';
+                    } else {
+                        tbodyFrota.innerHTML = dados.caminhoes.map(c => {
+                            let kmOleo = c.kmDesdeOleo || 0;
+                            let kmPneu = c.kmDesdePneu || 0;
+                            let kmMotor = c.kmDesdeMotor || 0;
+                            let kmTotal = Math.max(kmOleo, kmPneu, kmMotor);
+
+                            let oleoBadge = kmOleo >= 5000 ? `<span class="text-negativo">⚠️ Trocar</span>` : `${kmOleo}/5000 KM`;
+                            let pneuBadge = kmPneu >= 10000 ? `<span class="text-negativo">⚠️ Trocar</span>` : `${kmPneu}/10000 KM`;
+                            let motorBadge = kmMotor >= 20000 ? `<span class="text-negativo">⚠️ Trocar</span>` : `${kmMotor}/20000 KM`;
+
+                            return `
+                                <tr>
+                                    <td><strong>${c.modelo}</strong> (${c.placa})</td>
+                                    <td>${kmTotal} KM</td>
+                                    <td>${oleoBadge}</td>
+                                    <td>${pneuBadge}</td>
+                                    <td>${motorBadge}</td>
+                                    <td style="text-align: right;">
+                                        <button onclick="realizarManutencao('${c.id}', 'oleo')" style="font-size: 10px; padding: 4px 6px; margin-right: 2px;">Óleo</button>
+                                        <button onclick="realizarManutencao('${c.id}', 'pneu')" style="font-size: 10px; padding: 4px 6px; margin-right: 2px;">Pneus</button>
+                                        <button onclick="realizarManutencao('${c.id}', 'motor')" style="font-size: 10px; padding: 4px 6px;">Motor</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
+                }
+
                 let tbodyCargasEmpresa = document.getElementById('tabela-cargas-empresa');
-                if (dados.cargasSalvas.length === 0) {
-                    tbodyCargasEmpresa.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhuma carga cadastrada no momento.</td></tr>';
-                } else {
-                    tbodyCargasEmpresa.innerHTML = dados.cargasSalvas.map(c => {
-                        let totalVezes = dados.viagens.filter(v => v.carga && v.carga.toLowerCase() === c.nome.toLowerCase()).length;
-                        let conf = TABELA_CARGAS_CONFIG[c.categoria] || TABELA_CARGAS_CONFIG['normal'];
-                        return `
-                            <tr>
-                                <td><strong>${c.nome}</strong></td>
-                                <td><span class="tipo-carga-badge ${conf.badgeClass}"><i class="fa-solid ${conf.icone}"></i> ${conf.nome}</span></td>
-                                <td style="text-align: center;"><strong>${totalVezes}</strong>x</td>
-                                <td style="text-align: right;">
-                                    <button onclick="excluirCargaSalva('${c.nome}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;" aria-label="Excluir carga ${c.nome}"><i class="fa-solid fa-trash-can"></i></button>
-                                </td>
-                            </tr>
-                        `;
-                    }).join('');
+                if (tbodyCargasEmpresa) {
+                    if (dados.cargasSalvas.length === 0) {
+                        tbodyCargasEmpresa.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhuma carga cadastrada no momento.</td></tr>';
+                    } else {
+                        tbodyCargasEmpresa.innerHTML = dados.cargasSalvas.map(c => {
+                            let totalVezes = dados.viagens.filter(v => v.carga && v.carga.toLowerCase() === c.nome.toLowerCase()).length;
+                            let conf = TABELA_CARGAS_CONFIG[c.categoria] || TABELA_CARGAS_CONFIG['normal'];
+                            return `
+                                <tr>
+                                    <td><strong>${c.nome}</strong></td>
+                                    <td><span class="tipo-carga-badge ${conf.badgeClass}"><i class="fa-solid ${conf.icone}"></i> ${conf.nome}</span></td>
+                                    <td style="text-align: center;"><strong>${totalVezes}</strong>x</td>
+                                    <td style="text-align: right;">
+                                        <button onclick="excluirCargaSalva('${c.nome}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;" aria-label="Excluir carga ${c.nome}"><i class="fa-solid fa-trash-can"></i></button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
                 }
             }
 
@@ -1953,60 +2022,64 @@
                 let minhasViagens = dados.viagens.filter(v => v.motoristaId === sessaoAtual.id);
                 let totalGanhos = minhasViagens.reduce((acc, v) => acc + (Number(v.salarioMotorista) || 0), 0);
 
-                document.getElementById('motorista-meus-ganhos').innerText = `R$ ${totalGanhos.toFixed(2)}`;
-                document.getElementById('motorista-total-viagens').innerText = minhasViagens.length;
+                if (document.getElementById('motorista-meus-ganhos')) document.getElementById('motorista-meus-ganhos').innerText = `R$ ${totalGanhos.toFixed(2)}`;
+                if (document.getElementById('motorista-total-viagens')) document.getElementById('motorista-total-viagens').innerText = minhasViagens.length;
 
                 let tbodyMinhas = document.getElementById('tabela-minhas-viagens');
-                if (minhasViagens.length === 0) {
-                    tbodyMinhas.innerHTML = '<tr><td colspan="6" class="empty-row">Nenhuma viagem registrada.</td></tr>';
-                } else {
-                    tbodyMinhas.innerHTML = minhasViagens.map(v => {
-                        let conf = TABELA_CARGAS_CONFIG[v.categoriaCarga] || TABELA_CARGAS_CONFIG['normal'];
-                        return `
-                            <tr>
-                                <td>${formatarDataBR(v.dataConclusao)}</td>
-                                <td><span class="tipo-carga-badge ${conf.badgeClass}"><i class="fa-solid ${conf.icone}"></i></span></td>
-                                <td><strong>${v.origem}</strong> ➔ <strong>${v.destino}</strong></td>
-                                <td>${v.km} KM</td>
-                                <td>${v.tempoFormatado || '-'}</td>
-                                <td class="text-positivo">R$ ${(Number(v.salarioMotorista) || 0).toFixed(2)}</td>
-                            </tr>
-                        `;
-                    }).join('');
+                if (tbodyMinhas) {
+                    if (minhasViagens.length === 0) {
+                        tbodyMinhas.innerHTML = '<tr><td colspan="6" class="empty-row">Nenhuma viagem registrada.</td></tr>';
+                    } else {
+                        tbodyMinhas.innerHTML = minhasViagens.map(v => {
+                            let conf = TABELA_CARGAS_CONFIG[v.categoriaCarga] || TABELA_CARGAS_CONFIG['normal'];
+                            return `
+                                <tr>
+                                    <td>${formatarDataBR(v.dataConclusao)}</td>
+                                    <td><span class="tipo-carga-badge ${conf.badgeClass}"><i class="fa-solid ${conf.icone}"></i></span></td>
+                                    <td><strong>${v.origem}</strong> ➔ <strong>${v.destino}</strong></td>
+                                    <td>${v.km} KM</td>
+                                    <td>${v.tempoFormatado || '-'}</td>
+                                    <td class="text-positivo">R$ ${(Number(v.salarioMotorista) || 0).toFixed(2)}</td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
                 }
 
-                // Viagem Ativa Painel
                 let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
                 let divSemViagem = document.getElementById('sem-viagem-ativa');
                 let divComViagem = document.getElementById('com-viagem-ativa');
 
                 if (viagemAtiva) {
-                    divSemViagem.style.display = 'none';
-                    divComViagem.style.display = 'block';
+                    if (divSemViagem) divSemViagem.style.display = 'none';
+                    if (divComViagem) divComViagem.style.display = 'block';
 
                     let conf = TABELA_CARGAS_CONFIG[viagemAtiva.categoriaCarga] || TABELA_CARGAS_CONFIG['normal'];
-                    document.getElementById('ativa-tipo-carga').innerHTML = `<span class="tipo-carga-badge ${conf.badgeClass}"><i class="fa-solid ${conf.icone}"></i> ${conf.nome}</span>`;
-                    document.getElementById('ativa-rota').innerText = `${viagemAtiva.origem} ➔ ${viagemAtiva.destino}`;
-                    document.getElementById('ativa-km').innerText = viagemAtiva.km;
-                    document.getElementById('ativa-caminhao').innerText = viagemAtiva.caminhao || 'Não informado';
-                    document.getElementById('ativa-carga').innerText = `${viagemAtiva.carga} (${viagemAtiva.tonelada || 0} Ton)`;
+                    if (document.getElementById('ativa-tipo-carga')) document.getElementById('ativa-tipo-carga').innerHTML = `<span class="tipo-carga-badge ${conf.badgeClass}"><i class="fa-solid ${conf.icone}"></i> ${conf.nome}</span>`;
+                    if (document.getElementById('ativa-rota')) document.getElementById('ativa-rota').innerText = `${viagemAtiva.origem} ➔ ${viagemAtiva.destino}`;
+                    if (document.getElementById('ativa-km')) document.getElementById('ativa-km').innerText = viagemAtiva.km;
+                    if (document.getElementById('ativa-caminhao')) document.getElementById('ativa-caminhao').innerText = viagemAtiva.caminhao || 'Não informado';
+                    if (document.getElementById('ativa-carga')) document.getElementById('ativa-carga').innerText = `${viagemAtiva.carga} (${viagemAtiva.tonelada || 0} Ton)`;
 
                     let tbodyGastos = document.getElementById('tabela-gastos-ativos');
-                    if (viagemAtiva.gastosExtras.length === 0) {
-                        tbodyGastos.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhuma despesa extra.</td></tr>';
-                    } else {
-                        tbodyGastos.innerHTML = viagemAtiva.gastosExtras.map(g => `
-                            <tr>
-                                <td><strong>${g.tipo}</strong></td>
-                                <td>${g.descricao}</td>
-                                <td>R$ ${g.valor.toFixed(2)}</td>
-                                <td style="text-align: right;"><button onclick="deletarGastoAtivo('${g.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;" aria-label="Excluir despesa ${g.descricao}"><i class="fa-solid fa-trash-can"></i></button></td>
-                            </tr>
-                        `).join('');
+                    if (tbodyGastos) {
+                        let gastos = viagemAtiva.gastosExtras || [];
+                        if (gastos.length === 0) {
+                            tbodyGastos.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhuma despesa extra.</td></tr>';
+                        } else {
+                            tbodyGastos.innerHTML = gastos.map(g => `
+                                <tr>
+                                    <td><strong>${g.tipo}</strong></td>
+                                    <td>${g.descricao}</td>
+                                    <td>R$ ${g.valor.toFixed(2)}</td>
+                                    <td style="text-align: right;"><button onclick="deletarGastoAtivo('${g.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;" aria-label="Excluir despesa ${g.descricao}"><i class="fa-solid fa-trash-can"></i></button></td>
+                                </tr>
+                            `).join('');
+                        }
                     }
                 } else {
-                    divSemViagem.style.display = 'block';
-                    divComViagem.style.display = 'none';
+                    if (divSemViagem) divSemViagem.style.display = 'block';
+                    if (divComViagem) divComViagem.style.display = 'none';
                 }
             }
         }
