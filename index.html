@@ -1254,18 +1254,18 @@
             onSnapshot(collection(db, "funcionarios"), (snapshot) => {
                 dadosMemoria.funcionarios = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 atualizarTelas();
-            });
+            }, (err) => console.error("Erro ouvinte funcionarios:", err));
 
             onSnapshot(collection(db, "caminhoes"), (snapshot) => {
                 dadosMemoria.caminhoes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 carregarSelectCaminhoes();
                 atualizarTelas();
-            });
+            }, (err) => console.error("Erro ouvinte caminhoes:", err));
 
             onSnapshot(collection(db, "viagens"), (snapshot) => {
                 dadosMemoria.viagens = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 atualizarTelas();
-            });
+            }, (err) => console.error("Erro ouvinte viagens:", err));
 
             onSnapshot(collection(db, "viagensAtivas"), (snapshot) => {
                 let ativas = {};
@@ -1274,13 +1274,13 @@
                 });
                 dadosMemoria.viagensAtivas = ativas;
                 atualizarTelas();
-            });
+            }, (err) => console.error("Erro ouvinte viagensAtivas:", err));
 
             onSnapshot(collection(db, "cargasSalvas"), (snapshot) => {
                 dadosMemoria.cargasSalvas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 window.atualizarOpcoesCargaViagem();
                 atualizarTelas();
-            });
+            }, (err) => console.error("Erro ouvinte cargasSalvas:", err));
         }
 
         function carregarDados() {
@@ -1495,8 +1495,10 @@
             let id = 'mot_' + Date.now();
             try {
                 await setDoc(doc(db, "funcionarios", id), {
-                    nome, usuario, senha
-                });
+                    nome: nome,
+                    usuario: usuario,
+                    senha: senha
+                }, { merge: true });
 
                 mostrarToast("Cadastro realizado com sucesso!");
                 document.getElementById('login-usuario').value = usuario;
@@ -1504,8 +1506,8 @@
                 document.getElementById('tipo-acceso').value = 'motorista';
                 window.alternarTelaCadastro(false);
             } catch (e) {
-                console.error("Erro ao cadastrar funcionário:", e);
-                mostrarToast("Erro ao realizar cadastro no banco!", "error");
+                console.error("Erro detalhado do Firestore ao cadastrar funcionário:", e);
+                mostrarToast("Erro no Firestore: " + (e.message || "Acesso negado pelas regras de segurança"), "error");
             }
         };
 
