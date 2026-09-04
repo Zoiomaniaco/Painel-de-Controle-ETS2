@@ -1312,7 +1312,7 @@
             let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
             let displayRelogio = document.getElementById('relogio-viagem-ativa');
 
-            if (viagemAtiva && displayRelogio) {
+            if (viagemAtiva && displayRelogio && viagemAtiva.dataInicio) {
                 let dataInicio = new Date(viagemAtiva.dataInicio);
                 let agora = new Date();
                 let diffSegundos = Math.floor((agora - dataInicio) / 1000);
@@ -1829,7 +1829,7 @@
         window.deletarGastoAtivo = async function(gastoId) {
             let dados = carregarDados();
             let viagemAtiva = dados.viagensAtivas[sessaoAtual.id];
-            if (viagemAtiva) {
+            if (viagemAtiva && viagemAtiva.gastosExtras) {
                 let novaLista = viagemAtiva.gastosExtras.filter(g => g.id !== gastoId);
                 try {
                     await setDoc(doc(db, "viagensAtivas", sessaoAtual.id), {
@@ -1850,32 +1850,33 @@
 
             let observacao = document.getElementById('viagem-observacao').value.trim();
             let dataFim = new Date();
-            let tempoMinutos = Math.round((dataFim - new Date(viagemAtiva.dataInicio)) / 60000);
+            let tempoMinutos = Math.round((dataFim - new Date(viagemAtiva.dataInicio || dataFim)) / 60000);
             if (tempoMinutos < 1) tempoMinutos = 1;
             
             let horas = Math.floor(tempoMinutos / 60);
             let minutos = tempoMinutos % 60;
             let tempoFormatado = horas > 0 ? `${horas}h ${minutos}min` : `${minutos}min`;
 
-            let custoCombustivel = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Combustível').reduce((acc, g) => acc + g.valor, 0);
-            let totalPedagios = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Pedágio').reduce((acc, g) => acc + g.valor, 0);
-            let totalBalsas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Balsa').reduce((acc, g) => acc + g.valor, 0);
-            let totalMultas = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Multa').reduce((acc, g) => acc + g.valor, 0);
-            let totalAlimentacao = viagemAtiva.gastosExtras.filter(g => g.tipo === 'Alimentação').reduce((acc, g) => acc + g.valor, 0);
+            let gastosExtras = viagemAtiva.gastosExtras || [];
+            let custoCombustivel = gastosExtras.filter(g => g.tipo === 'Combustível').reduce((acc, g) => acc + (Number(g.valor) || 0), 0);
+            let totalPedagios = gastosExtras.filter(g => g.tipo === 'Pedágio').reduce((acc, g) => acc + (Number(g.valor) || 0), 0);
+            let totalBalsas = gastosExtras.filter(g => g.tipo === 'Balsa').reduce((acc, g) => acc + (Number(g.valor) || 0), 0);
+            let totalMultas = gastosExtras.filter(g => g.tipo === 'Multa').reduce((acc, g) => acc + (Number(g.valor) || 0), 0);
+            let totalAlimentacao = gastosExtras.filter(g => g.tipo === 'Alimentação').reduce((acc, g) => acc + (Number(g.valor) || 0), 0);
             let totalGastosExtras = totalPedagios + totalBalsas + totalMultas + totalAlimentacao + custoCombustivel;
 
             let comissaoPct = (viagemAtiva.categoriaCarga === 'perigosa' || viagemAtiva.categoriaCarga === 'pesada' || viagemAtiva.categoriaCarga === 'especial') ? 0.14 : 0.10;
-            let salarioMotorista = viagemAtiva.valorBruto * comissaoPct;
-            let caixaEmpresa = viagemAtiva.valorBruto - salarioMotorista - totalGastosExtras;
+            let salarioMotorista = (viagemAtiva.valorBruto || 0) * comissaoPct;
+            let caixaEmpresa = (viagemAtiva.valorBruto || 0) - salarioMotorista - totalGastosExtras;
 
             try {
-                if (viagemAtiva.caminhaoId !== "alugado") {
+                if (viagemAtiva.caminhaoId && viagemAtiva.caminhaoId !== "alugado") {
                     let caminhao = dados.caminhoes.find(c => c.id === viagemAtiva.caminhaoId);
                     if (caminhao) {
                         await setDoc(doc(db, "caminhoes", caminhao.id), {
-                            kmDesdeOleo: (caminhao.kmDesdeOleo || 0) + viagemAtiva.km,
-                            kmDesdePneu: (caminhao.kmDesdePneu || 0) + viagemAtiva.km,
-                            kmDesdeMotor: (caminhao.kmDesdeMotor || 0) + viagemAtiva.km
+                            kmDesdeOleo: (caminhao.kmDesdeOleo || 0) + (viagemAtiva.km || 0),
+                            kmDesdePneu: (caminhao.kmDesdePneu || 0) + (viagemAtiva.km || 0),
+                            kmDesdeMotor: (caminhao.kmDesdeMotor || 0) + (viagemAtiva.km || 0)
                         }, { merge: true });
                     }
                 }
@@ -1944,7 +1945,7 @@
                 let faturamentoEmpresa = dados.viagens.reduce((acc, v) => acc + (Number(v.caixaEmpresa) || 0), 0);
                 
                 let totalCombustivelGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.custoCombustivel) || 0), 0);
-                let totalManutencoes = dados.viagens.filter(v => v.id.startsWith('man_')).reduce((acc, v) => acc + Math.abs(v.caixaEmpresa), 0);
+                let totalManutencoes = dados.viagens.filter(v => v.id && v.id.startsWith('man_')).reduce((acc, v) => acc + Math.abs(v.caixaEmpresa || 0), 0);
                 let totalMultasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalMultas) || 0), 0);
                 let totalPedagiosGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalPedagios) || 0), 0);
                 let totalBalsasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalBalsas) || 0), 0);
@@ -1956,7 +1957,7 @@
                     elFat.className = faturamentoEmpresa >= 0 ? 'text-positivo' : 'text-negativo';
                 }
 
-                if (document.getElementById('patrao-total-viagens')) document.getElementById('patrao-total-viagens').innerText = dados.viagens.filter(v => !v.id.startsWith('man_')).length;
+                if (document.getElementById('patrao-total-viagens')) document.getElementById('patrao-total-viagens').innerText = dados.viagens.filter(v => v.id && !v.id.startsWith('man_')).length;
                 if (document.getElementById('patrao-combustivel')) document.getElementById('patrao-combustivel').innerText = `R$ ${totalCombustivelGeral.toFixed(2)}`;
                 if (document.getElementById('patrao-manutencoes')) document.getElementById('patrao-manutencoes').innerText = `R$ ${totalManutencoes.toFixed(2)}`;
                 if (document.getElementById('patrao-multas')) document.getElementById('patrao-multas').innerText = `R$ ${totalMultasGeral.toFixed(2)}`;
@@ -2003,7 +2004,7 @@
                         tbodyCargasEmpresa.innerHTML = '<tr><td colspan="4" class="empty-row">Nenhuma carga cadastrada no momento.</td></tr>';
                     } else {
                         tbodyCargasEmpresa.innerHTML = dados.cargasSalvas.map(c => {
-                            let totalVezes = dados.viagens.filter(v => v.carga && v.carga.toLowerCase() === c.nome.toLowerCase()).length;
+                            let totalVezes = dados.viagens.filter(v => v.carga && c.nome && v.carga.toLowerCase() === c.nome.toLowerCase()).length;
                             let conf = TABELA_CARGAS_CONFIG[c.categoria] || TABELA_CARGAS_CONFIG['normal'];
                             return `
                                 <tr>
@@ -2073,7 +2074,7 @@
                                 <tr>
                                     <td><strong>${g.tipo}</strong></td>
                                     <td>${g.descricao}</td>
-                                    <td>R$ ${g.valor.toFixed(2)}</td>
+                                    <td>R$ ${(Number(g.valor) || 0).toFixed(2)}</td>
                                     <td style="text-align: right;"><button onclick="deletarGastoAtivo('${g.id}')" style="background:none; border:none; color:var(--danger-color); cursor:pointer;" aria-label="Excluir despesa ${g.descricao}"><i class="fa-solid fa-trash-can"></i></button></td>
                                 </tr>
                             `).join('');
