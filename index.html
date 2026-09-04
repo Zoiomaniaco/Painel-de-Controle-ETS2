@@ -9,7 +9,6 @@
     <meta name="theme-color" content="#090d16">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
@@ -778,7 +777,7 @@
                 <h4><i class="fa-solid fa-circle-info"></i> Sobre o aplicativo</h4>
                 <p>Aplicativo desenvolvido por Jeferson Luiz para auxiliar na organização e no gerenciamento da experiência de transporte no Euro Truck Simulator 2 (ETS2). Uso exclusivamente fictício, destinado à simulação e entretenimento.</p>
                 <div class="app-footer-info">
-                    Desenvolvido por Jeferson Luiz • 2026
+                    Desenvolvimento por Jeferson Luiz • 2026
                 </div>
             </div>
         </div>
@@ -854,13 +853,6 @@
                             <h3>Alimentação e Descansos pagos</h3>
                             <p id="patrao-alimentacao">R$ 0,00</p>
                         </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3><i class="fa-solid fa-chart-column"></i> Gráfico Financeiro</h3>
-                    <div style="position: relative; height: 260px; width: 100%;">
-                        <canvas id="graficoFinanceiro"></canvas>
                     </div>
                 </div>
 
@@ -952,34 +944,6 @@
                             </thead>
                             <tbody id="tabela-cargas-empresa">
                                 <tr><td colspan="4" class="empty-row">Nenhuma carga cadastrada no momento.</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3><i class="fa-solid fa-boxes-stacked"></i> Rotas Cadastradas</h3>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
-                        Visualize o resumo de entregas agrupadas por tipo de carga, incluindo quantidade de viagens, percursos, KM total e horas acumuladas.
-                    </p>
-
-                    <div class="form-group" style="margin-bottom: 14px;">
-                        <input type="text" id="filtro-cargas-input" placeholder="🔍 Filtrar por nome da carga..." onkeyup="atualizarTelas()">
-                    </div>
-
-                    <div class="table-responsive">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Tipo de Carga</th>
-                                    <th style="text-align: center;">Qtd. Viagens</th>
-                                    <th>Percursos (Origem ➔ Destino)</th>
-                                    <th>KM Total</th>
-                                    <th style="text-align: right;">Tempo Total</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabela-rotas-por-carga">
-                                <tr><td colspan="5" class="empty-row">Nenhum percurso salvo ainda.</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1270,7 +1234,6 @@
             sessaoAtual = null;
         }
 
-        let meuGraficoInstance = null;
         let timerViagemInterval = null;
 
         function carregarDados() {
@@ -1908,43 +1871,6 @@
             iniciarLoopTimer();
         }
 
-        function renderizarGrafico(faturamento, salarios, combustivel, manutencao, taxas, multas) {
-            let canvas = document.getElementById('graficoFinanceiro');
-            if (!canvas) return;
-            let ctx = canvas.getContext('2d');
-
-            if (meuGraficoInstance) meuGraficoInstance.destroy();
-
-            meuGraficoInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Caixa Líquido', 'Salários', 'Combustível', 'Manutenção', 'Pedágio/Balsa', 'Multas'],
-                    datasets: [{
-                        label: 'Valores (R$)',
-                        data: [faturamento, salarios, combustivel, manutencao, taxas, multas],
-                        backgroundColor: [
-                            'rgba(37, 99, 235, 0.7)',
-                            'rgba(16, 185, 129, 0.7)',
-                            'rgba(245, 158, 11, 0.7)',
-                            'rgba(239, 68, 68, 0.7)',
-                            'rgba(139, 92, 246, 0.7)',
-                            'rgba(220, 38, 38, 0.7)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { ticks: { color: '#8c9cb6' }, grid: { color: 'rgba(255, 255, 255, 0.05)' } },
-                        x: { ticks: { color: '#8c9cb6' }, grid: { display: false } }
-                    }
-                }
-            });
-        }
-
         function atualizarTelas() {
             let dados = carregarDados();
             
@@ -1957,7 +1883,6 @@
                 let totalPedagiosGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalPedagios) || 0), 0);
                 let totalBalsasGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalBalsas) || 0), 0);
                 let totalAlimentacaoGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.totalAlimentacao) || 0), 0);
-                let totalSalariosGeral = dados.viagens.reduce((acc, v) => acc + (Number(v.salarioMotorista) || 0), 0);
 
                 let elFat = document.getElementById('patrao-faturamento');
                 elFat.innerText = `R$ ${faturamentoEmpresa.toFixed(2)}`;
@@ -2022,72 +1947,6 @@
                         `;
                     }).join('');
                 }
-
-                // Rotas por Carga
-                let filtro = (document.getElementById('filtro-cargas-input')?.value || '').toLowerCase();
-                let tbodyRotas = document.getElementById('tabela-rotas-por-carga');
-                let viagensValidas = dados.viagens.filter(v => !v.id.startsWith('man_'));
-
-                if (viagensValidas.length === 0) {
-                    tbodyRotas.innerHTML = '<tr><td colspan="5" class="empty-row">Nenhum percurso salvo ainda.</td></tr>';
-                } else {
-                    let rotasAgrupadas = {};
-
-                    viagensValidas.forEach(v => {
-                        let nomeCarga = v.carga || 'Não Informada';
-                        if (filtro && !nomeCarga.toLowerCase().includes(filtro)) return;
-
-                        if (!rotasAgrupadas[nomeCarga]) {
-                            rotasAgrupadas[nomeCarga] = {
-                                categoria: v.categoriaCarga || 'normal',
-                                qtdViagens: 0,
-                                percursos: new Set(),
-                                kmTotal: 0,
-                                tempoTotalMinutos: 0
-                            };
-                        }
-
-                        rotasAgrupadas[nomeCarga].qtdViagens += 1;
-                        rotasAgrupadas[nomeCarga].percursos.add(`${v.origem} ➔ ${v.destino}`);
-                        rotasAgrupadas[nomeCarga].kmTotal += (Number(v.km) || 0);
-                        rotasAgrupadas[nomeCarga].tempoTotalMinutos += (Number(v.tempoMinutos) || 0);
-                    });
-
-                    let chaves = Object.keys(rotasAgrupadas);
-                    if (chaves.length === 0) {
-                        tbodyRotas.innerHTML = '<tr><td colspan="5" class="empty-row">Nenhuma carga encontrada no filtro.</td></tr>';
-                    } else {
-                        tbodyRotas.innerHTML = chaves.map(nomeCarga => {
-                            let item = rotasAgrupadas[nomeCarga];
-                            let conf = TABELA_CARGAS_CONFIG[item.categoria] || TABELA_CARGAS_CONFIG['normal'];
-                            let hrs = Math.floor(item.tempoTotalMinutos / 60);
-                            let mins = item.tempoTotalMinutos % 60;
-                            let tempoTxt = hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
-
-                            return `
-                                <tr>
-                                    <td>
-                                        <strong>${nomeCarga}</strong><br>
-                                        <span class="tipo-carga-badge ${conf.badgeClass}" style="font-size: 10px; padding: 2px 6px;"><i class="fa-solid ${conf.icone}"></i> ${conf.nome}</span>
-                                    </td>
-                                    <td style="text-align: center;"><strong>${item.qtdViagens}</strong></td>
-                                    <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis;">${Array.from(item.percursos).join('<br>')}</td>
-                                    <td>${item.kmTotal} KM</td>
-                                    <td style="text-align: right;">${tempoTxt}</td>
-                                </tr>
-                            `;
-                        }).join('');
-                    }
-                }
-
-                renderizarGrafico(
-                    faturamentoEmpresa,
-                    totalSalariosGeral,
-                    totalCombustivelGeral,
-                    totalManutencoes,
-                    totalPedagiosGeral + totalBalsasGeral,
-                    totalMultasGeral
-                );
             }
 
             if (sessaoAtual && sessaoAtual.tipo === 'motorista') {
