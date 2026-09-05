@@ -6,7 +6,7 @@
   <title>DIÁRIO DE BORDO</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    body { background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 15px; }
     
     .card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
     h1 { color: #1a365d; margin-bottom: 20px; font-size: 24px; }
@@ -20,20 +20,21 @@
     button.btn-main { width: 100%; padding: 12px; background: #2b6cb0; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
     button.btn-main:hover { background: #2c5282; }
     
-    .link-signup { margin-top: 15px; display: block; color: #3182ce; text-decoration: none; font-size: 14px; }
+    .link-action { margin-top: 15px; display: block; color: #3182ce; text-decoration: none; font-size: 14px; cursor: pointer; }
     
-    /* Layout Área Empresa */
+    /* Layout Dashboards (Empresa e Funcionário) */
     .dashboard { display: none; width: 100%; max-width: 800px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .nav-menu { display: flex; gap: 10px; margin-top: 20px; border-bottom: 2px solid #edf2f7; padding-bottom: 10px; }
     .nav-btn { padding: 10px 15px; background: none; border: none; font-weight: bold; color: #4a5568; cursor: pointer; }
     .nav-btn.active { color: #3182ce; border-bottom: 2px solid #3182ce; }
     .tab-content { padding: 20px 0; text-align: left; }
     .hidden { display: none; }
+    .btn-logout { margin-top: 20px; padding: 8px 16px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <!-- TELA DE LOGIN -->
+  <!-- 1. TELA DE LOGIN -->
   <div id="login-screen" class="card">
     <h1>DIÁRIO DE BORDO</h1>
     
@@ -48,17 +49,32 @@
       <button type="submit" class="btn-main">Entrar</button>
     </form>
 
-    <a href="#" class="link-signup" onclick="alert('Redirecionando para a tela de cadastro...')">Sou novo? Inscreva-se</a>
+    <span class="link-action" onclick="showScreen('signup-screen')">Sou novo? Inscreva-se</span>
   </div>
 
-  <!-- ÁREA DA EMPRESA -->
+  <!-- 2. TELA DE INSCRIÇÃO / CADASTRO -->
+  <div id="signup-screen" class="card hidden">
+    <h1>Sejam Bem Vindos</h1>
+    <h2>Cadastro de Funcionário</h2>
+
+    <form onsubmit="handleSignup(event)">
+      <input type="text" placeholder="Nome Completo" required>
+      <input type="text" placeholder="Login" required>
+      <input type="password" placeholder="Senha" required>
+      <button type="submit" class="btn-main">Cadastrar e Entrar</button>
+    </form>
+
+    <span class="link-action" onclick="showScreen('login-screen')">Já tem conta? Faça Login</span>
+  </div>
+
+  <!-- 3. ÁREA DA EMPRESA -->
   <div id="company-screen" class="dashboard">
     <h1>J&Itransportes</h1>
 
     <div class="nav-menu">
-      <button class="nav-btn active" onclick="switchTab('visao-geral', this)">Visão Geral</button>
-      <button class="nav-btn" onclick="switchTab('status-viagem', this)">Status de Viagem</button>
-      <button class="nav-btn" onclick="switchTab('viagens-cadastradas', this)">Viagens Cadastradas</button>
+      <button class="nav-btn active" onclick="switchTab('company-screen', 'visao-geral', this)">Visão Geral</button>
+      <button class="nav-btn" onclick="switchTab('company-screen', 'status-viagem', this)">Status de Viagem</button>
+      <button class="nav-btn" onclick="switchTab('company-screen', 'viagens-cadastradas', this)">Viagens Cadastradas</button>
     </div>
 
     <div id="visao-geral" class="tab-content">
@@ -76,40 +92,99 @@
       <p>Histórico e listagem de viagens registradas no sistema.</p>
     </div>
 
-    <button onclick="logout()" style="margin-top: 20px; padding: 8px 16px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer;">Sair</button>
+    <button onclick="logout()" class="btn-logout">Sair</button>
+  </div>
+
+  <!-- 4. ÁREA DO FUNCIONÁRIO -->
+  <div id="employee-screen" class="dashboard">
+    <h1>ÁREA DO FUNCIONÁRIO</h1>
+
+    <div class="nav-menu">
+      <button class="nav-btn active" onclick="switchTab('employee-screen', 'emp-status', this)">STATUS</button>
+      <button class="nav-btn" onclick="switchTab('employee-screen', 'emp-nova-viagem', this)">NOVA VIAGEM</button>
+    </div>
+
+    <div id="emp-status" class="tab-content">
+      <h2>Status Atual</h2>
+      <p>Acompanhe o status da sua viagem atual, horários e paradas registradas.</p>
+    </div>
+
+    <div id="emp-nova-viagem" class="tab-content hidden">
+      <h2>Iniciar Nova Viagem</h2>
+      <form onsubmit="alert('Viagem iniciada!'); event.preventDefault();">
+        <input type="text" placeholder="Placa do Veículo" style="margin-top: 10px;" required>
+        <input type="text" placeholder="Origem" required>
+        <input type="text" placeholder="Destino" required>
+        <input type="number" placeholder="KM Inicial" required>
+        <button type="submit" class="btn-main">Registrar Viagem</button>
+      </form>
+    </div>
+
+    <button onclick="logout()" class="btn-logout">Sair</button>
   </div>
 
   <script>
-    let userType = 'empresa';
+    let selectedUserType = 'empresa';
 
+    // Seleção entre perfil Empresa / Funcionário no login
     function selectType(type) {
-      userType = type;
+      selectedUserType = type;
       document.getElementById('btn-empresa').classList.toggle('active', type === 'empresa');
       document.getElementById('btn-funcionario').classList.toggle('active', type === 'funcionario');
     }
 
+    // Alternar visibilidade entre telas principais
+    function showScreen(screenId) {
+      const screens = ['login-screen', 'signup-screen', 'company-screen', 'employee-screen'];
+      screens.forEach(id => {
+        const el = document.getElementById(id);
+        if (id === screenId) {
+          el.classList.remove('hidden');
+          el.style.display = id.includes('screen') && !id.includes('dashboard') ? 'block' : (id.includes('screen') ? 'block' : 'none');
+          if (id === 'company-screen' || id === 'employee-screen') {
+            el.style.display = 'block';
+          }
+        } else {
+          el.classList.add('hidden');
+          el.style.display = 'none';
+        }
+      });
+    }
+
+    // Ação ao fazer Login
     function handleLogin(e) {
       e.preventDefault();
-      if (userType === 'empresa') {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('company-screen').style.display = 'block';
+      if (selectedUserType === 'empresa') {
+        showScreen('company-screen');
       } else {
-        alert('Área de funcionários em desenvolvimento.');
+        showScreen('employee-screen');
       }
     }
 
-    function switchTab(tabId, element) {
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    // Ação ao realizar Cadastro (direciona para a Área do Funcionário)
+    function handleSignup(e) {
+      e.preventDefault();
+      alert('Cadastro realizado com sucesso!');
+      showScreen('employee-screen');
+    }
+
+    // Navegação de abas internas dos painéis
+    function switchTab(containerId, tabId, element) {
+      const container = document.getElementById(containerId);
+      container.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+      container.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       
       document.getElementById(tabId).classList.remove('hidden');
       element.classList.add('active');
     }
 
+    // Logout
     function logout() {
-      document.getElementById('company-screen').style.display = 'none';
-      document.getElementById('login-screen').style.display = 'block';
+      showScreen('login-screen');
     }
+
+    // Inicialização da tela inicial
+    showScreen('login-screen');
   </script>
 </body>
 </html>
