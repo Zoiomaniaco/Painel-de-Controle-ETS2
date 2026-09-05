@@ -504,7 +504,7 @@
   <!-- 1. TELA DE LOGIN -->
   <div id="login-screen" class="card">
     <div class="version-badge" onclick="abrirChangelog()">
-      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-login">v2.8.0</span> • Ver o que mudou
+      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-login">v2.8.1</span> • Ver o que mudou
     </div>
 
     <div class="app-logo">
@@ -513,7 +513,6 @@
     <h1>DIÁRIO DE BORDO</h1>
     <p class="subtitle">J&I Transportes - Gestão de Frota</p>
     
-    <!-- Motoristas selecionado por padrão -->
     <div class="type-selector">
       <button class="type-btn" id="btn-empresa" onclick="selectType('empresa')">
         <i data-lucide="building-2"></i> Empresa
@@ -526,7 +525,7 @@
     <form onsubmit="handleLogin(event)">
       <div class="input-group">
         <i data-lucide="user-check"></i>
-        <input type="text" id="login-user" placeholder="Digite seu Usuário" required>
+        <input type="text" id="login-user" placeholder="Digite seu Usuário" required autocomplete="off">
       </div>
       
       <div class="input-group">
@@ -539,14 +538,13 @@
       </button>
     </form>
 
-    <!-- Botão de Cadastro visível por padrão -->
     <span class="link-action" id="link-signup" onclick="showScreen('signup-screen')">Criar nova conta de Motorista</span>
   </div>
 
   <!-- 2. TELA DE CADASTRO DE MOTORISTA -->
   <div id="signup-screen" class="card hidden">
     <div class="version-badge" onclick="abrirChangelog()">
-      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-signup">v2.8.0</span> • O que melhorou?
+      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-signup">v2.8.1</span> • O que melhorou?
     </div>
 
     <div class="app-logo">
@@ -562,7 +560,7 @@
       </div>
       <div class="input-group">
         <i data-lucide="user-check"></i>
-        <input type="text" id="signup-user" placeholder="Nome de Usuário (Login)" required>
+        <input type="text" id="signup-user" placeholder="Nome de Usuário (Login)" required autocomplete="off">
       </div>
       <div class="input-group">
         <i data-lucide="lock"></i>
@@ -590,8 +588,8 @@
       </div>
 
       <div style="background: #eff6ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--primary);">
-        <strong style="color: var(--primary-dark); font-size: 14px;" id="changelog-version-title">Versão 2.8.0 Atualizada</strong>
-        <p style="font-size: 11px; color: var(--text-muted);">Autenticação restrita com Administrador fixo e senhas salvas para Motoristas.</p>
+        <strong style="color: var(--primary-dark); font-size: 14px;" id="changelog-version-title">Versão 2.8.1 Atualizada</strong>
+        <p style="font-size: 11px; color: var(--text-muted);">Validação rigorosa de autenticação e salvamento automático do banco de dados local.</p>
       </div>
 
       <div id="changelog-list"></div>
@@ -1048,15 +1046,14 @@
   </div>
 
   <script>
-    const APP_VERSION = "2.8.0";
+    const APP_VERSION = "2.8.1";
     const MELHORIAS_VERSAO = [
-      "Administrador Exclusivo: Acesso ao painel da empresa configurado para o usuário Jeferson.",
-      "Acesso por Senha para Motoristas: Entrada permitida apenas com login e senha salvos no cadastro.",
-      "Limpeza Geral de Usuários: Credenciais e logins antigos foram redefinidos.",
-      "Segurança e Persistência: Dados armazenados de forma isolada por conta de motorista."
+      "Login Estrito: Entrada bloqueada para qualquer usuário não cadastrado.",
+      "Administrador Fixo: Apenas usuário 'Jeferson' e senha '1054' acessam o painel corporativo.",
+      "Validação de Senhas: Checagem exata de login e senha no banco de dados local.",
+      "Persistência Garantida: Cadastro de motoristas mantido com segurança no dispositivo."
     ];
 
-    // MATRIZ DE PATENTES E PROMOÇÕES
     const PATENTES = [
       { km: 0, nome: "Motorista Novato", beneficios: "Acesso a rotas urbanas e de curta distância. Suporte inicial." },
       { km: 10000, nome: "Motorista Iniciante", beneficios: "Permissão para viagens regionais e fretes normais." },
@@ -1108,9 +1105,6 @@
       document.getElementById('modal-changelog').classList.add('hidden');
     }
 
-    lucide.createIcons();
-
-    // Tipo padrão ajustado para 'funcionario' (Motoristas)
     let selectedUserType = 'funcionario'; 
     let nomeUsuarioAtual = '';
     let loginUsuarioAtual = '';
@@ -1131,7 +1125,7 @@
     let valorBrutoCalculado = 0;
     let financeChartInstance = null;
 
-    // LOCALSTORAGE SYSTEM
+    // BANCO DE DADOS LOCAL (STORAGE)
     function salvarDadosNoStorage() {
       const dadosState = {
         selectedUserType,
@@ -1146,11 +1140,11 @@
         custoTotalPedagioBalsa,
         custoTotalDescansoEmpresa
       };
-      localStorage.setItem('diarioBordoData_v2.8', JSON.stringify(dadosState));
+      localStorage.setItem('diarioBordoData_v2.8.1', JSON.stringify(dadosState));
     }
 
     function carregarDadosDoStorage() {
-      const saved = localStorage.getItem('diarioBordoData_v2.8');
+      const saved = localStorage.getItem('diarioBordoData_v2.8.1');
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
@@ -1166,7 +1160,7 @@
           custoTotalPedagioBalsa = parsed.custoTotalPedagioBalsa || 0;
           custoTotalDescansoEmpresa = parsed.custoTotalDescansoEmpresa || 0;
         } catch(e) {
-          console.error("Erro ao carregar dados", e);
+          console.error("Erro ao carregar dados do LocalStorage", e);
         }
       }
     }
@@ -1261,6 +1255,7 @@
           funcionariosCadastrados[login].promocoes = [{ patente: PATENTES[0].nome, km: 0, data: new Date().toLocaleDateString('pt-BR') }];
         }
       }
+      salvarDadosNoStorage();
     }
 
     function excluirFuncionario(login) {
@@ -1365,6 +1360,7 @@
       document.getElementById('modal-promocoes').classList.add('hidden');
     }
 
+    // VALIDAÇÃO E AUTENTICAÇÃO RIGOROSA
     function handleLogin(e) {
       e.preventDefault();
       const userVal = document.getElementById('login-user').value.trim();
@@ -1378,10 +1374,12 @@
           showScreen('company-screen');
           salvarDadosNoStorage();
         } else {
-          alert('Acesso negado! Usuário ou Senha incorretos para a empresa.');
+          alert('Acesso negado! Usuário ou Senha incorretos para o painel de Empresa.');
         }
       } else {
         const motorista = funcionariosCadastrados[userVal];
+        
+        // Verifica se o motorista existe E se a senha confere
         if (motorista && motorista.senha === passVal) {
           soundSuccess();
           loginUsuarioAtual = userVal;
@@ -1389,7 +1387,7 @@
           showScreen('employee-screen');
           salvarDadosNoStorage();
         } else {
-          alert('Login ou Senha de motorista inválidos! Cadastre-se caso ainda não possua conta.');
+          alert('Acesso negado! Usuário não cadastrado ou senha incorreta. Cadastre-se antes de continuar.');
         }
       }
     }
@@ -1400,13 +1398,13 @@
       const userVal = document.getElementById('signup-user').value.trim();
       const passVal = document.getElementById('signup-pass').value.trim();
 
-      if (userVal === 'Jeferson') {
+      if (userVal.toLowerCase() === 'jeferson') {
         alert('Este nome de usuário é reservado para o Administrador da empresa.');
         return;
       }
 
       if (funcionariosCadastrados[userVal]) {
-        alert('Este nome de usuário já está cadastrado! Escolha outro login.');
+        alert('Este nome de usuário já está cadastrado! Escolha outro nome de usuário.');
         return;
       }
 
@@ -1415,9 +1413,12 @@
       loginUsuarioAtual = userVal;
       nomeUsuarioAtual = nameVal;
 
-      alert('Cadastro realizado com sucesso! Seja bem-vindo.');
+      alert('Cadastro realizado com sucesso! Você já está conectado.');
       showScreen('employee-screen');
-      salvarDadosNoStorage();
+      
+      document.getElementById('signup-name').value = '';
+      document.getElementById('signup-user').value = '';
+      document.getElementById('signup-pass').value = '';
     }
 
     function switchTab(containerId, tabId, element) {
@@ -1811,7 +1812,7 @@
       carregarDadosDoStorage();
 
       const lastScreen = localStorage.getItem('diarioBordoCurrentScreen') || 'login-screen';
-      if (lastScreen === 'employee-screen' && !loginUsuarioAtual) {
+      if (lastScreen === 'employee-screen' && (!loginUsuarioAtual || !funcionariosCadastrados[loginUsuarioAtual])) {
         showScreen('login-screen', false);
         return;
       }
