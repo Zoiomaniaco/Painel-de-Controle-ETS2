@@ -36,6 +36,8 @@
     /* Cards de Estatística */
     .stats-grid { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
     .stat-card { flex: 1; min-width: 200px; background: #edf2f7; padding: 15px; border-radius: 6px; border-left: 4px solid #3182ce; }
+    .stat-card.accent { border-left-color: #dd6b20; }
+    .stat-card.success { border-left-color: #38a169; }
     .stat-card p { font-size: 12px; color: #4a5568; font-weight: bold; }
     .stat-card h3 { font-size: 20px; color: #2b6cb0; margin-top: 5px; }
 
@@ -50,7 +52,7 @@
 
     .time-grid { display: flex; gap: 10px; }
 
-    /* JANELA / ABA OVERLAY (MODAL POR CIMA DA ANTIGA) */
+    /* OVERLAY / JANELA SOBREPOSTA */
     .overlay-window {
       position: fixed;
       top: 0; left: 0;
@@ -125,6 +127,7 @@
 
     <div class="nav-menu">
       <button class="nav-btn active" onclick="switchTab('company-screen', 'visao-geral', this)">Visão Geral</button>
+      <button class="nav-btn" onclick="switchTab('company-screen', 'painel-empresa', this)">Painel da Empresa</button>
       <button class="nav-btn" onclick="switchTab('company-screen', 'viagens-cadastradas', this)">Viagens Cadastradas</button>
     </div>
 
@@ -138,16 +141,49 @@
           <thead>
             <tr>
               <th>Funcionário</th>
-              <th>Total de Viagens</th>
+              <th>Viagens</th>
               <th>Total KM Rodados</th>
             </tr>
           </thead>
           <tbody id="empresa-resumo-funcionarios">
             <tr>
-              <td colspan="3" style="text-align: center; color: #718096;">Nenhum funcionário registrado até o momento.</td>
+              <td colspan="3" style="text-align: center; color: #718096;">Nenhum funcionário cadastrado até o momento.</td>
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- PAINEL DA EMPRESA (BALANÇO FINANCEIRO, PEDÁGIOS E BALSAS) -->
+    <div id="painel-empresa" class="tab-content hidden">
+      <h2>Painel da Empresa</h2>
+      <p style="margin-bottom: 15px; color: #4a5568;">Balanço financeiro e divisão de custos de Pedágios e Balsas (70% Empresa / 30% Funcionário).</p>
+
+      <div class="stats-grid">
+        <div class="stat-card success">
+          <p>SALDO TOTAL DA EMPRESA (LÍQUIDO)</p>
+          <h3>R$ <span id="emp-saldo-total">0.00</span></h3>
+        </div>
+        <div class="stat-card accent">
+          <p>CUSTO TOTAL PEDÁGIOS/BALSAS</p>
+          <h3>R$ <span id="emp-custo-pedagio-balsa">0.00</span></h3>
+        </div>
+      </div>
+
+      <div class="section-box">
+        <h3>Divisão dos Custos de Pedágios e Balsas</h3>
+        <p style="font-size: 13px; color: #4a5568; margin-top: 5px;">O valor total de taxas é dividido na proporção regulamentada de <strong>70% cobrado da empresa</strong> e <strong>30% descontado na folha de pagamento do funcionário</strong>.</p>
+        
+        <div class="stats-grid" style="margin-top: 15px;">
+          <div class="stat-card">
+            <p>PARTE EMPRESA (70%) - DESCONTADO DO SALDO</p>
+            <h3>R$ <span id="emp-desconto-70">0.00</span></h3>
+          </div>
+          <div class="stat-card">
+            <p>PARTE FUNCIONÁRIOS (30%) - DESCONTO NA FOLHA</p>
+            <h3>R$ <span id="emp-desconto-30">0.00</span></h3>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -179,7 +215,7 @@
       
       <div class="stats-grid">
         <div class="stat-card">
-          <p>SALÁRIO ACUMULADO</p>
+          <p>SALÁRIO ACUMULADO (LÍQUIDO)</p>
           <h3>R$ <span id="stat-salario">0.00</span></h3>
         </div>
         <div class="stat-card">
@@ -287,8 +323,8 @@
       <div id="detalhes-viagem-resumo" style="margin-bottom: 20px; font-size: 14px; background: #edf2f7; padding: 12px; border-radius: 6px;"></div>
 
       <div class="section-box">
-        <h3>Gastos Pagos pelo Funcionário</h3>
-        <p style="font-size: 13px; color: #e53e3e; margin-bottom: 10px;">* Os valores cobrados de Pedágio e Balsa serão debitados diretamente do salário final da viagem.</p>
+        <h3>Gastos de Pedágio e Balsa</h3>
+        <p style="font-size: 13px; color: #4a5568; margin-bottom: 10px;">* Os gastos com Pedágio e Balsa serão divididos em <strong>70% para a Empresa</strong> e <strong>30% descontados na folha do funcionário</strong>.</p>
         
         <form onsubmit="adicionarGasto(event)" style="margin-top: 10px;">
           <label>Tipo de Gastos:</label>
@@ -304,7 +340,7 @@
           <label>Observação / Local (opcional):</label>
           <input type="text" id="expense-obs" placeholder="Ex: Praça de Pedágio ou Porto de Travessia">
 
-          <button type="submit" class="btn-main">Lançar Despesa (Debitar do Salário)</button>
+          <button type="submit" class="btn-main">Lançar Despesa</button>
         </form>
 
         <div class="table-responsive">
@@ -313,7 +349,7 @@
               <tr>
                 <th>Tipo</th>
                 <th>Local / Obs</th>
-                <th>Valor Debitado</th>
+                <th>Valor Total</th>
               </tr>
             </thead>
             <tbody id="lista-gastos">
@@ -327,7 +363,7 @@
 
       <div class="section-box">
         <h3>Horário de Descanso</h3>
-        <p style="font-size: 13px; color: #e53e3e; margin-bottom: 10px;">* Ao registrar o início e fim do descanso, será debitado o valor fixo de R$ 50,00 do salário do funcionário.</p>
+        <p style="font-size: 13px; color: #e53e3e; margin-bottom: 10px;">* Ao registrar o descanso, será debitado o valor fixo de R$ 50,00 da folha do funcionário.</p>
         
         <form onsubmit="registrarDescanso(event)">
           <div class="time-grid">
@@ -376,6 +412,10 @@
     let historicoViagensArray = [];
     let viagensEmpresaArray = [];
 
+    // Acumuladores Globais da Empresa
+    let saldoTotalEmpresaBruto = 0;
+    let custoTotalPedagioBalsa = 0;
+
     let viagemEmAndamento = null;
     let gastosArray = [];
     let descansosArray = [];
@@ -402,6 +442,7 @@
 
       if (screenId === 'company-screen') {
         renderVisaoGeralEmpresa();
+        renderPainelEmpresa();
         renderViagensEmpresaPorCarga();
       }
     }
@@ -562,7 +603,7 @@
       if (gastosArray.length === 1) tbody.innerHTML = '';
 
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${tipo}</td><td>${obs}</td><td style="color: #e53e3e; font-weight: bold;">- R$ ${valor.toFixed(2)}</td>`;
+      tr.innerHTML = `<td>${tipo}</td><td>${obs}</td><td style="color: #2b6cb0; font-weight: bold;">R$ ${valor.toFixed(2)}</td>`;
       tbody.appendChild(tr);
 
       document.getElementById('expense-type').value = '';
@@ -591,18 +632,29 @@
     function concluirViagem() {
       if (!viagemEmAndamento) return;
 
-      const totalGastosPeloFuncionario = gastosArray.reduce((acc, g) => acc + g.valor, 0);
+      // Soma total de gastos de pedágios e balsas desta viagem
+      const totalPedagioBalsaViagem = gastosArray.reduce((acc, g) => acc + g.valor, 0);
+      
+      // Divisão 70% empresa e 30% funcionário
+      const parteEmpresa70 = totalPedagioBalsaViagem * 0.70;
+      const parteFuncionario30 = totalPedagioBalsaViagem * 0.30;
       const totalDebitoDescansos = descansosArray.length * 50;
       
-      const salarioLiquidoViagem = viagemEmAndamento.valorViagem - totalGastosPeloFuncionario - totalDebitoDescansos;
+      // Cálculo do salário líquido do funcionário (Subtrai 30% do pedágio + R$50 por descanso)
+      const salarioLiquidoViagem = viagemEmAndamento.valorViagem - parteFuncionario30 - totalDebitoDescansos;
 
+      // Atualiza variáveis da empresa
+      saldoTotalEmpresaBruto += viagemEmAndamento.valorViagem;
+      custoTotalPedagioBalsa += totalPedagioBalsaViagem;
+
+      // Atualiza valores do funcionário
       kmAcumulado += viagemEmAndamento.km;
       salarioAcumulado += salarioLiquidoViagem;
 
       document.getElementById('stat-km').innerText = kmAcumulado;
       document.getElementById('stat-salario').innerText = salarioAcumulado.toFixed(2);
 
-      // Atualiza acumulados do funcionário na base geral
+      // Atualiza estatísticas do funcionário
       registrarFuncionarioBase(nomeUsuarioAtual);
       funcionariosCadastrados[nomeUsuarioAtual].viagensCount += 1;
       funcionariosCadastrados[nomeUsuarioAtual].totalKm += viagemEmAndamento.km;
@@ -612,6 +664,7 @@
         motorista: nomeUsuarioAtual,
         gastos: [...gastosArray],
         descansos: [...descansosArray],
+        totalPedagioBalsa: totalPedagioBalsaViagem,
         salarioLiquido: salarioLiquidoViagem
       };
 
@@ -658,7 +711,7 @@
       });
     }
 
-    // 1. RENDERIZA VISÃO GERAL COM FUNCIONÁRIOS, VIAGENS E KMS
+    // 1. VISÃO GERAL COM TABELA (SOMENTE NÚMERO DE VIAGENS)
     function renderVisaoGeralEmpresa() {
       const tbody = document.getElementById('empresa-resumo-funcionarios');
       tbody.innerHTML = '';
@@ -675,14 +728,26 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td><strong>${nome}</strong></td>
-          <td>${dados.viagensCount} viagem(ns)</td>
+          <td><strong>${dados.viagensCount}</strong></td>
           <td><strong>${dados.totalKm} KM</strong></td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    // 2. RENDERIZA VIAGENS DA EMPRESA SEPARADAS POR TIPO DE CARGA
+    // 2. RENDERIZA PAINEL DA EMPRESA (CUSTOS E SALDO)
+    function renderPainelEmpresa() {
+      const desconto70Empresa = custoTotalPedagioBalsa * 0.70;
+      const desconto30Funcionario = custoTotalPedagioBalsa * 0.30;
+      const saldoLiquidoEmpresa = saldoTotalEmpresaBruto - desconto70Empresa;
+
+      document.getElementById('emp-saldo-total').innerText = saldoLiquidoEmpresa.toFixed(2);
+      document.getElementById('emp-custo-pedagio-balsa').innerText = custoTotalPedagioBalsa.toFixed(2);
+      document.getElementById('emp-desconto-70').innerText = desconto70Empresa.toFixed(2);
+      document.getElementById('emp-desconto-30').innerText = desconto30Funcionario.toFixed(2);
+    }
+
+    // 3. RENDERIZA VIAGENS DA EMPRESA SEPARADAS POR TIPO DE CARGA
     function renderViagensEmpresaPorCarga() {
       const container = document.getElementById('container-viagens-por-carga');
       container.innerHTML = '';
@@ -692,7 +757,6 @@
         return;
       }
 
-      // Agrupa viagens por tipo de carga
       const agrupado = {};
       viagensEmpresaArray.forEach(v => {
         const cat = v.cargaCategoria || 'Outros';
@@ -700,7 +764,6 @@
         agrupado[cat].push(v);
       });
 
-      // Gera as tabelas para cada tipo de carga
       for (const categoria in agrupado) {
         const box = document.createElement('div');
         box.className = 'section-box';
