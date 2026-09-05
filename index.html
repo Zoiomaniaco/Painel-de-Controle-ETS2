@@ -3,86 +3,460 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DIÁRIO DE BORDO</title>
+  <title>DIÁRIO DE BORDO | J&I Transportes</title>
+  
+  <!-- Fontes Google: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Ícones 3D & Vetoriais (Lucide Icons) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Chart.js para Gráficos Dinâmicos -->
+  <script src="https://cdn.jsdelivr.com/npm/chart.js"></script>
+
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 15px; }
-    
-    .card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-    h1 { color: #1a365d; margin-bottom: 20px; font-size: 24px; }
-    h2 { color: #2b6cb0; margin-bottom: 15px; font-size: 20px; }
-    
-    .type-selector { display: flex; gap: 10px; margin-bottom: 15px; }
-    .type-btn { flex: 1; padding: 10px; border: 1px solid #cbd5e0; background: #edf2f7; cursor: pointer; border-radius: 4px; font-weight: bold; }
-    .type-btn.active { background: #3182ce; color: white; border-color: #3182ce; }
-    
-    input, select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; background-color: #fff; }
-    button.btn-main { width: 100%; padding: 12px; background: #2b6cb0; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-    button.btn-main:hover { background: #2c5282; }
-    
-    .link-action { margin-top: 15px; display: block; color: #3182ce; text-decoration: none; font-size: 14px; cursor: pointer; }
-    
-    /* Layout Dashboards */
-    .dashboard { display: none; width: 100%; max-width: 900px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .nav-menu { display: flex; gap: 10px; margin-top: 20px; border-bottom: 2px solid #edf2f7; padding-bottom: 10px; overflow-x: auto; }
-    .nav-btn { padding: 10px 15px; background: none; border: none; font-weight: bold; color: #4a5568; cursor: pointer; whitespace: nowrap; }
-    .nav-btn.active { color: #3182ce; border-bottom: 2px solid #3182ce; }
-    .tab-content { padding: 20px 0; text-align: left; }
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #60a5fa;
+      --accent-orange: #f97316;
+      --accent-green: #10b981;
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      --glass-bg: rgba(255, 255, 255, 0.92);
+      --glass-border: rgba(255, 255, 255, 0.4);
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --radius-lg: 16px;
+      --radius-md: 10px;
+      --shadow-3d: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+
+    body {
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    /* Animações Dinâmicas */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CARD DESIGN GLASSMORPHISM */
+    .card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      padding: 35px 30px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-3d);
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+      border: 1px solid var(--glass-border);
+      animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    /* BADGE DE VERSÃO DO APP */
+    .version-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--primary-dark);
+      border: 1px solid rgba(37, 99, 235, 0.2);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .version-badge:hover {
+      background: var(--primary);
+      color: white;
+      transform: scale(1.03);
+    }
+
+    .app-logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--primary) 0%, #3b82f6 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      color: white;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35);
+      transform: rotate(-3deg);
+      transition: transform 0.3s ease;
+    }
+
+    .app-logo:hover { transform: rotate(0deg) scale(1.05); }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: -0.5px;
+      margin-bottom: 2px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    /* SELETOR EMPRESA / FUNCIONÁRIO */
+    .type-selector {
+      display: flex;
+      gap: 10px;
+      background: #e2e8f0;
+      padding: 5px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .type-btn {
+      flex: 1;
+      padding: 10px 15px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .type-btn.active {
+      background: white;
+      color: var(--primary-dark);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    /* INPUTS & FORM */
+    .input-group {
+      position: relative;
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .input-group i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      width: 18px;
+      height: 18px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 14px 12px 42px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      background: white;
+      color: var(--text-dark);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 12px;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* BOTÕES */
+    .btn-main {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 20px -3px rgba(37, 99, 235, 0.4);
+    }
+
+    .link-action {
+      margin-top: 18px;
+      display: inline-block;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .link-action:hover { color: var(--primary-dark); text-decoration: underline; }
+
+    /* DASHBOARD CONTAINERS */
+    .dashboard {
+      display: none;
+      width: 100%;
+      max-width: 1100px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      padding: 30px;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-3d);
+      border: 1px solid var(--glass-border);
+      animation: fadeInUp 0.4s ease;
+    }
+
+    /* NAV MENU */
+    .nav-menu {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 12px;
+      overflow-x: auto;
+    }
+
+    .nav-btn {
+      padding: 10px 18px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .tab-content { padding: 25px 0 0; text-align: left; }
     .hidden { display: none !important; }
-    .btn-logout { margin-top: 20px; padding: 8px 16px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    
-    label { font-weight: bold; font-size: 14px; color: #4a5568; display: block; margin-bottom: 5px; }
-    
-    /* Cards de Estatística */
-    .stats-grid { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-    .stat-card { flex: 1; min-width: 200px; background: #edf2f7; padding: 15px; border-radius: 6px; border-left: 4px solid #3182ce; }
-    .stat-card.accent { border-left-color: #dd6b20; }
-    .stat-card.success { border-left-color: #38a169; }
-    .stat-card p { font-size: 12px; color: #4a5568; font-weight: bold; }
-    .stat-card h3 { font-size: 20px; color: #2b6cb0; margin-top: 5px; }
 
-    /* Painéis e Tabelas */
-    .section-box { background: #f7fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
-    .table-responsive { overflow-x: auto; margin-top: 10px; }
-    table { width: 100%; border-collapse: collapse; min-width: 600px; }
-    th, td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: left; font-size: 14px; }
-    th { background: #edf2f7; color: #2d3748; }
+    /* CARDS DE ESTATÍSTICA 3D */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+      border-left: 5px solid var(--primary);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease;
+    }
+
+    .stat-card:hover { transform: translateY(-4px); }
+    .stat-card.accent { border-left-color: var(--accent-orange); }
+    .stat-card.success { border-left-color: var(--accent-green); }
+
+    .stat-card p {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-card h3 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-top: 6px;
+    }
+
+    .stat-icon-bg {
+      position: absolute;
+      right: -10px;
+      bottom: -10px;
+      opacity: 0.08;
+      width: 90px;
+      height: 90px;
+    }
+
+    /* CAIXAS DE CONTEÚDO E TABELAS */
+    .section-box {
+      background: white;
+      padding: 22px;
+      border-radius: var(--radius-md);
+      border: 1px solid #e2e8f0;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+
+    .table-responsive { overflow-x: auto; margin-top: 15px; }
     
-    .categoria-carga-title { background: #ebf8ff; color: #2b6cb0; padding: 8px 12px; border-radius: 4px; font-size: 16px; margin-bottom: 10px; border-left: 4px solid #3182ce; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 650px;
+    }
 
-    .time-grid { display: flex; gap: 10px; }
+    th, td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f1f5f9;
+      text-align: left;
+      font-size: 13px;
+    }
 
-    /* OVERLAY / JANELA SOBREPOSTA */
+    th {
+      background: #f8fafc;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+
+    tr:hover { background: #f8fafc; }
+
+    .categoria-carga-title {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      color: var(--primary-dark);
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 4px solid var(--primary);
+    }
+
+    /* OVERLAY MODAIS */
     .overlay-window {
       position: fixed;
       top: 0; left: 0;
       width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.7);
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(8px);
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 2000;
-      padding: 15px;
+      padding: 20px;
     }
+
     .overlay-content {
       background: white;
       width: 100%;
       max-width: 850px;
-      max-height: 92vh;
+      max-height: 90vh;
       overflow-y: auto;
-      border-radius: 8px;
-      padding: 25px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      border-radius: var(--radius-lg);
+      padding: 30px;
+      box-shadow: var(--shadow-3d);
+      animation: fadeInUp 0.3s ease;
     }
 
     .valor-calculado-box {
-      background-color: #ebf8ff;
-      border: 1px solid #90cdf4;
-      padding: 10px 15px;
-      border-radius: 4px;
-      margin-bottom: 15px;
-      font-weight: bold;
-      color: #2b6cb0;
+      background: #eff6ff;
+      border: 1.5px dashed var(--primary-light);
+      padding: 14px 18px;
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+      font-weight: 700;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 15px;
+    }
+
+    .btn-logout {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-logout:hover { background: #dc2626; }
+
+    .chart-container {
+      position: relative;
+      height: 250px;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    /* LISTA DE NOVIDADES DE VERSÃO */
+    .changelog-item {
+      display: flex;
+      align-items: start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .changelog-item i {
+      color: var(--accent-green);
+      margin-top: 3px;
     }
   </style>
 </head>
@@ -90,257 +464,410 @@
 
   <!-- 1. TELA DE LOGIN -->
   <div id="login-screen" class="card">
+    <div class="version-badge" onclick="abrirChangelog()">
+      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-login">v2.4.0</span> • Ver o que mudou
+    </div>
+
+    <div class="app-logo">
+      <i data-lucide="truck" style="width: 42px; height: 42px;"></i>
+    </div>
     <h1>DIÁRIO DE BORDO</h1>
+    <p class="subtitle">J&I Transportes - Gestão de Frota</p>
     
     <div class="type-selector">
-      <button class="type-btn active" id="btn-empresa" onclick="selectType('empresa')">Empresa</button>
-      <button class="type-btn" id="btn-funcionario" onclick="selectType('funcionario')">Funcionários</button>
+      <button class="type-btn active" id="btn-empresa" onclick="selectType('empresa')">
+        <i data-lucide="building-2"></i> Empresa
+      </button>
+      <button class="type-btn" id="btn-funcionario" onclick="selectType('funcionario')">
+        <i data-lucide="user"></i> Motoristas
+      </button>
     </div>
 
     <form onsubmit="handleLogin(event)">
-      <input type="text" id="login-user" placeholder="Login / Usuário" required>
-      <input type="password" placeholder="Senha" required>
-      <button type="submit" class="btn-main">Entrar</button>
+      <div class="input-group">
+        <i data-lucide="user-check"></i>
+        <input type="text" id="login-user" placeholder="Digite seu Usuário" required>
+      </div>
+      
+      <div class="input-group">
+        <i data-lucide="lock"></i>
+        <input type="password" placeholder="Sua Senha" required>
+      </div>
+
+      <button type="submit" class="btn-main">
+        Entrar no Sistema <i data-lucide="arrow-right"></i>
+      </button>
     </form>
 
-    <span class="link-action" onclick="showScreen('signup-screen')">Sou novo? Inscreva-se</span>
+    <span class="link-action" onclick="showScreen('signup-screen')">Criar nova conta de Motorista</span>
   </div>
 
-  <!-- 2. TELA DE INSCRIÇÃO / CADASTRO -->
+  <!-- 2. TELA DE CADASTRO DE MOTORISTA -->
   <div id="signup-screen" class="card hidden">
-    <h1>Sejam Bem Vindos</h1>
-    <h2>Cadastro de Funcionário</h2>
-
-    <form onsubmit="handleSignup(event)">
-      <input type="text" id="signup-name" placeholder="Nome Completo" required>
-      <input type="text" placeholder="Login" required>
-      <input type="password" placeholder="Senha" required>
-      <button type="submit" class="btn-main">Cadastrar e Entrar</button>
-    </form>
-
-    <span class="link-action" onclick="showScreen('login-screen')">Já tem conta? Faça Login</span>
-  </div>
-
-  <!-- 3. ÁREA DA EMPRESA -->
-  <div id="company-screen" class="dashboard">
-    <h1>J&Itransportes</h1>
-
-    <div class="nav-menu">
-      <button class="nav-btn active" onclick="switchTab('company-screen', 'visao-geral', this)">Visão Geral</button>
-      <button class="nav-btn" onclick="switchTab('company-screen', 'painel-empresa', this)">Painel da Empresa</button>
-      <button class="nav-btn" onclick="switchTab('company-screen', 'viagens-cadastradas', this)">Viagens Cadastradas</button>
+    <div class="version-badge" onclick="abrirChangelog()">
+      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-signup">v2.4.0</span> • O que melhorou?
     </div>
 
-    <!-- VISÃO GERAL -->
+    <div class="app-logo">
+      <i data-lucide="user-plus" style="width: 42px; height: 42px;"></i>
+    </div>
+    <h1>Novo Cadastro</h1>
+    <p class="subtitle">Cadastre-se como Motorista Parceiro</p>
+
+    <form onsubmit="handleSignup(event)">
+      <div class="input-group">
+        <i data-lucide="user"></i>
+        <input type="text" id="signup-name" placeholder="Nome Completo" required>
+      </div>
+      <div class="input-group">
+        <i data-lucide="user-check"></i>
+        <input type="text" placeholder="Nome de Usuário (Login)" required>
+      </div>
+      <div class="input-group">
+        <i data-lucide="lock"></i>
+        <input type="password" placeholder="Crie uma Senha" required>
+      </div>
+
+      <button type="submit" class="btn-main">
+        Concluir Cadastro <i data-lucide="check-circle-2"></i>
+      </button>
+    </form>
+
+    <span class="link-action" onclick="showScreen('login-screen')">Já possui conta? Voltar ao Login</span>
+  </div>
+
+  <!-- MODAL: HISTÓRICO DE MELHORIAS / VERSÃO DO APP -->
+  <div id="modal-changelog" class="overlay-window hidden">
+    <div class="overlay-content" style="max-width: 500px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size: 18px; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="rocket" style="color: var(--primary);"></i> O que mudou nesta Versão?
+        </h2>
+        <button onclick="fecharChangelog()" style="border: none; background: transparent; cursor: pointer;">
+          <i data-lucide="x" style="color: var(--text-muted);"></i>
+        </button>
+      </div>
+
+      <div style="background: #eff6ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--primary);">
+        <strong style="color: var(--primary-dark); font-size: 14px;" id="changelog-version-title">Versão 2.4.0 Atualizada</strong>
+        <p style="font-size: 11px; color: var(--text-muted);">Lançada com melhorias na divisão de despesas operacionais e novos recursos visuais.</p>
+      </div>
+
+      <div id="changelog-list"></div>
+
+      <button onclick="fecharChangelog()" class="btn-main" style="margin-top: 20px;">
+        Entendi, prosseguir <i data-lucide="check"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- 3. PAINEL DA EMPRESA -->
+  <div id="company-screen" class="dashboard">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 style="display: flex; align-items: center; gap: 10px;">
+          <i data-lucide="shield-check" style="color: var(--primary);"></i> J&I Transportes
+        </h1>
+        <p class="subtitle" style="margin: 0;">Painel de Controle Corporativo</p>
+      </div>
+      <button onclick="logout()" class="btn-logout" style="margin: 0;">
+        <i data-lucide="log-out"></i> Sair
+      </button>
+    </div>
+
+    <div class="nav-menu">
+      <button class="nav-btn active" onclick="switchTab('company-screen', 'visao-geral', this)">
+        <i data-lucide="bar-chart-3"></i> Visão Geral
+      </button>
+      <button class="nav-btn" onclick="switchTab('company-screen', 'painel-empresa', this)">
+        <i data-lucide="wallet"></i> Balanço Financeiro
+      </button>
+      <button class="nav-btn" onclick="switchTab('company-screen', 'viagens-cadastradas', this)">
+        <i data-lucide="map-pin"></i> Cargas & Viagens
+      </button>
+    </div>
+
     <div id="visao-geral" class="tab-content">
-      <h2>Visão Geral dos Funcionários</h2>
-      <p style="margin-bottom: 15px; color: #4a5568;">Resumo do desempenho e quilometragem da equipe de motoristas.</p>
-      
+      <h2 style="font-size: 18px; margin-bottom: 15px;">Resumo da Equipe de Motoristas</h2>
       <div class="table-responsive">
         <table>
           <thead>
             <tr>
-              <th>Funcionário</th>
-              <th>Viagens</th>
-              <th>Total KM Rodados</th>
+              <th>Motorista</th>
+              <th>Viagens Realizadas</th>
+              <th>Total Rodado (KM)</th>
             </tr>
           </thead>
           <tbody id="empresa-resumo-funcionarios">
-            <tr>
-              <td colspan="3" style="text-align: center; color: #718096;">Nenhum funcionário cadastrado até o momento.</td>
-            </tr>
+            <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum registro até o momento.</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- PAINEL DA EMPRESA (BALANÇO FINANCEIRO, PEDÁGIOS E BALSAS) -->
     <div id="painel-empresa" class="tab-content hidden">
-      <h2>Painel da Empresa</h2>
-      <p style="margin-bottom: 15px; color: #4a5568;">Balanço financeiro consolidado e dedução de despesas operacionais de viagens.</p>
+      <h2 style="font-size: 18px; margin-bottom: 15px;">Balanço Financeiro & Despesas</h2>
 
       <div class="stats-grid">
         <div class="stat-card success">
-          <p>SALDO LÍQUIDO DA EMPRESA</p>
+          <p>Saldo Líquido da Empresa</p>
           <h3>R$ <span id="emp-saldo-total">0.00</span></h3>
+          <i data-lucide="dollar-sign" class="stat-icon-bg"></i>
         </div>
         <div class="stat-card accent">
-          <p>DESPESA TOTAL (PEDÁGIOS / BALSAS)</p>
+          <p>Custo Pedágios / Balsas (100% Empresa)</p>
           <h3>R$ <span id="emp-custo-pedagio-balsa">0.00</span></h3>
+          <i data-lucide="receipt" class="stat-icon-bg"></i>
         </div>
       </div>
 
       <div class="section-box">
-        <h3>Detalhamento das Despesas de Rotas</h3>
-        <p style="font-size: 13px; color: #4a5568; margin-top: 5px;">Os custos totais com pedágios e balsas são <strong>integralmente descontados da empresa (100%)</strong>, não havendo cobrança na folha de pagamento do funcionário.</p>
-        
-        <div class="stats-grid" style="margin-top: 15px;">
-          <div class="stat-card">
-            <p>VALOR BRUTO ACUMULADO</p>
-            <h3>R$ <span id="emp-saldo-bruto">0.00</span></h3>
-          </div>
-          <div class="stat-card accent">
-            <p>TOTAL DESCONTADO DA EMPRESA</p>
-            <h3>R$ <span id="emp-desconto-100">0.00</span></h3>
-          </div>
+        <h3 style="font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="pie-chart" style="color: var(--primary);"></i> Análise Visual de Despesas vs Bruto
+        </h3>
+        <p style="font-size: 12px; color: var(--text-muted);">* Despesas de Pedágio e Balsa são descontadas integralmente do saldo corporativo.</p>
+
+        <div class="chart-container">
+          <canvas id="financeChart"></canvas>
         </div>
       </div>
     </div>
 
-    <!-- VIAGENS CADASTRADAS SEPARADAS POR CARGA -->
     <div id="viagens-cadastradas" class="tab-content hidden">
-      <h2>Viagens Cadastradas por Tipo de Carga</h2>
-      <p style="margin-bottom: 15px; color: #4a5568;">Relação completa de viagens agrupadas pelas categorias de carga.</p>
-
-      <div id="container-viagens-por-carga">
-        <p style="text-align: center; color: #718096; margin-top: 20px;">Nenhuma viagem registrada na empresa até o momento.</p>
-      </div>
+      <h2 style="font-size: 18px; margin-bottom: 15px;">Viagens Separadas por Categoria de Carga</h2>
+      <div id="container-viagens-por-carga"></div>
     </div>
-
-    <button onclick="logout()" class="btn-logout">Sair</button>
   </div>
 
-  <!-- 4. ÁREA DO FUNCIONÁRIO -->
+  <!-- 4. PAINEL DO MOTORISTA / FUNCIONÁRIO -->
   <div id="employee-screen" class="dashboard">
-    <h1>ÁREA DO FUNCIONÁRIO</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 style="display: flex; align-items: center; gap: 10px;">
+          <i data-lucide="steering-wheel" style="color: var(--primary);"></i> Área do Motorista
+        </h1>
+        <p class="subtitle" style="margin: 0;" id="saudacao-motorista">Bem-vindo de volta</p>
+      </div>
+      <button onclick="logout()" class="btn-logout" style="margin: 0;">
+        <i data-lucide="log-out"></i> Sair
+      </button>
+    </div>
 
     <div class="nav-menu">
-      <button class="nav-btn active" onclick="switchTab('employee-screen', 'emp-status', this)">STATUS</button>
-      <button class="nav-btn" onclick="switchTab('employee-screen', 'emp-cadastrar-viagem', this)">CADASTRAR VIAGEM</button>
+      <button class="nav-btn active" onclick="switchTab('employee-screen', 'emp-status', this)">
+        <i data-lucide="gauge"></i> Meu Painel
+      </button>
+      <button class="nav-btn" onclick="switchTab('employee-screen', 'emp-cadastrar-viagem', this)">
+        <i data-lucide="plus-circle"></i> Cadastrar Nova Viagem
+      </button>
     </div>
 
-    <!-- STATUS -->
     <div id="emp-status" class="tab-content">
-      <h2>Painel do Funcionário</h2>
-      
       <div class="stats-grid">
-        <div class="stat-card">
-          <p>SALÁRIO ACUMULADO (LÍQUIDO)</p>
+        <div class="stat-card success">
+          <p>Ganhos Acumulados (Líquido)</p>
           <h3>R$ <span id="stat-salario">0.00</span></h3>
+          <i data-lucide="coins" class="stat-icon-bg"></i>
         </div>
         <div class="stat-card">
-          <p>KM RODADOS (ACUMULADO)</p>
+          <p>Distância Total Percorrida</p>
           <h3><span id="stat-km">0</span> KM</h3>
+          <i data-lucide="navigation" class="stat-icon-bg"></i>
         </div>
       </div>
-
-      <h3 style="margin-top: 15px;">Histórico de Viagens</h3>
-      <div class="table-responsive">
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Tipo</th>
-              <th>Veículo</th>
-              <th>Destino</th>
-              <th>Carga</th>
-              <th>Peso</th>
-              <th>Km</th>
-            </tr>
-          </thead>
-          <tbody id="historico-viagens">
-            <tr>
-              <td colspan="7" style="text-align: center; color: #718096;">Nenhuma viagem registrada até o momento.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- CADASTRAR VIAGEM -->
-    <div id="emp-cadastrar-viagem" class="tab-content hidden">
-      <h2>Cadastrar Viagem</h2>
-      
-      <form id="form-cadastrar-viagem" onsubmit="aceitarEAbrirNovaAba(event)">
-        <label>Data da Viagem:</label>
-        <input type="date" id="input-data" required>
-
-        <label>Tipo de Veículo:</label>
-        <select id="vehicle-type" onchange="toggleVehicleOptions(); calcularValorViagem();" required>
-          <option value="">Selecione...</option>
-          <option value="onibus">Ônibus</option>
-          <option value="caminhao">Caminhão</option>
-        </select>
-
-        <!-- CAMPO EXCLUSIVO PARA ÔNIBUS -->
-        <div id="box-onibus" class="hidden">
-          <label>Modelo do Ônibus:</label>
-          <input type="text" id="input-onibus" placeholder="Ex: Marcopolo Paradiso G7, Busscar Vissta Buss...">
-        </div>
-
-        <!-- CAMPOS EXCLUSIVOS PARA CAMINHÃO -->
-        <div id="box-caminhao" class="hidden">
-          <label>Marca/Veículo:</label>
-          <select id="select-caminhao">
-            <option value="">Selecione a marca do veículo...</option>
-            <option value="DAF">DAF</option>
-            <option value="Iveco">Iveco</option>
-            <option value="MAN">MAN</option>
-            <option value="Mercedes-Benz">Mercedes-Benz</option>
-            <option value="Renault">Renault</option>
-            <option value="Scania">Scania</option>
-            <option value="Volvo">Volvo</option>
-          </select>
-
-          <label>Tipo de Carga:</label>
-          <select id="select-tipo-carga" onchange="calcularValorViagem()">
-            <option value="">Selecione o tipo de carga...</option>
-            <option value="1.80">Normais</option>
-            <option value="2.20">Congelados</option>
-            <option value="4.80">Perigosas</option>
-            <option value="3.00">Pesadas</option>
-            <option value="5.00">Carga de Alto Valor</option>
-          </select>
-
-          <label>Especificação / Descrição da Carga:</label>
-          <input type="text" id="input-carga-desc" placeholder="Ex: Bobinas de Aço, Medicamentos, Grãos...">
-
-          <label>Peso da Carga:</label>
-          <input type="text" id="input-peso" placeholder="Ex: 15 Ton ou 15000 kg">
-        </div>
-
-        <input type="text" id="input-origem" placeholder="Origem" required>
-        <input type="text" id="input-destino" placeholder="Destino" required>
-        
-        <label>Distância da Viagem (KM):</label>
-        <input type="number" id="input-km" placeholder="KM Rodados na Viagem" oninput="calcularValorViagem()" required>
-
-        <div id="box-valor-calculado" class="valor-calculado-box">
-          Salário Bruto Estimado: R$ 0,00
-        </div>
-        
-        <button type="submit" class="btn-main">Aceitar e Iniciar Viagem</button>
-      </form>
-    </div>
-
-    <button onclick="logout()" class="btn-logout">Sair</button>
-  </div>
-
-  <!-- 5. OVERLAY: DETALHES DE GASTOS DA VIAGEM EM ANDAMENTO -->
-  <div id="aba-viagem-ativa" class="overlay-window hidden">
-    <div class="overlay-content">
-      <h2 style="color: #1a365d;">Lançamento de Gastos da Viagem</h2>
-      <div id="detalhes-viagem-resumo" style="margin-bottom: 20px; font-size: 14px; background: #edf2f7; padding: 12px; border-radius: 6px;"></div>
 
       <div class="section-box">
-        <h3>Gastos de Pedágio e Balsa</h3>
-        <p style="font-size: 13px; color: #4a5568; margin-bottom: 10px;">* Os gastos com Pedágio e Balsa são custeados <strong>100% pela Empresa</strong> (descontados integralmente no saldo corporativo).</p>
+        <h3 style="font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="history" style="color: var(--primary);"></i> Histórico de Viagens
+        </h3>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Veículo</th>
+                <th>Destino</th>
+                <th>Carga</th>
+                <th>Peso</th>
+                <th>KM</th>
+              </tr>
+            </thead>
+            <tbody id="historico-viagens">
+              <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Nenhuma viagem registrada.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="emp-cadastrar-viagem" class="tab-content hidden">
+      <div class="section-box">
+        <h3 style="font-size: 16px; margin-bottom: 15px;">Preencha os Dados do Percurso</h3>
+
+        <form id="form-cadastrar-viagem" onsubmit="aceitarEAbrirNovaAba(event)">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div>
+              <label>Data da Viagem:</label>
+              <div class="input-group">
+                <i data-lucide="calendar"></i>
+                <input type="date" id="input-data" required>
+              </div>
+            </div>
+
+            <div>
+              <label>Tipo de Veículo:</label>
+              <div class="input-group">
+                <i data-lucide="truck"></i>
+                <select id="vehicle-type" onchange="toggleVehicleOptions(); calcularValorViagem();" required>
+                  <option value="">Selecione...</option>
+                  <option value="onibus">Ônibus</option>
+                  <option value="caminhao">Caminhão</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div id="box-onibus" class="hidden">
+            <label>Modelo do Ônibus:</label>
+            <div class="input-group">
+              <i data-lucide="bus"></i>
+              <input type="text" id="input-onibus" placeholder="Ex: Marcopolo Paradiso G7">
+            </div>
+          </div>
+
+          <div id="box-caminhao" class="hidden">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+              <div>
+                <label>Marca do Caminhão:</label>
+                <div class="input-group">
+                  <i data-lucide="shield"></i>
+                  <select id="select-caminhao">
+                    <option value="">Selecione...</option>
+                    <option value="DAF">DAF</option>
+                    <option value="Iveco">Iveco</option>
+                    <option value="MAN">MAN</option>
+                    <option value="Mercedes-Benz">Mercedes-Benz</option>
+                    <option value="Renault">Renault</option>
+                    <option value="Scania">Scania</option>
+                    <option value="Volvo">Volvo</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label>Categoria da Carga:</label>
+                <div class="input-group">
+                  <i data-lucide="package"></i>
+                  <select id="select-tipo-carga" onchange="calcularValorViagem()">
+                    <option value="">Selecione...</option>
+                    <option value="1.80">Normais (R$ 1,80/KM)</option>
+                    <option value="2.20">Congelados (R$ 2,20/KM)</option>
+                    <option value="4.80">Perigosas (R$ 4,80/KM)</option>
+                    <option value="3.00">Pesadas (R$ 3,00/KM)</option>
+                    <option value="5.00">Alto Valor (R$ 5,00/KM)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+              <div>
+                <label>Especificação / Produto:</label>
+                <div class="input-group">
+                  <i data-lucide="file-text"></i>
+                  <input type="text" id="input-carga-desc" placeholder="Ex: Bobinas de Aço, Medicamentos">
+                </div>
+              </div>
+
+              <div>
+                <label>Peso Estimado:</label>
+                <div class="input-group">
+                  <i data-lucide="weight"></i>
+                  <input type="text" id="input-peso" placeholder="Ex: 15 Toneladas">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <div>
+              <label>Origem:</label>
+              <div class="input-group">
+                <i data-lucide="map-pin"></i>
+                <input type="text" id="input-origem" placeholder="Cidade Origem" required>
+              </div>
+            </div>
+
+            <div>
+              <label>Destino:</label>
+              <div class="input-group">
+                <i data-lucide="flag"></i>
+                <input type="text" id="input-destino" placeholder="Cidade Destino" required>
+              </div>
+            </div>
+          </div>
+
+          <label>Quilometragem Total (KM):</label>
+          <div class="input-group">
+            <i data-lucide="milestone"></i>
+            <input type="number" id="input-km" placeholder="Ex: 450" oninput="calcularValorViagem()" required>
+          </div>
+
+          <div id="box-valor-calculado" class="valor-calculado-box">
+            <i data-lucide="calculator"></i>
+            <span>Estimativa Bruta de Ganho: <strong>R$ 0,00</strong></span>
+          </div>
+
+          <button type="submit" class="btn-main">
+            Iniciar Viagem & Lançar Gastos <i data-lucide="play-circle"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. OVERLAY MODAL: REGISTRO DE DESPESAS DA VIAGEM -->
+  <div id="aba-viagem-ativa" class="overlay-window hidden">
+    <div class="overlay-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 style="font-size: 20px; color: var(--text-dark); display: flex; align-items: center; gap: 10px;">
+          <i data-lucide="route" style="color: var(--primary);"></i> Lançamentos da Viagem
+        </h2>
+      </div>
+
+      <div id="detalhes-viagem-resumo" class="section-box" style="background: #f8fafc;"></div>
+
+      <div class="section-box">
+        <h3 style="font-size: 15px; color: var(--primary-dark); display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="ticket"></i> Pedágios e Balsas (Desconto 100% Empresa)
+        </h3>
         
-        <form onsubmit="adicionarGasto(event)" style="margin-top: 10px;">
-          <label>Tipo de Gastos:</label>
-          <select id="expense-type" required>
-            <option value="">Selecione...</option>
-            <option value="Pedágio">Pedágio</option>
-            <option value="Balsa">Balsa</option>
-          </select>
+        <form onsubmit="adicionarGasto(event)" style="margin-top: 15px;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+            <div class="input-group">
+              <i data-lucide="layers"></i>
+              <select id="expense-type" required>
+                <option value="">Tipo...</option>
+                <option value="Pedágio">Pedágio</option>
+                <option value="Balsa">Balsa</option>
+              </select>
+            </div>
 
-          <label>Valor (R$):</label>
-          <input type="number" step="0.01" id="expense-value" placeholder="0.00" required>
+            <div class="input-group">
+              <i data-lucide="dollar-sign"></i>
+              <input type="number" step="0.01" id="expense-value" placeholder="Valor R$" required>
+            </div>
+          </div>
 
-          <label>Observação / Local (opcional):</label>
-          <input type="text" id="expense-obs" placeholder="Ex: Praça de Pedágio ou Porto de Travessia">
+          <div class="input-group">
+            <i data-lucide="map-pin"></i>
+            <input type="text" id="expense-obs" placeholder="Praça / Local (opcional)">
+          </div>
 
-          <button type="submit" class="btn-main">Lançar Despesa</button>
+          <button type="submit" class="btn-main" style="background: #3b82f6;">
+            Adicionar Despesa <i data-lucide="plus"></i>
+          </button>
         </form>
 
         <div class="table-responsive">
@@ -348,35 +875,37 @@
             <thead>
               <tr>
                 <th>Tipo</th>
-                <th>Local / Obs</th>
-                <th>Valor Total</th>
+                <th>Local</th>
+                <th>Valor</th>
               </tr>
             </thead>
             <tbody id="lista-gastos">
-              <tr>
-                <td colspan="3" style="text-align: center; color: #718096;">Nenhum gasto de pedágio ou balsa lançado.</td>
-              </tr>
+              <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum lançamento.</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
       <div class="section-box">
-        <h3>Horário de Descanso</h3>
-        <p style="font-size: 13px; color: #e53e3e; margin-bottom: 10px;">* Ao registrar o descanso, será debitado o valor fixo de R$ 50,00 da folha do funcionário.</p>
-        
-        <form onsubmit="registrarDescanso(event)">
-          <div class="time-grid">
-            <div style="flex: 1;">
-              <label>Início do Descanso:</label>
-              <input type="time" id="time-inicio" required>
+        <h3 style="font-size: 15px; color: var(--accent-orange); display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="clock"></i> Descanso (Desconto R$ 50,00 por registro)
+        </h3>
+
+        <form onsubmit="registrarDescanso(event)" style="margin-top: 15px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <label>Início:</label>
+              <input type="time" id="time-inicio" style="padding-left: 12px;" required>
             </div>
-            <div style="flex: 1;">
-              <label>Término do Descanso:</label>
-              <input type="time" id="time-fim" required>
+            <div>
+              <label>Fim:</label>
+              <input type="time" id="time-fim" style="padding-left: 12px;" required>
             </div>
           </div>
-          <button type="submit" class="btn-main" style="background-color: #dd6b20;">Registrar Descanso (Debitar R$ 50,00)</button>
+
+          <button type="submit" class="btn-main" style="background: var(--accent-orange); margin-top: 10px;">
+            Registrar Parada <i data-lucide="coffee"></i>
+          </button>
         </form>
 
         <div class="table-responsive">
@@ -385,34 +914,78 @@
               <tr>
                 <th>Início</th>
                 <th>Término</th>
-                <th>Desconto de Descanso</th>
+                <th>Débito Motorista</th>
               </tr>
             </thead>
             <tbody id="lista-descansos">
-              <tr>
-                <td colspan="3" style="text-align: center; color: #718096;">Nenhum descanso registrado nesta viagem.</td>
-              </tr>
+              <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum descanso anotado.</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <button onclick="concluirViagem()" class="btn-main" style="background-color: #38a169; margin-top: 10px; font-size: 16px;">Concluir Viagem e Salvar</button>
+      <button onclick="concluirViagem()" class="btn-main" style="background: var(--accent-green); font-size: 16px;">
+        Finalizar e Salvar Viagem <i data-lucide="check-circle"></i>
+      </button>
     </div>
   </div>
 
   <script>
+    // CONTROLADOR DE VERSÃO E CHANGELOG DO APLICATIVO
+    // Toda vez que você atualizar o código, altere esta variável e atualize a lista 'melhorias'
+    const APP_VERSION = "2.4.0";
+    const MELHORIAS_VERSAO = [
+      "Regra 100% Empresa: Dedução integral de pedágios e balsas no balanço corporativo.",
+      "Novo indicador visual de Versão do App na página inicial de acesso e cadastro.",
+      "Modal dinâmico 'O que mudou?' com histórico completo de novidades.",
+      "Interface modernizada com ícones 3D/Lucide e tipografia Poppins.",
+      "Gráfico dinâmico no painel financeiro para comparar Saldo Bruto e Despesas.",
+      "Sons interativos de ação (cliques e finalização de viagens)."
+    ];
+
+    function inicializarVersaoApp() {
+      document.getElementById('lbl-version-login').innerText = `v${APP_VERSION}`;
+      document.getElementById('lbl-version-signup').innerText = `v${APP_VERSION}`;
+      document.getElementById('changelog-version-title').innerText = `Versão ${APP_VERSION} Atualizada`;
+
+      const listContainer = document.getElementById('changelog-list');
+      listContainer.innerHTML = '';
+
+      MELHORIAS_VERSAO.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'changelog-item';
+        div.innerHTML = `
+          <i data-lucide="check-circle-2" style="width:18px; height:18px;"></i>
+          <span style="font-size: 13px; color: var(--text-dark); font-weight: 500;">${item}</span>
+        `;
+        listContainer.appendChild(div);
+      });
+
+      lucide.createIcons();
+    }
+
+    function abrirChangelog() {
+      soundClick();
+      document.getElementById('modal-changelog').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function fecharChangelog() {
+      soundClick();
+      document.getElementById('modal-changelog').classList.add('hidden');
+    }
+
+    lucide.createIcons();
+
     let selectedUserType = 'empresa';
-    let nomeUsuarioAtual = 'Funcionário Padrão';
+    let nomeUsuarioAtual = 'Motorista';
     let kmAcumulado = 0;
     let salarioAcumulado = 0;
     
-    // Base de dados local
     let funcionariosCadastrados = {}; 
     let historicoViagensArray = [];
     let viagensEmpresaArray = [];
 
-    // Acumuladores Globais da Empresa
     let saldoTotalEmpresaBruto = 0;
     let custoTotalPedagioBalsa = 0;
 
@@ -420,8 +993,28 @@
     let gastosArray = [];
     let descansosArray = [];
     let valorBrutoCalculado = 0;
+    let financeChartInstance = null;
+
+    function playAudioTone(freq, type, duration) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    function soundSuccess() { playAudioTone(587.33, 'sine', 0.3); }
+    function soundClick() { playAudioTone(300, 'triangle', 0.1); }
 
     function selectType(type) {
+      soundClick();
       selectedUserType = type;
       document.getElementById('btn-empresa').classList.toggle('active', type === 'empresa');
       document.getElementById('btn-funcionario').classList.toggle('active', type === 'funcionario');
@@ -445,6 +1038,7 @@
         renderPainelEmpresa();
         renderViagensEmpresaPorCarga();
       }
+      lucide.createIcons();
     }
 
     function registrarFuncionarioBase(nome) {
@@ -455,6 +1049,7 @@
 
     function handleLogin(e) {
       e.preventDefault();
+      soundSuccess();
       const loginVal = document.getElementById('login-user').value;
       if (loginVal) nomeUsuarioAtual = loginVal;
 
@@ -462,21 +1057,24 @@
         showScreen('company-screen');
       } else {
         registrarFuncionarioBase(nomeUsuarioAtual);
+        document.getElementById('saudacao-motorista').innerText = `Motorista: ${nomeUsuarioAtual}`;
         showScreen('employee-screen');
       }
     }
 
     function handleSignup(e) {
       e.preventDefault();
+      soundSuccess();
       const nameVal = document.getElementById('signup-name').value;
       if (nameVal) nomeUsuarioAtual = nameVal;
 
       registrarFuncionarioBase(nomeUsuarioAtual);
-      alert('Cadastro realizado com sucesso!');
+      document.getElementById('saudacao-motorista').innerText = `Motorista: ${nomeUsuarioAtual}`;
       showScreen('employee-screen');
     }
 
     function switchTab(containerId, tabId, element) {
+      soundClick();
       const container = document.getElementById(containerId);
       container.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
       container.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -489,33 +1087,18 @@
       const type = document.getElementById('vehicle-type').value;
       const boxOnibus = document.getElementById('box-onibus');
       const boxCaminhao = document.getElementById('box-caminhao');
-      const inputOnibus = document.getElementById('input-onibus');
-      const selectCaminhao = document.getElementById('select-caminhao');
-      const selectTipoCarga = document.getElementById('select-tipo-carga');
-      const inputPeso = document.getElementById('input-peso');
 
       if (type === 'onibus') {
         boxOnibus.classList.remove('hidden');
         boxCaminhao.classList.add('hidden');
-        inputOnibus.required = true;
-        selectCaminhao.required = false;
-        selectTipoCarga.required = false;
-        inputPeso.required = false;
       } else if (type === 'caminhao') {
         boxCaminhao.classList.remove('hidden');
         boxOnibus.classList.add('hidden');
-        selectCaminhao.required = true;
-        selectTipoCarga.required = true;
-        inputPeso.required = true;
-        inputOnibus.required = false;
       } else {
         boxOnibus.classList.add('hidden');
         boxCaminhao.classList.add('hidden');
-        inputOnibus.required = false;
-        selectCaminhao.required = false;
-        selectTipoCarga.required = false;
-        inputPeso.required = false;
       }
+      lucide.createIcons();
     }
 
     function calcularValorViagem() {
@@ -531,13 +1114,17 @@
       }
 
       valorBrutoCalculado = km * taxaPorKm;
-      
-      document.getElementById('box-valor-calculado').innerText = 
-        `Salário Bruto Estimado: R$ ${valorBrutoCalculado.toFixed(2)}`;
+      document.getElementById('box-valor-calculado').innerHTML = `
+        <i data-lucide="calculator"></i>
+        <span>Estimativa Bruta de Ganho: <strong>R$ ${valorBrutoCalculado.toFixed(2)}</strong></span>
+      `;
+      lucide.createIcons();
     }
 
     function aceitarEAbrirNovaAba(e) {
       e.preventDefault();
+      soundSuccess();
+
       const data = document.getElementById('input-data').value;
       const tipo = document.getElementById('vehicle-type').value;
       const origem = document.getElementById('input-origem').value;
@@ -550,16 +1137,16 @@
       let peso = '-';
 
       if (tipo === 'onibus') {
-        veiculoNome = document.getElementById('input-onibus').value;
+        veiculoNome = document.getElementById('input-onibus').value || 'Ônibus';
         cargaCategoria = 'Passageiros / Ônibus';
         cargaInfo = 'Passageiros';
       } else {
-        veiculoNome = document.getElementById('select-caminhao').value;
+        veiculoNome = document.getElementById('select-caminhao').value || 'Caminhão';
         const selectCarga = document.getElementById('select-tipo-carga');
         cargaCategoria = selectCarga.options[selectCarga.selectedIndex].text;
         const descCarga = document.getElementById('input-carga-desc').value;
         cargaInfo = `${cargaCategoria}${descCarga ? ' (' + descCarga + ')' : ''}`;
-        peso = document.getElementById('input-peso').value;
+        peso = document.getElementById('input-peso').value || '-';
       }
 
       viagemEmAndamento = {
@@ -577,22 +1164,24 @@
 
       gastosArray = [];
       descansosArray = [];
-      document.getElementById('lista-gastos').innerHTML = '<tr><td colspan="3" style="text-align: center; color: #718096;">Nenhum gasto de pedágio ou balsa lançado.</td></tr>';
-      document.getElementById('lista-descansos').innerHTML = '<tr><td colspan="3" style="text-align: center; color: #718096;">Nenhum descanso registrado nesta viagem.</td></tr>';
+      document.getElementById('lista-gastos').innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum lançamento.</td></tr>';
+      document.getElementById('lista-descansos').innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum descanso anotado.</td></tr>';
 
       document.getElementById('detalhes-viagem-resumo').innerHTML = `
-        <p><strong>Motorista:</strong> ${nomeUsuarioAtual}</p>
-        <p><strong>Rota:</strong> ${origem} ➔ ${destino} | <strong>Data:</strong> ${data.split('-').reverse().join('/')}</p>
-        <p><strong>Veículo:</strong> ${veiculoNome} (${viagemEmAndamento.tipo}) | <strong>KM:</strong> ${km} KM</p>
-        <p><strong>Carga:</strong> ${cargaInfo} | <strong>Peso:</strong> ${peso}</p>
-        <p><strong>Salário Bruto Inicial:</strong> R$ ${valorBrutoCalculado.toFixed(2)}</p>
+        <p style="font-size: 13px;"><strong>Motorista:</strong> ${nomeUsuarioAtual}</p>
+        <p style="font-size: 13px;"><strong>Rota:</strong> ${origem} ➔ ${destino} | <strong>Data:</strong> ${data.split('-').reverse().join('/')}</p>
+        <p style="font-size: 13px;"><strong>Veículo:</strong> ${veiculoNome} | <strong>Quilometragem:</strong> ${km} KM</p>
+        <p style="font-size: 13px;"><strong>Valor Bruto Previsto:</strong> <span style="color: var(--accent-green); font-weight:bold;">R$ ${valorBrutoCalculado.toFixed(2)}</span></p>
       `;
 
       document.getElementById('aba-viagem-ativa').classList.remove('hidden');
+      lucide.createIcons();
     }
 
     function adicionarGasto(e) {
       e.preventDefault();
+      soundClick();
+
       const tipo = document.getElementById('expense-type').value;
       const valor = parseFloat(document.getElementById('expense-value').value);
       const obs = document.getElementById('expense-obs').value || '-';
@@ -603,7 +1192,7 @@
       if (gastosArray.length === 1) tbody.innerHTML = '';
 
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${tipo}</td><td>${obs}</td><td style="color: #2b6cb0; font-weight: bold;">R$ ${valor.toFixed(2)}</td>`;
+      tr.innerHTML = `<td>${tipo}</td><td>${obs}</td><td style="color: var(--primary-dark); font-weight: bold;">R$ ${valor.toFixed(2)}</td>`;
       tbody.appendChild(tr);
 
       document.getElementById('expense-type').value = '';
@@ -613,6 +1202,8 @@
 
     function registrarDescanso(e) {
       e.preventDefault();
+      soundClick();
+
       const inicio = document.getElementById('time-inicio').value;
       const fim = document.getElementById('time-fim').value;
 
@@ -622,7 +1213,7 @@
       if (descansosArray.length === 1) tbody.innerHTML = '';
 
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${inicio}</td><td>${fim}</td><td style="color: #e53e3e; font-weight: bold;">- R$ 50,00</td>`;
+      tr.innerHTML = `<td>${inicio}</td><td>${fim}</td><td style="color: #ef4444; font-weight: bold;">- R$ 50,00</td>`;
       tbody.appendChild(tr);
 
       document.getElementById('time-inicio').value = '';
@@ -631,19 +1222,15 @@
 
     function concluirViagem() {
       if (!viagemEmAndamento) return;
+      soundSuccess();
 
       const totalPedagioBalsaViagem = gastosArray.reduce((acc, g) => acc + g.valor, 0);
       const totalDebitoDescansos = descansosArray.length * 50;
-      
-      // 100% dos pedágios e balsas são descontados exclusivamente da empresa.
-      // O funcionário só tem descontado o valor de seus descansos.
       const salarioLiquidoViagem = viagemEmAndamento.valorViagem - totalDebitoDescansos;
 
-      // Atualiza valores da empresa
       saldoTotalEmpresaBruto += viagemEmAndamento.valorViagem;
       custoTotalPedagioBalsa += totalPedagioBalsaViagem;
 
-      // Atualiza acumulados do funcionário
       kmAcumulado += viagemEmAndamento.km;
       salarioAcumulado += salarioLiquidoViagem;
 
@@ -669,15 +1256,14 @@
       viagensEmpresaArray.unshift(viagemConcluida);
 
       document.getElementById('form-cadastrar-viagem').reset();
-      document.getElementById('box-valor-calculado').innerText = 'Salário Bruto Estimado: R$ 0,00';
+      document.getElementById('box-valor-calculado').innerHTML = '<i data-lucide="calculator"></i><span>Estimativa Bruta: <strong>R$ 0,00</strong></span>';
       document.getElementById('box-onibus').classList.add('hidden');
       document.getElementById('box-caminhao').classList.add('hidden');
       document.getElementById('aba-viagem-ativa').classList.add('hidden');
 
       viagemEmAndamento = null;
-      alert('Viagem concluída com sucesso!');
-
       switchTab('employee-screen', 'emp-status', document.querySelector('#employee-screen .nav-btn'));
+      lucide.createIcons();
     }
 
     function renderHistoricoFuncionario() {
@@ -685,22 +1271,20 @@
       tbody.innerHTML = '';
 
       if (historicoViagensArray.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #718096;">Nenhuma viagem registrada até o momento.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Nenhuma viagem registrada.</td></tr>';
         return;
       }
 
       historicoViagensArray.forEach(v => {
         const tr = document.createElement('tr');
-        const dataFormatada = v.data.split('-').reverse().join('/');
-        
         tr.innerHTML = `
-          <td>${dataFormatada}</td>
-          <td>${v.tipo}</td>
+          <td>${v.data.split('-').reverse().join('/')}</td>
+          <td><span style="background: #e0f2fe; color: #0369a1; padding: 3px 8px; border-radius: 4px; font-weight: 600; font-size: 11px;">${v.tipo}</span></td>
           <td>${v.veiculo}</td>
           <td>${v.destino}</td>
           <td>${v.carga}</td>
           <td>${v.peso}</td>
-          <td>${v.km} KM</td>
+          <td><strong>${v.km} KM</strong></td>
         `;
         tbody.appendChild(tr);
       });
@@ -711,9 +1295,8 @@
       tbody.innerHTML = '';
 
       const listaNomes = Object.keys(funcionariosCadastrados);
-
       if (listaNomes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #718096;">Nenhum funcionário cadastrado até o momento.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum motorista no sistema.</td></tr>';
         return;
       }
 
@@ -722,7 +1305,7 @@
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td><strong>${nome}</strong></td>
-          <td><strong>${dados.viagensCount}</strong></td>
+          <td>${dados.viagensCount}</td>
           <td><strong>${dados.totalKm} KM</strong></td>
         `;
         tbody.appendChild(tr);
@@ -730,13 +1313,31 @@
     }
 
     function renderPainelEmpresa() {
-      // Cálculo do saldo líquido: Saldo Bruto das Viagens (-) Total de Pedágios e Balsas
       const saldoLiquidoEmpresa = saldoTotalEmpresaBruto - custoTotalPedagioBalsa;
 
       document.getElementById('emp-saldo-total').innerText = saldoLiquidoEmpresa.toFixed(2);
       document.getElementById('emp-custo-pedagio-balsa').innerText = custoTotalPedagioBalsa.toFixed(2);
-      document.getElementById('emp-saldo-bruto').innerText = saldoTotalEmpresaBruto.toFixed(2);
-      document.getElementById('emp-desconto-100').innerText = custoTotalPedagioBalsa.toFixed(2);
+
+      const ctx = document.getElementById('financeChart').getContext('2d');
+      if (financeChartInstance) financeChartInstance.destroy();
+
+      financeChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Saldo Bruto Total', 'Custo Pedágios/Balsas', 'Saldo Líquido'],
+          datasets: [{
+            label: 'Valores em R$',
+            data: [saldoTotalEmpresaBruto, custoTotalPedagioBalsa, saldoLiquidoEmpresa],
+            backgroundColor: ['#3b82f6', '#f97316', '#10b981'],
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
     }
 
     function renderViagensEmpresaPorCarga() {
@@ -744,13 +1345,13 @@
       container.innerHTML = '';
 
       if (viagensEmpresaArray.length === 0) {
-        container.innerHTML = '<p style="text-align: center; color: #718096; margin-top: 20px;">Nenhuma viagem registrada na empresa até o momento.</p>';
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted); margin-top: 20px;">Nenhuma carga cadastrada.</p>';
         return;
       }
 
       const agrupado = {};
       viagensEmpresaArray.forEach(v => {
-        const cat = v.cargaCategoria || 'Outros';
+        const cat = v.cargaCategoria || 'Geral';
         if (!agrupado[cat]) agrupado[cat] = [];
         agrupado[cat].push(v);
       });
@@ -759,35 +1360,34 @@
         const box = document.createElement('div');
         box.className = 'section-box';
 
-        let htmlHeader = `<div class="categoria-carga-title"><strong>Tipo de Carga: ${categoria}</strong></div>`;
+        let htmlHeader = `<div class="categoria-carga-title"><i data-lucide="package-check"></i> ${categoria}</div>`;
         let htmlTable = `
           <div class="table-responsive">
             <table>
               <thead>
                 <tr>
                   <th>Data</th>
-                  <th>Funcionário</th>
+                  <th>Motorista</th>
                   <th>Veículo</th>
-                  <th>Origem/Destino</th>
+                  <th>Percurso</th>
                   <th>Especificação</th>
                   <th>Peso</th>
-                  <th>Km</th>
+                  <th>KM</th>
                 </tr>
               </thead>
               <tbody>
         `;
 
         agrupado[categoria].forEach(v => {
-          const dataFmt = v.data.split('-').reverse().join('/');
           htmlTable += `
             <tr>
-              <td>${dataFmt}</td>
+              <td>${v.data.split('-').reverse().join('/')}</td>
               <td><strong>${v.motorista}</strong></td>
-              <td>${v.veiculo} (${v.tipo})</td>
+              <td>${v.veiculo}</td>
               <td>${v.origem} ➔ ${v.destino}</td>
               <td>${v.carga}</td>
               <td>${v.peso}</td>
-              <td>${v.km} KM</td>
+              <td><strong>${v.km} KM</strong></td>
             </tr>
           `;
         });
@@ -796,12 +1396,16 @@
         box.innerHTML = htmlHeader + htmlTable;
         container.appendChild(box);
       }
+      lucide.createIcons();
     }
 
     function logout() {
+      soundClick();
       showScreen('login-screen');
     }
 
+    // Inicialização do App com Controle de Versão
+    inicializarVersaoApp();
     showScreen('login-screen');
   </script>
 </body>
