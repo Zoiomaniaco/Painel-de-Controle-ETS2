@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
   
-  <!-- Ícones 3D & Vetoriais (Lucide Icons) -->
+  <!-- Ícones Vetoriais (Lucide Icons) -->
   <script src="https://unpkg.com/lucide@latest"></script>
   
   <!-- Chart.js para Gráficos Dinâmicos -->
@@ -23,6 +23,7 @@
       --primary-light: #60a5fa;
       --accent-orange: #f97316;
       --accent-green: #10b981;
+      --accent-purple: #8b5cf6;
       --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
       --glass-bg: rgba(255, 255, 255, 0.92);
       --glass-border: rgba(255, 255, 255, 0.4);
@@ -298,6 +299,7 @@
     .stat-card:hover { transform: translateY(-4px); }
     .stat-card.accent { border-left-color: var(--accent-orange); }
     .stat-card.success { border-left-color: var(--accent-green); }
+    .stat-card.purple { border-left-color: var(--accent-purple); }
 
     .stat-card p {
       font-size: 11px;
@@ -308,7 +310,7 @@
     }
 
     .stat-card h3 {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 800;
       color: var(--text-dark);
       margin-top: 6px;
@@ -427,6 +429,26 @@
 
     .btn-logout:hover { background: #dc2626; }
 
+    .btn-delete {
+      padding: 6px 12px;
+      background: #fee2e2;
+      color: #dc2626;
+      border: 1px solid #fca5a5;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-delete:hover {
+      background: #dc2626;
+      color: white;
+    }
+
     .chart-container {
       position: relative;
       height: 250px;
@@ -446,6 +468,36 @@
       color: var(--accent-green);
       margin-top: 3px;
     }
+
+    /* Estilos da Seção de Promoção e Carreira */
+    .patente-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #f1f5f9;
+      color: var(--primary-dark);
+      border: 1px solid #cbd5e1;
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      background: #e2e8f0;
+      height: 12px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 10px 0 5px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent-purple) 100%);
+      width: 0%;
+      transition: width 0.4s ease;
+    }
   </style>
 </head>
 <body>
@@ -453,7 +505,7 @@
   <!-- 1. TELA DE LOGIN -->
   <div id="login-screen" class="card">
     <div class="version-badge" onclick="abrirChangelog()">
-      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-login">v2.6.0</span> • Ver o que mudou
+      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-login">v2.7.0</span> • Ver o que mudou
     </div>
 
     <div class="app-logo">
@@ -493,7 +545,7 @@
   <!-- 2. TELA DE CADASTRO DE MOTORISTA -->
   <div id="signup-screen" class="card hidden">
     <div class="version-badge" onclick="abrirChangelog()">
-      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-signup">v2.6.0</span> • O que melhorou?
+      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-signup">v2.7.0</span> • O que melhorou?
     </div>
 
     <div class="app-logo">
@@ -537,8 +589,8 @@
       </div>
 
       <div style="background: #eff6ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--primary);">
-        <strong style="color: var(--primary-dark); font-size: 14px;" id="changelog-version-title">Versão 2.6.0 Atualizada</strong>
-        <p style="font-size: 11px; color: var(--text-muted);">Implementada a persistência de tela e dados via localStorage para evitar redirecionamento ao atualizar a página.</p>
+        <strong style="color: var(--primary-dark); font-size: 14px;" id="changelog-version-title">Versão 2.7.0 Atualizada</strong>
+        <p style="font-size: 11px; color: var(--text-muted);">Inclusão da opção de exclusão de funcionários e Sistema Completo de Promoção por KM.</p>
       </div>
 
       <div id="changelog-list"></div>
@@ -582,12 +634,14 @@
           <thead>
             <tr>
               <th>Motorista</th>
+              <th>Patente Atual</th>
               <th>Viagens Realizadas</th>
               <th>Total Rodado (KM)</th>
+              <th style="text-align: center;">Ações</th>
             </tr>
           </thead>
           <tbody id="empresa-resumo-funcionarios">
-            <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum registro até o momento.</td></tr>
+            <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Nenhum registro até o momento.</td></tr>
           </tbody>
         </table>
       </div>
@@ -666,6 +720,40 @@
           <p>Distância Total Percorrida</p>
           <h3><span id="stat-km">0</span> KM</h3>
           <i data-lucide="navigation" class="stat-icon-bg"></i>
+        </div>
+        <div class="stat-card purple">
+          <p>Patente de Carreira</p>
+          <h3 id="stat-patente-nome" style="font-size: 18px;">Motorista Novato</h3>
+          <i data-lucide="award" class="stat-icon-bg"></i>
+        </div>
+      </div>
+
+      <!-- CARD DE PLANO DE CARREIRA E PROMOÇÕES -->
+      <div class="section-box" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+          <h3 style="font-size: 16px; color: var(--primary-dark); display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="medal" style="color: var(--accent-purple);"></i> Carreira & Nível do Motorista
+          </h3>
+          <button onclick="abrirHistoricoPromocoes()" style="padding: 6px 12px; background: #f3e8ff; color: var(--accent-purple); border: 1px solid #d8b4fe; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+            <i data-lucide="history" style="width: 14px; height: 14px;"></i> Ver Histórico de Promoções
+          </button>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); font-weight: 600;">
+            <span>Progresso até a próxima patente:</span>
+            <span id="label-proxima-patente">Calculando...</span>
+          </div>
+          <div class="progress-bar-container">
+            <div id="barra-progresso-patente" class="progress-bar-fill"></div>
+          </div>
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 8px;">
+          <strong style="font-size: 13px; color: var(--text-dark); display: block; margin-bottom: 4px;">
+            <i data-lucide="shield-check" style="width:14px; height:14px; color: var(--accent-green); display:inline;"></i> Benefícios e Permissões Atuais:
+          </strong>
+          <p id="label-beneficios-patente" style="font-size: 12px; color: var(--text-muted); font-style: italic;">Carregando benefícios...</p>
         </div>
       </div>
 
@@ -821,6 +909,39 @@
     </div>
   </div>
 
+  <!-- MODAL: HISTÓRICO DE PROMOÇÕES DO MOTORISTA -->
+  <div id="modal-promocoes" class="overlay-window hidden">
+    <div class="overlay-content" style="max-width: 600px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size: 18px; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="award" style="color: var(--accent-purple);"></i> Histórico de Promoções
+        </h2>
+        <button onclick="fecharHistoricoPromocoes()" style="border: none; background: transparent; cursor: pointer;">
+          <i data-lucide="x" style="color: var(--text-muted);"></i>
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Data / Registro</th>
+              <th>Patente Conquistada</th>
+              <th>KM Requerido</th>
+            </tr>
+          </thead>
+          <tbody id="lista-historico-promocoes">
+            <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhuma promoção registrada ainda.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <button onclick="fecharHistoricoPromocoes()" class="btn-main" style="margin-top: 20px;">
+        Fechar <i data-lucide="check"></i>
+      </button>
+    </div>
+  </div>
+
   <!-- 5. OVERLAY MODAL: REGISTRO DE DESPESAS DA VIAGEM -->
   <div id="aba-viagem-ativa" class="overlay-window hidden">
     <div class="overlay-content">
@@ -926,13 +1047,28 @@
   </div>
 
   <script>
-    const APP_VERSION = "2.6.0";
+    const APP_VERSION = "2.7.0";
     const MELHORIAS_VERSAO = [
-      "Persistência de Tela: O aplicativo salva a tela aberta e não volta para o início ao atualizar (F5).",
-      "Persistência de Dados (localStorage): As viagens e o balanço financeiro são preservados mesmo atualizando o navegador.",
-      "Regra Parada de Descanso: Paradas de 9 horas ou mais aplicam desconto de R$ 100,00 no valor Bruto da Empresa.",
-      "Formatação Global BRL: Formatação monetária 100% configurada na moeda brasileira (R$).",
-      "Dedução integral de pedágios e balsas no balanço corporativo da empresa."
+      "Opção de Exclusão: Possibilidade de remover motoristas no painel da empresa.",
+      "Sistema de Promoção por KM: 12 Patentes exclusivas baseadas na quilometragem acumulada.",
+      "Histórico de Promoções: Registro de cada nível alcançado sem retrocessos.",
+      "Persistência de Tela e Dados: O estado e navegação permanecem ao atualizar a página (F5)."
+    ];
+
+    // MATRIZ DE PATENTES E PROMOÇÕES
+    const PATENTES = [
+      { km: 0, nome: "Motorista Novato", beneficios: "Acesso a rotas urbanas e de curta distância. Suporte inicial." },
+      { km: 10000, nome: "Motorista Iniciante", beneficios: "Permissão para viagens regionais e fretes normais." },
+      { km: 25000, nome: "Motorista Júnior", beneficios: "Acesso a rotas estaduais e prioridade no agendamento." },
+      { km: 50000, nome: "Motorista Pleno", beneficios: "Habilitação para fretes congelados e carga pesada." },
+      { km: 100000, nome: "Motorista Sênior", beneficios: "Permissão para cargas perigosas e rotas de longa distância." },
+      { km: 150000, nome: "Motorista Profissional", beneficios: "Prioridade em rotas de alto valor e frota premium." },
+      { km: 200000, nome: "Motorista Especialista", beneficios: "Bônus de preferência e liberação para transporte especial." },
+      { km: 300000, nome: "Motorista Elite", beneficios: "Acesso a todas as categorias de carga sem restrições." },
+      { km: 400000, nome: "Motorista Mestre", beneficios: "Status VIP e mentoria da frota corporativa." },
+      { km: 500000, nome: "Motorista Diamante", beneficios: "Atendimento prioritário total na gestão de rotas." },
+      { km: 750000, nome: "Lenda da Estrada", beneficios: "Honraria máxima da frota J&I e preferência em grandes contratos." },
+      { km: 1000000, nome: "Milionário das Estradas", beneficios: "Status lendário supremo e destaque na galeria de honra." }
     ];
 
     function formatarBRL(valor) {
@@ -992,7 +1128,7 @@
     let valorBrutoCalculado = 0;
     let financeChartInstance = null;
 
-    // SISTEMA DE SALVAMENTO DE DADOS (LOCALSTORAGE)
+    // LOCALSTORAGE SYSTEM
     function salvarDadosNoStorage() {
       const dadosState = {
         selectedUserType,
@@ -1078,8 +1214,13 @@
         renderViagensEmpresaPorCarga();
       } else if (screenId === 'employee-screen') {
         document.getElementById('saudacao-motorista').innerText = `Motorista: ${nomeUsuarioAtual}`;
+        if (funcionariosCadastrados[nomeUsuarioAtual]) {
+          kmAcumulado = funcionariosCadastrados[nomeUsuarioAtual].totalKm || 0;
+        }
         document.getElementById('stat-km').innerText = kmAcumulado;
         document.getElementById('stat-salario').innerText = formatarBRL(salarioAcumulado);
+        
+        atualizarCarreiraEPatente(nomeUsuarioAtual);
         renderHistoricoFuncionario();
       }
       lucide.createIcons();
@@ -1087,8 +1228,125 @@
 
     function registrarFuncionarioBase(nome) {
       if (!funcionariosCadastrados[nome]) {
-        funcionariosCadastrados[nome] = { viagensCount: 0, totalKm: 0 };
+        funcionariosCadastrados[nome] = { 
+          viagensCount: 0, 
+          totalKm: 0,
+          patenteAtual: PATENTES[0].nome,
+          promocoes: [{ patente: PATENTES[0].nome, km: 0, data: new Date().toLocaleDateString('pt-BR') }]
+        };
+      } else {
+        if (!funcionariosCadastrados[nome].patenteAtual) {
+          funcionariosCadastrados[nome].patenteAtual = PATENTES[0].nome;
+        }
+        if (!funcionariosCadastrados[nome].promocoes) {
+          funcionariosCadastrados[nome].promocoes = [{ patente: PATENTES[0].nome, km: 0, data: new Date().toLocaleDateString('pt-BR') }];
+        }
       }
+    }
+
+    // EXCLUSÃO DE FUNCIONÁRIO/MOTORISTA
+    function excluirFuncionario(nome) {
+      soundClick();
+      if (confirm(`Tem certeza que deseja excluir o motorista "${nome}" do sistema?`)) {
+        delete funcionariosCadastrados[nome];
+
+        // Se o usuário excluído for o motorista logado atualmente, desloga por segurança
+        if (nomeUsuarioAtual === nome && selectedUserType === 'funcionario') {
+          alert('Sua conta foi removida pelo painel administrativo.');
+          logout();
+          return;
+        }
+
+        salvarDadosNoStorage();
+        renderVisaoGeralEmpresa();
+      }
+    }
+
+    // LÓGICA DE PROMOÇÃO DE PATENTES POR KM
+    function verificarEPromoverMotorista(nome) {
+      registrarFuncionarioBase(nome);
+      const motorista = funcionariosCadastrados[nome];
+      const kmAtual = motorista.totalKm;
+
+      PATENTES.forEach(p => {
+        if (kmAtual >= p.km) {
+          const jaConquistou = motorista.promocoes.some(item => item.patente === p.nome);
+          if (!jaConquistou) {
+            motorista.patenteAtual = p.nome;
+            motorista.promocoes.push({
+              patente: p.nome,
+              km: p.km,
+              data: new Date().toLocaleDateString('pt-BR')
+            });
+          }
+        }
+      });
+
+      salvarDadosNoStorage();
+    }
+
+    function atualizarCarreiraEPatente(nome) {
+      registrarFuncionarioBase(nome);
+      verificarEPromoverMotorista(nome);
+
+      const motorista = funcionariosCadastrados[nome];
+      const km = motorista.totalKm;
+
+      document.getElementById('stat-patente-nome').innerText = motorista.patenteAtual;
+
+      let idxAtual = 0;
+      for (let i = PATENTES.length - 1; i >= 0; i--) {
+        if (km >= PATENTES[i].km) {
+          idxAtual = i;
+          break;
+        }
+      }
+
+      const patenteAtualObj = PATENTES[idxAtual];
+      document.getElementById('label-beneficios-patente').innerText = patenteAtualObj.beneficios;
+
+      if (idxAtual < PATENTES.length - 1) {
+        const proxima = PATENTES[idxAtual + 1];
+        const kmFaltantes = proxima.km - km;
+        const kmBase = patenteAtualObj.km;
+        const progressoPercent = Math.min(100, Math.max(0, ((km - kmBase) / (proxima.km - kmBase)) * 100));
+
+        document.getElementById('label-proxima-patente').innerText = `${kmFaltantes.toLocaleString('pt-BR')} KM para ${proxima.nome}`;
+        document.getElementById('barra-progresso-patente').style.width = `${progressoPercent}%`;
+      } else {
+        document.getElementById('label-proxima-patente').innerText = "Patente Máxima Alcançada!";
+        document.getElementById('barra-progresso-patente').style.width = "100%";
+      }
+    }
+
+    function abrirHistoricoPromocoes() {
+      soundClick();
+      registrarFuncionarioBase(nomeUsuarioAtual);
+      const motorista = funcionariosCadastrados[nomeUsuarioAtual];
+      const tbody = document.getElementById('lista-historico-promocoes');
+      tbody.innerHTML = '';
+
+      if (!motorista.promocoes || motorista.promocoes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhuma promoção cadastrada.</td></tr>';
+      } else {
+        motorista.promocoes.forEach(pr => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${pr.data}</td>
+            <td><strong style="color: var(--accent-purple);">${pr.patente}</strong></td>
+            <td>${pr.km.toLocaleString('pt-BR')} KM</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById('modal-promocoes').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function fecharHistoricoPromocoes() {
+      soundClick();
+      document.getElementById('modal-promocoes').classList.add('hidden');
     }
 
     function handleLogin(e) {
@@ -1300,15 +1558,18 @@
       custoTotalPedagioBalsa += totalPedagioBalsaViagem;
       custoTotalDescansoEmpresa += totalDescontoDescansoViagem;
 
-      kmAcumulado += viagemEmAndamento.km;
       salarioAcumulado += salarioMotoristaViagem;
-
-      document.getElementById('stat-km').innerText = kmAcumulado;
-      document.getElementById('stat-salario').innerText = formatarBRL(salarioAcumulado);
 
       registrarFuncionarioBase(nomeUsuarioAtual);
       funcionariosCadastrados[nomeUsuarioAtual].viagensCount += 1;
       funcionariosCadastrados[nomeUsuarioAtual].totalKm += viagemEmAndamento.km;
+
+      kmAcumulado = funcionariosCadastrados[nomeUsuarioAtual].totalKm;
+
+      document.getElementById('stat-km').innerText = kmAcumulado;
+      document.getElementById('stat-salario').innerText = formatarBRL(salarioAcumulado);
+
+      atualizarCarreiraEPatente(nomeUsuarioAtual);
 
       const viagemConcluida = {
         ...viagemEmAndamento,
@@ -1342,12 +1603,14 @@
       const tbody = document.getElementById('historico-viagens');
       tbody.innerHTML = '';
 
-      if (historicoViagensArray.length === 0) {
+      const viagensDoUser = historicoViagensArray.filter(v => v.motorista === nomeUsuarioAtual);
+
+      if (viagensDoUser.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Nenhuma viagem registrada.</td></tr>';
         return;
       }
 
-      historicoViagensArray.forEach(v => {
+      viagensDoUser.forEach(v => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td>${v.data.split('-').reverse().join('/')}</td>
@@ -1369,20 +1632,29 @@
 
       const listaNomes = Object.keys(funcionariosCadastrados);
       if (listaNomes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum motorista no sistema.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Nenhum motorista no sistema.</td></tr>';
         return;
       }
 
       listaNomes.forEach(nome => {
         const dados = funcionariosCadastrados[nome];
+        verificarEPromoverMotorista(nome);
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td><strong>${nome}</strong></td>
+          <td><span class="patente-badge"><i data-lucide="award" style="width: 12px; height: 12px;"></i> ${dados.patenteAtual || 'Motorista Novato'}</span></td>
           <td>${dados.viagensCount}</td>
-          <td><strong>${dados.totalKm} KM</strong></td>
+          <td><strong>${dados.totalKm.toLocaleString('pt-BR')} KM</strong></td>
+          <td style="text-align: center;">
+            <button onclick="excluirFuncionario('${nome}')" class="btn-delete">
+              <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Excluir
+            </button>
+          </td>
         `;
         tbody.appendChild(tr);
       });
+      lucide.createIcons();
     }
 
     function renderPainelEmpresa() {
@@ -1483,7 +1755,6 @@
       showScreen('login-screen', false);
     }
 
-    // RESTAURAÇÃO DA TELA E ESTADO AO CARREGAR A PÁGINA
     function restaurarSessao() {
       inicializarVersaoApp();
       carregarDadosDoStorage();
@@ -1500,7 +1771,6 @@
       }
     }
 
-    // Inicializa mantendo o estado anterior
     restaurarSessao();
   </script>
 </body>
