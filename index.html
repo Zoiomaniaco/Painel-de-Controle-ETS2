@@ -144,7 +144,6 @@
           <thead>
             <tr>
               <th>Data</th>
-              <th>Horários</th>
               <th>Motorista</th>
               <th>Tipo</th>
               <th>Veículo</th>
@@ -155,7 +154,7 @@
           </thead>
           <tbody id="empresa-viagens-cadastradas">
             <tr>
-              <td colspan="8" style="text-align: center; color: #718096;">Nenhuma viagem registrada na empresa até o momento.</td>
+              <td colspan="7" style="text-align: center; color: #718096;">Nenhuma viagem registrada na empresa até o momento.</td>
             </tr>
           </tbody>
         </table>
@@ -195,7 +194,6 @@
           <thead>
             <tr>
               <th>Data</th>
-              <th>Horários</th>
               <th>Tipo</th>
               <th>Veículo</th>
               <th>Destino</th>
@@ -206,7 +204,7 @@
           </thead>
           <tbody id="historico-viagens">
             <tr>
-              <td colspan="8" style="text-align: center; color: #718096;">Nenhuma viagem registrada até o momento.</td>
+              <td colspan="7" style="text-align: center; color: #718096;">Nenhuma viagem registrada até o momento.</td>
             </tr>
           </tbody>
         </table>
@@ -221,22 +219,10 @@
         <label>Data da Viagem:</label>
         <input type="date" id="input-data" required>
 
-        <!-- HORÁRIOS DE SAÍDA E CHEGADA -->
-        <div class="time-grid">
-          <div style="flex: 1;">
-            <label>Horário de Saída:</label>
-            <input type="time" id="input-saida" required>
-          </div>
-          <div style="flex: 1;">
-            <label>Horário de Chegada:</label>
-            <input type="time" id="input-chegada" required>
-          </div>
-        </div>
-
         <label>Tipo de Veículo:</label>
         <select id="vehicle-type" onchange="toggleVehicleOptions(); calcularValorViagem();" required>
           <option value="">Selecione...</option>
-          <option value="onibus">Ônibus (Intermunicipal - R$ 2,50/km)</option>
+          <option value="onibus">Ônibus</option>
           <option value="caminhao">Caminhão</option>
         </select>
 
@@ -260,14 +246,14 @@
             <option value="Volvo">Volvo</option>
           </select>
 
-          <label>Tipo de Carga (Define o valor por KM):</label>
+          <label>Tipo de Carga:</label>
           <select id="select-tipo-carga" onchange="calcularValorViagem()">
             <option value="">Selecione o tipo de carga...</option>
-            <option value="1.80">Normais - R$ 1,80 / km</option>
-            <option value="2.20">Congelados - R$ 2,20 / km</option>
-            <option value="4.80">Perigosas - R$ 4,80 / km</option>
-            <option value="3.00">Pesadas - R$ 3,00 / km</option>
-            <option value="5.00">Carga de Alto Valor - R$ 5,00 / km</option>
+            <option value="1.80">Normais</option>
+            <option value="2.20">Congelados</option>
+            <option value="4.80">Perigosas</option>
+            <option value="3.00">Pesadas</option>
+            <option value="5.00">Carga de Alto Valor</option>
           </select>
 
           <label>Especificação / Descrição da Carga:</label>
@@ -487,7 +473,7 @@
       let taxaPorKm = 0;
 
       if (tipoVeiculo === 'onibus') {
-        taxaPorKm = 2.50; // Ônibus Intermunicipal
+        taxaPorKm = 2.50;
       } else if (tipoVeiculo === 'caminhao') {
         const cargaVal = document.getElementById('select-tipo-carga').value;
         taxaPorKm = parseFloat(cargaVal) || 0;
@@ -496,14 +482,12 @@
       valorBrutoCalculado = km * taxaPorKm;
       
       document.getElementById('box-valor-calculado').innerText = 
-        `Salário Bruto Estimado: R$ ${valorBrutoCalculado.toFixed(2)} (${km} KM × R$ ${taxaPorKm.toFixed(2)}/KM)`;
+        `Salário Bruto Estimado: R$ ${valorBrutoCalculado.toFixed(2)}`;
     }
 
     function aceitarEAbrirNovaAba(e) {
       e.preventDefault();
       const data = document.getElementById('input-data').value;
-      const horarioSaida = document.getElementById('input-saida').value;
-      const horarioChegada = document.getElementById('input-chegada').value;
       const tipo = document.getElementById('vehicle-type').value;
       const origem = document.getElementById('input-origem').value;
       const destino = document.getElementById('input-destino').value;
@@ -515,11 +499,11 @@
 
       if (tipo === 'onibus') {
         veiculoNome = document.getElementById('input-onibus').value;
-        cargaInfo = 'Passageiros (Intermunicipal)';
+        cargaInfo = 'Passageiros';
       } else {
         veiculoNome = document.getElementById('select-caminhao').value;
         const selectCarga = document.getElementById('select-tipo-carga');
-        const nomeTipoCarga = selectCarga.options[selectCarga.selectedIndex].text.split(' - ')[0];
+        const nomeTipoCarga = selectCarga.options[selectCarga.selectedIndex].text;
         const descCarga = document.getElementById('input-carga-desc').value;
         cargaInfo = `${nomeTipoCarga}${descCarga ? ' (' + descCarga + ')' : ''}`;
         peso = document.getElementById('input-peso').value;
@@ -527,8 +511,6 @@
 
       viagemEmAndamento = {
         data,
-        horarioSaida,
-        horarioChegada,
         tipo: tipo === 'caminhao' ? 'Caminhão' : 'Ônibus',
         veiculo: veiculoNome,
         origem,
@@ -546,7 +528,6 @@
 
       document.getElementById('detalhes-viagem-resumo').innerHTML = `
         <p><strong>Motorista:</strong> ${nomeUsuarioAtual}</p>
-        <p><strong>Horários:</strong> Saída: ${horarioSaida} | Chegada: ${horarioChegada}</p>
         <p><strong>Rota:</strong> ${origem} ➔ ${destino} | <strong>Data:</strong> ${data.split('-').reverse().join('/')}</p>
         <p><strong>Veículo:</strong> ${veiculoNome} (${viagemEmAndamento.tipo}) | <strong>KM:</strong> ${km} KM</p>
         <p><strong>Carga:</strong> ${cargaInfo} | <strong>Peso:</strong> ${peso}</p>
@@ -645,7 +626,7 @@
       tbody.innerHTML = '';
 
       if (historicoViagensArray.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #718096;">Nenhuma viagem registrada até o momento.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #718096;">Nenhuma viagem registrada até o momento.</td></tr>';
         return;
       }
 
@@ -655,7 +636,6 @@
         
         tr.innerHTML = `
           <td>${dataFormatada}</td>
-          <td>${v.horarioSaida} - ${v.horarioChegada}</td>
           <td>${v.tipo}</td>
           <td>${v.veiculo}</td>
           <td>${v.destino}</td>
@@ -672,7 +652,7 @@
       tbody.innerHTML = '';
 
       if (viagensEmpresaArray.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #718096;">Nenhuma viagem registrada na empresa até o momento.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #718096;">Nenhuma viagem registrada na empresa até o momento.</td></tr>';
         return;
       }
 
@@ -683,7 +663,6 @@
 
         tr.innerHTML = `
           <td>${dataFormatada}</td>
-          <td>${v.horarioSaida} - ${v.horarioChegada}</td>
           <td>${v.motorista}</td>
           <td>${v.tipo}</td>
           <td>${v.veiculo}</td>
