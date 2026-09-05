@@ -469,7 +469,6 @@
       margin-top: 3px;
     }
 
-    /* Estilos da Seção de Promoção e Carreira */
     .patente-badge {
       display: inline-flex;
       align-items: center;
@@ -505,7 +504,7 @@
   <!-- 1. TELA DE LOGIN -->
   <div id="login-screen" class="card">
     <div class="version-badge" onclick="abrirChangelog()">
-      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-login">v2.7.0</span> • Ver o que mudou
+      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-login">v2.8.0</span> • Ver o que mudou
     </div>
 
     <div class="app-logo">
@@ -531,7 +530,7 @@
       
       <div class="input-group">
         <i data-lucide="lock"></i>
-        <input type="password" placeholder="Sua Senha" required>
+        <input type="password" id="login-pass" placeholder="Sua Senha" required>
       </div>
 
       <button type="submit" class="btn-main">
@@ -539,13 +538,13 @@
       </button>
     </form>
 
-    <span class="link-action" onclick="showScreen('signup-screen')">Criar nova conta de Motorista</span>
+    <span class="link-action" id="link-signup" onclick="showScreen('signup-screen')">Criar nova conta de Motorista</span>
   </div>
 
   <!-- 2. TELA DE CADASTRO DE MOTORISTA -->
   <div id="signup-screen" class="card hidden">
     <div class="version-badge" onclick="abrirChangelog()">
-      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-signup">v2.7.0</span> • O que melhorou?
+      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-signup">v2.8.0</span> • O que melhorou?
     </div>
 
     <div class="app-logo">
@@ -561,11 +560,11 @@
       </div>
       <div class="input-group">
         <i data-lucide="user-check"></i>
-        <input type="text" placeholder="Nome de Usuário (Login)" required>
+        <input type="text" id="signup-user" placeholder="Nome de Usuário (Login)" required>
       </div>
       <div class="input-group">
         <i data-lucide="lock"></i>
-        <input type="password" placeholder="Crie uma Senha" required>
+        <input type="password" id="signup-pass" placeholder="Crie uma Senha" required>
       </div>
 
       <button type="submit" class="btn-main">
@@ -589,8 +588,8 @@
       </div>
 
       <div style="background: #eff6ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--primary);">
-        <strong style="color: var(--primary-dark); font-size: 14px;" id="changelog-version-title">Versão 2.7.0 Atualizada</strong>
-        <p style="font-size: 11px; color: var(--text-muted);">Inclusão da opção de exclusão de funcionários e Sistema Completo de Promoção por KM.</p>
+        <strong style="color: var(--primary-dark); font-size: 14px;" id="changelog-version-title">Versão 2.8.0 Atualizada</strong>
+        <p style="font-size: 11px; color: var(--text-muted);">Autenticação restrita com Administrador fixo e senhas salvas para Motoristas.</p>
       </div>
 
       <div id="changelog-list"></div>
@@ -608,7 +607,7 @@
         <h1 style="display: flex; align-items: center; gap: 10px;">
           <i data-lucide="shield-check" style="color: var(--primary);"></i> J&I Transportes
         </h1>
-        <p class="subtitle" style="margin: 0;">Painel de Controle Corporativo</p>
+        <p class="subtitle" style="margin: 0;">Painel de Controle Corporativo (Admin: Jeferson)</p>
       </div>
       <button onclick="logout()" class="btn-logout" style="margin: 0;">
         <i data-lucide="log-out"></i> Sair
@@ -634,6 +633,7 @@
           <thead>
             <tr>
               <th>Motorista</th>
+              <th>Login</th>
               <th>Patente Atual</th>
               <th>Viagens Realizadas</th>
               <th>Total Rodado (KM)</th>
@@ -641,7 +641,7 @@
             </tr>
           </thead>
           <tbody id="empresa-resumo-funcionarios">
-            <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Nenhum registro até o momento.</td></tr>
+            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Nenhum registro até o momento.</td></tr>
           </tbody>
         </table>
       </div>
@@ -728,7 +728,6 @@
         </div>
       </div>
 
-      <!-- CARD DE PLANO DE CARREIRA E PROMOÇÕES -->
       <div class="section-box" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
           <h3 style="font-size: 16px; color: var(--primary-dark); display: flex; align-items: center; gap: 8px;">
@@ -1047,12 +1046,12 @@
   </div>
 
   <script>
-    const APP_VERSION = "2.7.0";
+    const APP_VERSION = "2.8.0";
     const MELHORIAS_VERSAO = [
-      "Opção de Exclusão: Possibilidade de remover motoristas no painel da empresa.",
-      "Sistema de Promoção por KM: 12 Patentes exclusivas baseadas na quilometragem acumulada.",
-      "Histórico de Promoções: Registro de cada nível alcançado sem retrocessos.",
-      "Persistência de Tela e Dados: O estado e navegação permanecem ao atualizar a página (F5)."
+      "Administrador Exclusivo: Acesso ao painel da empresa configurado para o usuário Jeferson.",
+      "Acesso por Senha para Motoristas: Entrada permitida apenas com login e senha salvos no cadastro.",
+      "Limpeza Geral de Usuários: Credenciais e logins antigos foram redefinidos.",
+      "Segurança e Persistência: Dados armazenados de forma isolada por conta de motorista."
     ];
 
     // MATRIZ DE PATENTES E PROMOÇÕES
@@ -1110,7 +1109,8 @@
     lucide.createIcons();
 
     let selectedUserType = 'empresa';
-    let nomeUsuarioAtual = 'Motorista';
+    let nomeUsuarioAtual = '';
+    let loginUsuarioAtual = '';
     let kmAcumulado = 0;
     let salarioAcumulado = 0;
     
@@ -1133,6 +1133,7 @@
       const dadosState = {
         selectedUserType,
         nomeUsuarioAtual,
+        loginUsuarioAtual,
         kmAcumulado,
         salarioAcumulado,
         funcionariosCadastrados,
@@ -1142,16 +1143,17 @@
         custoTotalPedagioBalsa,
         custoTotalDescansoEmpresa
       };
-      localStorage.setItem('diarioBordoData', JSON.stringify(dadosState));
+      localStorage.setItem('diarioBordoData_v2.8', JSON.stringify(dadosState));
     }
 
     function carregarDadosDoStorage() {
-      const saved = localStorage.getItem('diarioBordoData');
+      const saved = localStorage.getItem('diarioBordoData_v2.8');
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
           selectedUserType = parsed.selectedUserType || 'empresa';
-          nomeUsuarioAtual = parsed.nomeUsuarioAtual || 'Motorista';
+          nomeUsuarioAtual = parsed.nomeUsuarioAtual || '';
+          loginUsuarioAtual = parsed.loginUsuarioAtual || '';
           kmAcumulado = parsed.kmAcumulado || 0;
           salarioAcumulado = parsed.salarioAcumulado || 0;
           funcionariosCadastrados = parsed.funcionariosCadastrados || {};
@@ -1189,6 +1191,13 @@
       selectedUserType = type;
       document.getElementById('btn-empresa').classList.toggle('active', type === 'empresa');
       document.getElementById('btn-funcionario').classList.toggle('active', type === 'funcionario');
+      
+      const signupLink = document.getElementById('link-signup');
+      if (type === 'empresa') {
+        signupLink.style.display = 'none';
+      } else {
+        signupLink.style.display = 'inline-block';
+      }
     }
 
     function showScreen(screenId, save = true) {
@@ -1214,44 +1223,49 @@
         renderViagensEmpresaPorCarga();
       } else if (screenId === 'employee-screen') {
         document.getElementById('saudacao-motorista').innerText = `Motorista: ${nomeUsuarioAtual}`;
-        if (funcionariosCadastrados[nomeUsuarioAtual]) {
-          kmAcumulado = funcionariosCadastrados[nomeUsuarioAtual].totalKm || 0;
+        if (loginUsuarioAtual && funcionariosCadastrados[loginUsuarioAtual]) {
+          kmAcumulado = funcionariosCadastrados[loginUsuarioAtual].totalKm || 0;
+          salarioAcumulado = funcionariosCadastrados[loginUsuarioAtual].salarioTotal || 0;
         }
         document.getElementById('stat-km').innerText = kmAcumulado;
         document.getElementById('stat-salario').innerText = formatarBRL(salarioAcumulado);
         
-        atualizarCarreiraEPatente(nomeUsuarioAtual);
+        atualizarCarreiraEPatente(loginUsuarioAtual);
         renderHistoricoFuncionario();
       }
       lucide.createIcons();
     }
 
-    function registrarFuncionarioBase(nome) {
-      if (!funcionariosCadastrados[nome]) {
-        funcionariosCadastrados[nome] = { 
+    function registrarFuncionarioBase(login, nome = "", senha = "") {
+      if (!login) return;
+      if (!funcionariosCadastrados[login]) {
+        funcionariosCadastrados[login] = { 
+          nome: nome || login,
+          senha: senha,
           viagensCount: 0, 
           totalKm: 0,
+          salarioTotal: 0,
           patenteAtual: PATENTES[0].nome,
           promocoes: [{ patente: PATENTES[0].nome, km: 0, data: new Date().toLocaleDateString('pt-BR') }]
         };
       } else {
-        if (!funcionariosCadastrados[nome].patenteAtual) {
-          funcionariosCadastrados[nome].patenteAtual = PATENTES[0].nome;
+        if (nome) funcionariosCadastrados[login].nome = nome;
+        if (senha) funcionariosCadastrados[login].senha = senha;
+        if (!funcionariosCadastrados[login].patenteAtual) {
+          funcionariosCadastrados[login].patenteAtual = PATENTES[0].nome;
         }
-        if (!funcionariosCadastrados[nome].promocoes) {
-          funcionariosCadastrados[nome].promocoes = [{ patente: PATENTES[0].nome, km: 0, data: new Date().toLocaleDateString('pt-BR') }];
+        if (!funcionariosCadastrados[login].promocoes) {
+          funcionariosCadastrados[login].promocoes = [{ patente: PATENTES[0].nome, km: 0, data: new Date().toLocaleDateString('pt-BR') }];
         }
       }
     }
 
-    // EXCLUSÃO DE FUNCIONÁRIO/MOTORISTA
-    function excluirFuncionario(nome) {
+    function excluirFuncionario(login) {
       soundClick();
-      if (confirm(`Tem certeza que deseja excluir o motorista "${nome}" do sistema?`)) {
-        delete funcionariosCadastrados[nome];
+      if (confirm(`Tem certeza que deseja excluir o motorista cadastrado como "${login}"?`)) {
+        delete funcionariosCadastrados[login];
 
-        // Se o usuário excluído for o motorista logado atualmente, desloga por segurança
-        if (nomeUsuarioAtual === nome && selectedUserType === 'funcionario') {
+        if (loginUsuarioAtual === login && selectedUserType === 'funcionario') {
           alert('Sua conta foi removida pelo painel administrativo.');
           logout();
           return;
@@ -1262,10 +1276,9 @@
       }
     }
 
-    // LÓGICA DE PROMOÇÃO DE PATENTES POR KM
-    function verificarEPromoverMotorista(nome) {
-      registrarFuncionarioBase(nome);
-      const motorista = funcionariosCadastrados[nome];
+    function verificarEPromoverMotorista(login) {
+      if (!login || !funcionariosCadastrados[login]) return;
+      const motorista = funcionariosCadastrados[login];
       const kmAtual = motorista.totalKm;
 
       PATENTES.forEach(p => {
@@ -1285,11 +1298,11 @@
       salvarDadosNoStorage();
     }
 
-    function atualizarCarreiraEPatente(nome) {
-      registrarFuncionarioBase(nome);
-      verificarEPromoverMotorista(nome);
+    function atualizarCarreiraEPatente(login) {
+      if (!login || !funcionariosCadastrados[login]) return;
+      verificarEPromoverMotorista(login);
 
-      const motorista = funcionariosCadastrados[nome];
+      const motorista = funcionariosCadastrados[login];
       const km = motorista.totalKm;
 
       document.getElementById('stat-patente-nome').innerText = motorista.patenteAtual;
@@ -1321,8 +1334,8 @@
 
     function abrirHistoricoPromocoes() {
       soundClick();
-      registrarFuncionarioBase(nomeUsuarioAtual);
-      const motorista = funcionariosCadastrados[nomeUsuarioAtual];
+      if (!loginUsuarioAtual || !funcionariosCadastrados[loginUsuarioAtual]) return;
+      const motorista = funcionariosCadastrados[loginUsuarioAtual];
       const tbody = document.getElementById('lista-historico-promocoes');
       tbody.innerHTML = '';
 
@@ -1351,26 +1364,55 @@
 
     function handleLogin(e) {
       e.preventDefault();
-      soundSuccess();
-      const loginVal = document.getElementById('login-user').value;
-      if (loginVal) nomeUsuarioAtual = loginVal;
+      const userVal = document.getElementById('login-user').value.trim();
+      const passVal = document.getElementById('login-pass').value.trim();
 
       if (selectedUserType === 'empresa') {
-        showScreen('company-screen');
+        if (userVal === 'Jeferson' && passVal === '1054') {
+          soundSuccess();
+          loginUsuarioAtual = 'Jeferson';
+          nomeUsuarioAtual = 'Administrador Jeferson';
+          showScreen('company-screen');
+          salvarDadosNoStorage();
+        } else {
+          alert('Acesso negado! Usuário ou Senha incorretos para a empresa.');
+        }
       } else {
-        registrarFuncionarioBase(nomeUsuarioAtual);
-        showScreen('employee-screen');
+        const motorista = funcionariosCadastrados[userVal];
+        if (motorista && motorista.senha === passVal) {
+          soundSuccess();
+          loginUsuarioAtual = userVal;
+          nomeUsuarioAtual = motorista.nome;
+          showScreen('employee-screen');
+          salvarDadosNoStorage();
+        } else {
+          alert('Login ou Senha de motorista inválidos! Cadastre-se caso ainda não possua conta.');
+        }
       }
-      salvarDadosNoStorage();
     }
 
     function handleSignup(e) {
       e.preventDefault();
-      soundSuccess();
-      const nameVal = document.getElementById('signup-name').value;
-      if (nameVal) nomeUsuarioAtual = nameVal;
+      const nameVal = document.getElementById('signup-name').value.trim();
+      const userVal = document.getElementById('signup-user').value.trim();
+      const passVal = document.getElementById('signup-pass').value.trim();
 
-      registrarFuncionarioBase(nomeUsuarioAtual);
+      if (userVal === 'Jeferson') {
+        alert('Este nome de usuário é reservado para o Administrador da empresa.');
+        return;
+      }
+
+      if (funcionariosCadastrados[userVal]) {
+        alert('Este nome de usuário já está cadastrado! Escolha outro login.');
+        return;
+      }
+
+      soundSuccess();
+      registrarFuncionarioBase(userVal, nameVal, passVal);
+      loginUsuarioAtual = userVal;
+      nomeUsuarioAtual = nameVal;
+
+      alert('Cadastro realizado com sucesso! Seja bem-vindo.');
       showScreen('employee-screen');
       salvarDadosNoStorage();
     }
@@ -1558,22 +1600,23 @@
       custoTotalPedagioBalsa += totalPedagioBalsaViagem;
       custoTotalDescansoEmpresa += totalDescontoDescansoViagem;
 
-      salarioAcumulado += salarioMotoristaViagem;
+      registrarFuncionarioBase(loginUsuarioAtual, nomeUsuarioAtual);
+      funcionariosCadastrados[loginUsuarioAtual].viagensCount += 1;
+      funcionariosCadastrados[loginUsuarioAtual].totalKm += viagemEmAndamento.km;
+      funcionariosCadastrados[loginUsuarioAtual].salarioTotal = (funcionariosCadastrados[loginUsuarioAtual].salarioTotal || 0) + salarioMotoristaViagem;
 
-      registrarFuncionarioBase(nomeUsuarioAtual);
-      funcionariosCadastrados[nomeUsuarioAtual].viagensCount += 1;
-      funcionariosCadastrados[nomeUsuarioAtual].totalKm += viagemEmAndamento.km;
-
-      kmAcumulado = funcionariosCadastrados[nomeUsuarioAtual].totalKm;
+      kmAcumulado = funcionariosCadastrados[loginUsuarioAtual].totalKm;
+      salarioAcumulado = funcionariosCadastrados[loginUsuarioAtual].salarioTotal;
 
       document.getElementById('stat-km').innerText = kmAcumulado;
       document.getElementById('stat-salario').innerText = formatarBRL(salarioAcumulado);
 
-      atualizarCarreiraEPatente(nomeUsuarioAtual);
+      atualizarCarreiraEPatente(loginUsuarioAtual);
 
       const viagemConcluida = {
         ...viagemEmAndamento,
         motorista: nomeUsuarioAtual,
+        loginMotorista: loginUsuarioAtual,
         gastos: [...gastosArray],
         descansos: [...descansosArray],
         totalPedagioBalsa: totalPedagioBalsaViagem,
@@ -1603,7 +1646,7 @@
       const tbody = document.getElementById('historico-viagens');
       tbody.innerHTML = '';
 
-      const viagensDoUser = historicoViagensArray.filter(v => v.motorista === nomeUsuarioAtual);
+      const viagensDoUser = historicoViagensArray.filter(v => v.loginMotorista === loginUsuarioAtual);
 
       if (viagensDoUser.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Nenhuma viagem registrada.</td></tr>';
@@ -1630,24 +1673,25 @@
       const tbody = document.getElementById('empresa-resumo-funcionarios');
       tbody.innerHTML = '';
 
-      const listaNomes = Object.keys(funcionariosCadastrados);
-      if (listaNomes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Nenhum motorista no sistema.</td></tr>';
+      const listaLogins = Object.keys(funcionariosCadastrados);
+      if (listaLogins.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Nenhum motorista cadastrado no sistema.</td></tr>';
         return;
       }
 
-      listaNomes.forEach(nome => {
-        const dados = funcionariosCadastrados[nome];
-        verificarEPromoverMotorista(nome);
+      listaLogins.forEach(login => {
+        const dados = funcionariosCadastrados[login];
+        verificarEPromoverMotorista(login);
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><strong>${nome}</strong></td>
+          <td><strong>${dados.nome}</strong></td>
+          <td><code>${login}</code></td>
           <td><span class="patente-badge"><i data-lucide="award" style="width: 12px; height: 12px;"></i> ${dados.patenteAtual || 'Motorista Novato'}</span></td>
           <td>${dados.viagensCount}</td>
           <td><strong>${dados.totalKm.toLocaleString('pt-BR')} KM</strong></td>
           <td style="text-align: center;">
-            <button onclick="excluirFuncionario('${nome}')" class="btn-delete">
+            <button onclick="excluirFuncionario('${login}')" class="btn-delete">
               <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Excluir
             </button>
           </td>
@@ -1749,9 +1793,13 @@
 
     function logout() {
       soundClick();
+      loginUsuarioAtual = '';
+      nomeUsuarioAtual = '';
       localStorage.removeItem('diarioBordoCurrentScreen');
       localStorage.removeItem('diarioBordoTab_company-screen');
       localStorage.removeItem('diarioBordoTab_employee-screen');
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
       showScreen('login-screen', false);
     }
 
@@ -1760,6 +1808,11 @@
       carregarDadosDoStorage();
 
       const lastScreen = localStorage.getItem('diarioBordoCurrentScreen') || 'login-screen';
+      if (lastScreen === 'employee-screen' && !loginUsuarioAtual) {
+        showScreen('login-screen', false);
+        return;
+      }
+
       showScreen(lastScreen, false);
 
       if (lastScreen === 'company-screen') {
