@@ -48,27 +48,27 @@
     
     .time-grid { display: flex; gap: 10px; }
 
-    /* MODAL DE VIAGEM EM ANDAMENTO */
-    .modal-overlay {
+    /* JANELA / ABA OVERLAY (MODAL POR CIMA DA ANTIGA) */
+    .overlay-window {
       position: fixed;
       top: 0; left: 0;
       width: 100vw; height: 100vh;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.7);
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      z-index: 2000;
       padding: 15px;
     }
-    .modal-content {
+    .overlay-content {
       background: white;
       width: 100%;
-      max-width: 800px;
-      max-height: 90vh;
+      max-width: 850px;
+      max-height: 92vh;
       overflow-y: auto;
       border-radius: 8px;
       padding: 25px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     }
   </style>
 </head>
@@ -205,7 +205,7 @@
     <div id="emp-cadastrar-viagem" class="tab-content hidden">
       <h2>Cadastrar Viagem</h2>
       
-      <form id="form-cadastrar-viagem" onsubmit="aceitarEIniciarViagem(event)">
+      <form id="form-cadastrar-viagem" onsubmit="aceitarEAbrirNovaAba(event)">
         <label>Data da Viagem:</label>
         <input type="date" id="input-data" required>
 
@@ -246,7 +246,7 @@
         <input type="text" id="input-origem" placeholder="Origem" required>
         <input type="text" id="input-destino" placeholder="Destino" required>
         <input type="number" id="input-km" placeholder="KM Rodados na Viagem" required>
-        <input type="number" step="0.01" id="input-valor-viagem" placeholder="Valor/Salário Recebido nesta Viagem (R$)" required>
+        <input type="number" step="0.01" id="input-valor-viagem" placeholder="Valor/Salário Bruto desta Viagem (R$)" required>
         
         <button type="submit" class="btn-main">Aceitar e Iniciar Viagem</button>
       </form>
@@ -255,17 +255,19 @@
     <button onclick="logout()" class="btn-logout">Sair</button>
   </div>
 
-  <!-- 5. JANELA MODAL: VIAGEM EM ANDAMENTO -->
-  <div id="modal-viagem-andamento" class="modal-overlay hidden">
-    <div class="modal-content">
-      <h2 style="color: #1a365d;">Viagem em Andamento</h2>
-      <div id="modal-detalhes-viagem" style="margin-bottom: 20px; font-size: 14px; background: #edf2f7; padding: 12px; border-radius: 6px;"></div>
+  <!-- 5. ABA / SOBREPOSIÇÃO: DETALHES DE GASTOS DA VIAGEM EM ANDAMENTO -->
+  <div id="aba-viagem-ativa" class="overlay-window hidden">
+    <div class="overlay-content">
+      <h2 style="color: #1a365d;">Lançamento de Gastos da Viagem</h2>
+      <div id="detalhes-viagem-resumo" style="margin-bottom: 20px; font-size: 14px; background: #edf2f7; padding: 12px; border-radius: 6px;"></div>
 
-      <!-- PAINEL DE GASTOS -->
+      <!-- PAINEL DE BALSAS E PEDÁGIOS -->
       <div class="section-box">
-        <h3>Lançar Gastos da Viagem</h3>
+        <h3>Gastos Pagos pelo Funcionário</h3>
+        <p style="font-size: 13px; color: #e53e3e; margin-bottom: 10px;">* Os valores cobrados de Pedágio e Balsa serão debitados diretamente do salário final da viagem.</p>
+        
         <form onsubmit="adicionarGasto(event)" style="margin-top: 10px;">
-          <label>Tipo de Despesa:</label>
+          <label>Tipo de Gastos:</label>
           <select id="expense-type" required>
             <option value="">Selecione...</option>
             <option value="Pedágio">Pedágio</option>
@@ -276,9 +278,9 @@
           <input type="number" step="0.01" id="expense-value" placeholder="0.00" required>
 
           <label>Observação / Local (opcional):</label>
-          <input type="text" id="expense-obs" placeholder="Ex: Praça de Pedágio Rod. dos Bandeirantes">
+          <input type="text" id="expense-obs" placeholder="Ex: Praça de Pedágio ou Porto de Travessia">
 
-          <button type="submit" class="btn-main">Adicionar Gasto</button>
+          <button type="submit" class="btn-main">Lançar Despesa (Debitar do Salário)</button>
         </form>
 
         <div class="table-responsive">
@@ -287,12 +289,12 @@
               <tr>
                 <th>Tipo</th>
                 <th>Local / Obs</th>
-                <th>Valor</th>
+                <th>Valor Debitado</th>
               </tr>
             </thead>
             <tbody id="lista-gastos">
               <tr>
-                <td colspan="3" style="text-align: center; color: #718096;">Nenhum gasto registrado.</td>
+                <td colspan="3" style="text-align: center; color: #718096;">Nenhum gasto de pedágio ou balsa lançado.</td>
               </tr>
             </tbody>
           </table>
@@ -301,8 +303,8 @@
 
       <!-- PAINEL DE DESCANSO -->
       <div class="section-box">
-        <h3>Registro de Parada para Descanso</h3>
-        <p style="font-size: 13px; color: #e53e3e; margin-bottom: 10px;">* Cada descanso registrado desconta R$ 50,00 do seu salário acumulado.</p>
+        <h3>Horário de Descanso</h3>
+        <p style="font-size: 13px; color: #e53e3e; margin-bottom: 10px;">* Ao registrar o início e fim do descanso, será debitado o valor fixo de R$ 50,00 do salário do funcionário.</p>
         
         <form onsubmit="registrarDescanso(event)">
           <div class="time-grid">
@@ -315,7 +317,7 @@
               <input type="time" id="time-fim" required>
             </div>
           </div>
-          <button type="submit" class="btn-main" style="background-color: #dd6b20;">Registrar Descanso (- R$ 50,00)</button>
+          <button type="submit" class="btn-main" style="background-color: #dd6b20;">Registrar Descanso (Debitar R$ 50,00)</button>
         </form>
 
         <div class="table-responsive">
@@ -324,7 +326,7 @@
               <tr>
                 <th>Início</th>
                 <th>Término</th>
-                <th>Desconto Aplicado</th>
+                <th>Desconto de Descanso</th>
               </tr>
             </thead>
             <tbody id="lista-descansos">
@@ -336,20 +338,20 @@
         </div>
       </div>
 
-      <button onclick="concluirViagem()" class="btn-main" style="background-color: #38a169; margin-top: 10px; font-size: 16px;">Concluir Viagem</button>
+      <button onclick="concluirViagem()" class="btn-main" style="background-color: #38a169; margin-top: 10px; font-size: 16px;">Concluir Viagem e Salvar</button>
     </div>
   </div>
 
   <script>
     let selectedUserType = 'empresa';
-    let nomeUsuarioAtual = 'Funcionário Padrao';
+    let nomeUsuarioAtual = 'Funcionário Padrão';
     let kmAcumulado = 0;
     let salarioAcumulado = 0;
     
     let historicoViagensArray = [];
     let viagensEmpresaArray = [];
 
-    // Dados da viagem temporária em andamento
+    // Dados temporários da viagem ativa
     let viagemEmAndamento = null;
     let gastosArray = [];
     let descansosArray = [];
@@ -437,7 +439,7 @@
       }
     }
 
-    function aceitarEIniciarViagem(e) {
+    function aceitarEAbrirNovaAba(e) {
       e.preventDefault();
       const data = document.getElementById('input-data').value;
       const tipo = document.getElementById('vehicle-type').value;
@@ -458,7 +460,6 @@
         peso = document.getElementById('input-peso').value;
       }
 
-      // Prepara objeto temporário
       viagemEmAndamento = {
         data,
         tipo: tipo === 'caminhao' ? 'Caminhão' : 'Ônibus',
@@ -473,20 +474,19 @@
 
       gastosArray = [];
       descansosArray = [];
-      document.getElementById('lista-gastos').innerHTML = '<tr><td colspan="3" style="text-align: center; color: #718096;">Nenhum gasto registrado.</td></tr>';
+      document.getElementById('lista-gastos').innerHTML = '<tr><td colspan="3" style="text-align: center; color: #718096;">Nenhum gasto de pedágio ou balsa lançado.</td></tr>';
       document.getElementById('lista-descansos').innerHTML = '<tr><td colspan="3" style="text-align: center; color: #718096;">Nenhum descanso registrado nesta viagem.</td></tr>';
 
-      // Preenche cabeçalho do Modal
-      document.getElementById('modal-detalhes-viagem').innerHTML = `
+      document.getElementById('detalhes-viagem-resumo').innerHTML = `
         <p><strong>Motorista:</strong> ${nomeUsuarioAtual}</p>
         <p><strong>Rota:</strong> ${origem} ➔ ${destino} | <strong>Data:</strong> ${data.split('-').reverse().join('/')}</p>
         <p><strong>Veículo:</strong> ${veiculoNome} (${viagemEmAndamento.tipo}) | <strong>KM:</strong> ${km} KM</p>
         ${tipo === 'caminhao' ? `<p><strong>Carga:</strong> ${carga} | <strong>Peso:</strong> ${peso}</p>` : ''}
-        <p><strong>Valor da Viagem:</strong> R$ ${valorViagem.toFixed(2)}</p>
+        <p><strong>Salário Bruto Inicial da Viagem:</strong> R$ ${valorViagem.toFixed(2)}</p>
       `;
 
-      // Abre a janela de Viagem em Andamento
-      document.getElementById('modal-viagem-andamento').classList.remove('hidden');
+      // Abre a aba/janela por cima da antiga
+      document.getElementById('aba-viagem-ativa').classList.remove('hidden');
     }
 
     function adicionarGasto(e) {
@@ -501,7 +501,7 @@
       if (gastosArray.length === 1) tbody.innerHTML = '';
 
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${tipo}</td><td>${obs}</td><td>R$ ${valor.toFixed(2)}</td>`;
+      tr.innerHTML = `<td>${tipo}</td><td>${obs}</td><td style="color: #e53e3e; font-weight: bold;">- R$ ${valor.toFixed(2)}</td>`;
       tbody.appendChild(tr);
 
       document.getElementById('expense-type').value = '';
@@ -525,49 +525,49 @@
 
       document.getElementById('time-inicio').value = '';
       document.getElementById('time-fim').value = '';
-
-      alert('Descanso registrado! O desconto de R$ 50,00 será aplicado ao finalizar a viagem.');
     }
 
     function concluirViagem() {
       if (!viagemEmAndamento) return;
 
-      // Aplica ganhos e descontos ao Salário e KM
-      const descontoTotalDescansos = descansosArray.length * 50;
-      const valorLiquidoViagem = viagemEmAndamento.valorViagem - descontoTotalDescansos;
+      // Cálculo dos débitos (Balsas + Pedágios + R$ 50 por descanso)
+      const totalGastosPeloFuncionario = gastosArray.reduce((acc, g) => acc + g.valor, 0);
+      const totalDebitoDescansos = descansosArray.length * 50;
+      
+      const salarioLiquidoViagem = viagemEmAndamento.valorViagem - totalGastosPeloFuncionario - totalDebitoDescansos;
 
+      // Atualiza valores globais do funcionário
       kmAcumulado += viagemEmAndamento.km;
-      salarioAcumulado += valorLiquidoViagem;
+      salarioAcumulado += salarioLiquidoViagem;
 
       document.getElementById('stat-km').innerText = kmAcumulado;
       document.getElementById('stat-salario').innerText = salarioAcumulado.toFixed(2);
 
-      // Registo Completo
       const viagemConcluida = {
         ...viagemEmAndamento,
         motorista: nomeUsuarioAtual,
         gastos: [...gastosArray],
-        descansos: [...descansosArray]
+        descansos: [...descansosArray],
+        salarioLiquido: salarioLiquidoViagem
       };
 
-      // Salva no Funcionário
+      // Salva no histórico do funcionário e da empresa
       historicoViagensArray.unshift(viagemConcluida);
       renderHistoricoFuncionario();
 
-      // Salva na Empresa
       viagensEmpresaArray.unshift(viagemConcluida);
       renderViagensEmpresa();
 
-      // Limpa formulários e fecha Modal
+      // Limpa dados e fecha a janela sobreposta
       document.getElementById('form-cadastrar-viagem').reset();
       document.getElementById('box-onibus').classList.add('hidden');
       document.getElementById('box-caminhao').classList.add('hidden');
-      document.getElementById('modal-viagem-andamento').classList.add('hidden');
+      document.getElementById('aba-viagem-ativa').classList.add('hidden');
 
       viagemEmAndamento = null;
-      alert('Viagem concluída com sucesso e salva nos históricos!');
+      alert('Viagem concluída com sucesso! Os valores de pedágio, balsa e descanso foram debitados do salário e gravados nos históricos.');
 
-      // Redireciona para o painel Status do Funcionário
+      // Retorna para a aba STATUS do funcionário
       switchTab('employee-screen', 'emp-status', document.querySelector('#employee-screen .nav-btn'));
     }
 
