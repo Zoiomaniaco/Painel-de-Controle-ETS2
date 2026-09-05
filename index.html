@@ -46,13 +46,11 @@
       overflow-x: hidden;
     }
 
-    /* Animações Dinâmicas */
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* CARD DESIGN GLASSMORPHISM */
     .card {
       background: var(--glass-bg);
       backdrop-filter: blur(16px);
@@ -67,7 +65,6 @@
       position: relative;
     }
 
-    /* BADGE DE VERSÃO DO APP */
     .version-badge {
       display: inline-flex;
       align-items: center;
@@ -122,7 +119,6 @@
       font-weight: 500;
     }
 
-    /* SELETOR EMPRESA / FUNCIONÁRIO */
     .type-selector {
       display: flex;
       gap: 10px;
@@ -155,7 +151,6 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
-    /* INPUTS & FORM */
     .input-group {
       position: relative;
       margin-bottom: 15px;
@@ -199,7 +194,6 @@
       letter-spacing: 0.5px;
     }
 
-    /* BOTÕES */
     .btn-main {
       width: 100%;
       padding: 14px;
@@ -236,7 +230,6 @@
 
     .link-action:hover { color: var(--primary-dark); text-decoration: underline; }
 
-    /* DASHBOARD CONTAINERS */
     .dashboard {
       display: none;
       width: 100%;
@@ -250,7 +243,6 @@
       animation: fadeInUp 0.4s ease;
     }
 
-    /* NAV MENU */
     .nav-menu {
       display: flex;
       gap: 12px;
@@ -285,7 +277,6 @@
     .tab-content { padding: 25px 0 0; text-align: left; }
     .hidden { display: none !important; }
 
-    /* CARDS DE ESTATÍSTICA 3D */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -332,7 +323,6 @@
       height: 90px;
     }
 
-    /* CAIXAS DE CONTEÚDO E TABELAS */
     .section-box {
       background: white;
       padding: 22px;
@@ -381,7 +371,6 @@
       border-left: 4px solid var(--primary);
     }
 
-    /* OVERLAY MODAIS */
     .overlay-window {
       position: fixed;
       top: 0; left: 0;
@@ -445,7 +434,6 @@
       margin-top: 15px;
     }
 
-    /* LISTA DE NOVIDADES DE VERSÃO */
     .changelog-item {
       display: flex;
       align-items: start;
@@ -465,7 +453,7 @@
   <!-- 1. TELA DE LOGIN -->
   <div id="login-screen" class="card">
     <div class="version-badge" onclick="abrirChangelog()">
-      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-login">v2.4.0</span> • Ver o que mudou
+      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-login">v2.5.0</span> • Ver o que mudou
     </div>
 
     <div class="app-logo">
@@ -505,7 +493,7 @@
   <!-- 2. TELA DE CADASTRO DE MOTORISTA -->
   <div id="signup-screen" class="card hidden">
     <div class="version-badge" onclick="abrirChangelog()">
-      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-signup">v2.4.0</span> • O que melhorou?
+      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-signup">v2.5.0</span> • O que melhorou?
     </div>
 
     <div class="app-logo">
@@ -549,8 +537,8 @@
       </div>
 
       <div style="background: #eff6ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--primary);">
-        <strong style="color: var(--primary-dark); font-size: 14px;" id="changelog-version-title">Versão 2.4.0 Atualizada</strong>
-        <p style="font-size: 11px; color: var(--text-muted);">Lançada com melhorias na divisão de despesas operacionais e novos recursos visuais.</p>
+        <strong style="color: var(--primary-dark); font-size: 14px;" id="changelog-version-title">Versão 2.5.0 Atualizada</strong>
+        <p style="font-size: 11px; color: var(--text-muted);">Ajustes de moeda para o padrão Brasileiro (R$) e regra de descanso de 9 horas descontado do Bruto da empresa.</p>
       </div>
 
       <div id="changelog-list"></div>
@@ -611,13 +599,18 @@
       <div class="stats-grid">
         <div class="stat-card success">
           <p>Saldo Líquido da Empresa</p>
-          <h3>R$ <span id="emp-saldo-total">0.00</span></h3>
+          <h3 id="emp-saldo-total">R$ 0,00</h3>
           <i data-lucide="dollar-sign" class="stat-icon-bg"></i>
         </div>
         <div class="stat-card accent">
-          <p>Custo Pedágios / Balsas (100% Empresa)</p>
-          <h3>R$ <span id="emp-custo-pedagio-balsa">0.00</span></h3>
+          <p>Custo Pedágios / Balsas (Empresa)</p>
+          <h3 id="emp-custo-pedagio-balsa">R$ 0,00</h3>
           <i data-lucide="receipt" class="stat-icon-bg"></i>
+        </div>
+        <div class="stat-card accent">
+          <p>Descontos Descanso (≥ 9h)</p>
+          <h3 id="emp-custo-descanso">R$ 0,00</h3>
+          <i data-lucide="coffee" class="stat-icon-bg"></i>
         </div>
       </div>
 
@@ -625,7 +618,7 @@
         <h3 style="font-size: 15px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
           <i data-lucide="pie-chart" style="color: var(--primary);"></i> Análise Visual de Despesas vs Bruto
         </h3>
-        <p style="font-size: 12px; color: var(--text-muted);">* Despesas de Pedágio e Balsa são descontadas integralmente do saldo corporativo.</p>
+        <p style="font-size: 12px; color: var(--text-muted);">* Despesas de Pedágio, Balsa e Paradas de Descanso de 9h são deduzidas do saldo bruto corporativo.</p>
 
         <div class="chart-container">
           <canvas id="financeChart"></canvas>
@@ -665,8 +658,8 @@
     <div id="emp-status" class="tab-content">
       <div class="stats-grid">
         <div class="stat-card success">
-          <p>Ganhos Acumulados (Líquido)</p>
-          <h3>R$ <span id="stat-salario">0.00</span></h3>
+          <p>Ganhos Acumulados</p>
+          <h3 id="stat-salario">R$ 0,00</h3>
           <i data-lucide="coins" class="stat-icon-bg"></i>
         </div>
         <div class="stat-card">
@@ -691,10 +684,11 @@
                 <th>Carga</th>
                 <th>Peso</th>
                 <th>KM</th>
+                <th>Ganho Motorista</th>
               </tr>
             </thead>
             <tbody id="historico-viagens">
-              <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Nenhuma viagem registrada.</td></tr>
+              <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Nenhuma viagem registrada.</td></tr>
             </tbody>
           </table>
         </div>
@@ -876,7 +870,7 @@
               <tr>
                 <th>Tipo</th>
                 <th>Local</th>
-                <th>Valor</th>
+                <th>Valor (R$)</th>
               </tr>
             </thead>
             <tbody id="lista-gastos">
@@ -888,23 +882,23 @@
 
       <div class="section-box">
         <h3 style="font-size: 15px; color: var(--accent-orange); display: flex; align-items: center; gap: 8px;">
-          <i data-lucide="clock"></i> Descanso (Desconto R$ 50,00 por registro)
+          <i data-lucide="clock"></i> Horário de Parada e Descanso (Desconto de R$ 100,00 no Bruto se ≥ 9h)
         </h3>
 
         <form onsubmit="registrarDescanso(event)" style="margin-top: 15px;">
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div>
-              <label>Início:</label>
+              <label>Horário Início:</label>
               <input type="time" id="time-inicio" style="padding-left: 12px;" required>
             </div>
             <div>
-              <label>Fim:</label>
+              <label>Horário Término:</label>
               <input type="time" id="time-fim" style="padding-left: 12px;" required>
             </div>
           </div>
 
           <button type="submit" class="btn-main" style="background: var(--accent-orange); margin-top: 10px;">
-            Registrar Parada <i data-lucide="coffee"></i>
+            Registrar Descanso <i data-lucide="coffee"></i>
           </button>
         </form>
 
@@ -914,11 +908,12 @@
               <tr>
                 <th>Início</th>
                 <th>Término</th>
-                <th>Débito Motorista</th>
+                <th>Duração Total</th>
+                <th>Impacto Financeiro</th>
               </tr>
             </thead>
             <tbody id="lista-descansos">
-              <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum descanso anotado.</td></tr>
+              <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum descanso anotado.</td></tr>
             </tbody>
           </table>
         </div>
@@ -932,16 +927,19 @@
 
   <script>
     // CONTROLADOR DE VERSÃO E CHANGELOG DO APLICATIVO
-    // Toda vez que você atualizar o código, altere esta variável e atualize a lista 'melhorias'
-    const APP_VERSION = "2.4.0";
+    const APP_VERSION = "2.5.0";
     const MELHORIAS_VERSAO = [
-      "Regra 100% Empresa: Dedução integral de pedágios e balsas no balanço corporativo.",
-      "Novo indicador visual de Versão do App na página inicial de acesso e cadastro.",
-      "Modal dinâmico 'O que mudou?' com histórico completo de novidades.",
-      "Interface modernizada com ícones 3D/Lucide e tipografia Poppins.",
-      "Gráfico dinâmico no painel financeiro para comparar Saldo Bruto e Despesas.",
-      "Sons interativos de ação (cliques e finalização de viagens)."
+      "Regra Parada de Descanso: Paradas de 9 horas ou mais aplicam desconto de R$ 100,00 no valor Bruto da Empresa.",
+      "Formatação Global BRL: Formatação monetária 100% configurada na moeda brasileira (R$).",
+      "Indicador visual dinâmico de versão com detalhes completos de alteração no modal.",
+      "Dedução integral de pedágios e balsas no balanço corporativo da empresa.",
+      "Painel gráfico financeiro em tempo real para controle corporativo."
     ];
+
+    // FUNÇÃO AUXILIAR PARA FORMATAR MOEDA BRASILEIRA (R$)
+    function formatarBRL(valor) {
+      return (parseFloat(valor) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
 
     function inicializarVersaoApp() {
       document.getElementById('lbl-version-login').innerText = `v${APP_VERSION}`;
@@ -988,6 +986,7 @@
 
     let saldoTotalEmpresaBruto = 0;
     let custoTotalPedagioBalsa = 0;
+    let custoTotalDescansoEmpresa = 0;
 
     let viagemEmAndamento = null;
     let gastosArray = [];
@@ -1116,7 +1115,7 @@
       valorBrutoCalculado = km * taxaPorKm;
       document.getElementById('box-valor-calculado').innerHTML = `
         <i data-lucide="calculator"></i>
-        <span>Estimativa Bruta de Ganho: <strong>R$ ${valorBrutoCalculado.toFixed(2)}</strong></span>
+        <span>Estimativa Bruta de Ganho: <strong>${formatarBRL(valorBrutoCalculado)}</strong></span>
       `;
       lucide.createIcons();
     }
@@ -1165,13 +1164,13 @@
       gastosArray = [];
       descansosArray = [];
       document.getElementById('lista-gastos').innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum lançamento.</td></tr>';
-      document.getElementById('lista-descansos').innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Nenhum descanso anotado.</td></tr>';
+      document.getElementById('lista-descansos').innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum descanso anotado.</td></tr>';
 
       document.getElementById('detalhes-viagem-resumo').innerHTML = `
         <p style="font-size: 13px;"><strong>Motorista:</strong> ${nomeUsuarioAtual}</p>
         <p style="font-size: 13px;"><strong>Rota:</strong> ${origem} ➔ ${destino} | <strong>Data:</strong> ${data.split('-').reverse().join('/')}</p>
         <p style="font-size: 13px;"><strong>Veículo:</strong> ${veiculoNome} | <strong>Quilometragem:</strong> ${km} KM</p>
-        <p style="font-size: 13px;"><strong>Valor Bruto Previsto:</strong> <span style="color: var(--accent-green); font-weight:bold;">R$ ${valorBrutoCalculado.toFixed(2)}</span></p>
+        <p style="font-size: 13px;"><strong>Valor Bruto Previsto:</strong> <span style="color: var(--accent-green); font-weight:bold;">${formatarBRL(valorBrutoCalculado)}</span></p>
       `;
 
       document.getElementById('aba-viagem-ativa').classList.remove('hidden');
@@ -1192,7 +1191,7 @@
       if (gastosArray.length === 1) tbody.innerHTML = '';
 
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${tipo}</td><td>${obs}</td><td style="color: var(--primary-dark); font-weight: bold;">R$ ${valor.toFixed(2)}</td>`;
+      tr.innerHTML = `<td>${tipo}</td><td>${obs}</td><td style="color: var(--primary-dark); font-weight: bold;">${formatarBRL(valor)}</td>`;
       tbody.appendChild(tr);
 
       document.getElementById('expense-type').value = '';
@@ -1200,6 +1199,7 @@
       document.getElementById('expense-obs').value = '';
     }
 
+    // REGISTRO E CÁLCULO DAS 9h DE DESCANSO
     function registrarDescanso(e) {
       e.preventDefault();
       soundClick();
@@ -1207,13 +1207,36 @@
       const inicio = document.getElementById('time-inicio').value;
       const fim = document.getElementById('time-fim').value;
 
-      descansosArray.push({ inicio, fim });
+      // Calcular a duração da parada em horas
+      const [hIni, mIni] = inicio.split(':').map(Number);
+      const [hFim, mFim] = fim.split(':').map(Number);
+      
+      let minIni = hIni * 60 + mIni;
+      let minFim = hFim * 60 + mFim;
+      
+      if (minFim < minIni) {
+        minFim += 24 * 60; // Parada virou a noite
+      }
+
+      const duracaoMinutos = minFim - minIni;
+      const duracaoHoras = duracaoMinutos / 60;
+      
+      // Aplicar R$ 100,00 de desconto no bruto da empresa se a parada for igual ou superior a 9 horas
+      const aplicaDescontoEmpresa = duracaoHoras >= 9;
+      const valorDesconto = aplicaDescontoEmpresa ? 100 : 0;
+
+      descansosArray.push({ inicio, fim, duracaoHoras, aplicaDescontoEmpresa, valorDesconto });
 
       const tbody = document.getElementById('lista-descansos');
       if (descansosArray.length === 1) tbody.innerHTML = '';
 
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${inicio}</td><td>${fim}</td><td style="color: #ef4444; font-weight: bold;">- R$ 50,00</td>`;
+      tr.innerHTML = `
+        <td>${inicio}</td>
+        <td>${fim}</td>
+        <td><strong>${duracaoHoras.toFixed(1)} hrs</strong></td>
+        <td>${aplicaDescontoEmpresa ? '<span style="color: #ef4444; font-weight: bold;">- ' + formatarBRL(100) + ' (Empresa)</span>' : '<span style="color: var(--text-muted);">Sem desconto (&lt; 9h)</span>'}</td>
+      `;
       tbody.appendChild(tr);
 
       document.getElementById('time-inicio').value = '';
@@ -1225,17 +1248,20 @@
       soundSuccess();
 
       const totalPedagioBalsaViagem = gastosArray.reduce((acc, g) => acc + g.valor, 0);
-      const totalDebitoDescansos = descansosArray.length * 50;
-      const salarioLiquidoViagem = viagemEmAndamento.valorViagem - totalDebitoDescansos;
+      const totalDescontoDescansoViagem = descansosArray.reduce((acc, d) => acc + d.valorDesconto, 0);
+      
+      // Salário do Motorista mantido integralmente conforme percurso
+      const salarioMotoristaViagem = viagemEmAndamento.valorViagem;
 
       saldoTotalEmpresaBruto += viagemEmAndamento.valorViagem;
       custoTotalPedagioBalsa += totalPedagioBalsaViagem;
+      custoTotalDescansoEmpresa += totalDescontoDescansoViagem;
 
       kmAcumulado += viagemEmAndamento.km;
-      salarioAcumulado += salarioLiquidoViagem;
+      salarioAcumulado += salarioMotoristaViagem;
 
       document.getElementById('stat-km').innerText = kmAcumulado;
-      document.getElementById('stat-salario').innerText = salarioAcumulado.toFixed(2);
+      document.getElementById('stat-salario').innerText = formatarBRL(salarioAcumulado);
 
       registrarFuncionarioBase(nomeUsuarioAtual);
       funcionariosCadastrados[nomeUsuarioAtual].viagensCount += 1;
@@ -1247,7 +1273,8 @@
         gastos: [...gastosArray],
         descansos: [...descansosArray],
         totalPedagioBalsa: totalPedagioBalsaViagem,
-        salarioLiquido: salarioLiquidoViagem
+        totalDescontoDescanso: totalDescontoDescansoViagem,
+        salarioLiquido: salarioMotoristaViagem
       };
 
       historicoViagensArray.unshift(viagemConcluida);
@@ -1256,7 +1283,7 @@
       viagensEmpresaArray.unshift(viagemConcluida);
 
       document.getElementById('form-cadastrar-viagem').reset();
-      document.getElementById('box-valor-calculado').innerHTML = '<i data-lucide="calculator"></i><span>Estimativa Bruta: <strong>R$ 0,00</strong></span>';
+      document.getElementById('box-valor-calculado').innerHTML = `<i data-lucide="calculator"></i><span>Estimativa Bruta: <strong>${formatarBRL(0)}</strong></span>`;
       document.getElementById('box-onibus').classList.add('hidden');
       document.getElementById('box-caminhao').classList.add('hidden');
       document.getElementById('aba-viagem-ativa').classList.add('hidden');
@@ -1271,7 +1298,7 @@
       tbody.innerHTML = '';
 
       if (historicoViagensArray.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Nenhuma viagem registrada.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Nenhuma viagem registrada.</td></tr>';
         return;
       }
 
@@ -1285,6 +1312,7 @@
           <td>${v.carga}</td>
           <td>${v.peso}</td>
           <td><strong>${v.km} KM</strong></td>
+          <td style="color: var(--accent-green); font-weight: bold;">${formatarBRL(v.salarioLiquido)}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -1313,10 +1341,12 @@
     }
 
     function renderPainelEmpresa() {
-      const saldoLiquidoEmpresa = saldoTotalEmpresaBruto - custoTotalPedagioBalsa;
+      // Saldo líquido = Saldo Bruto - Pedágios/Balsas - Descontos de descanso (R$ 100 por parada de 9h)
+      const saldoLiquidoEmpresa = saldoTotalEmpresaBruto - custoTotalPedagioBalsa - custoTotalDescansoEmpresa;
 
-      document.getElementById('emp-saldo-total').innerText = saldoLiquidoEmpresa.toFixed(2);
-      document.getElementById('emp-custo-pedagio-balsa').innerText = custoTotalPedagioBalsa.toFixed(2);
+      document.getElementById('emp-saldo-total').innerText = formatarBRL(saldoLiquidoEmpresa);
+      document.getElementById('emp-custo-pedagio-balsa').innerText = formatarBRL(custoTotalPedagioBalsa);
+      document.getElementById('emp-custo-descanso').innerText = formatarBRL(custoTotalDescansoEmpresa);
 
       const ctx = document.getElementById('financeChart').getContext('2d');
       if (financeChartInstance) financeChartInstance.destroy();
@@ -1324,11 +1354,11 @@
       financeChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['Saldo Bruto Total', 'Custo Pedágios/Balsas', 'Saldo Líquido'],
+          labels: ['Saldo Bruto', 'Pedágios/Balsas', 'Desconto Descanso (≥9h)', 'Saldo Líquido'],
           datasets: [{
             label: 'Valores em R$',
-            data: [saldoTotalEmpresaBruto, custoTotalPedagioBalsa, saldoLiquidoEmpresa],
-            backgroundColor: ['#3b82f6', '#f97316', '#10b981'],
+            data: [saldoTotalEmpresaBruto, custoTotalPedagioBalsa, custoTotalDescansoEmpresa, saldoLiquidoEmpresa],
+            backgroundColor: ['#3b82f6', '#f97316', '#ef4444', '#10b981'],
             borderRadius: 8
           }]
         },
@@ -1373,6 +1403,7 @@
                   <th>Especificação</th>
                   <th>Peso</th>
                   <th>KM</th>
+                  <th>Descanso (≥9h)</th>
                 </tr>
               </thead>
               <tbody>
@@ -1388,6 +1419,7 @@
               <td>${v.carga}</td>
               <td>${v.peso}</td>
               <td><strong>${v.km} KM</strong></td>
+              <td style="color: #ef4444; font-weight: bold;">${v.totalDescontoDescanso > 0 ? '- ' + formatarBRL(v.totalDescontoDescanso) : 'Sem desconto'}</td>
             </tr>
           `;
         });
