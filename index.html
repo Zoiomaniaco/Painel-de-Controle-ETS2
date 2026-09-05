@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -33,6 +33,12 @@
     
     label { font-weight: bold; font-size: 14px; color: #4a5568; display: block; margin-bottom: 5px; }
     
+    /* Cards de Estatística */
+    .stats-grid { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+    .stat-card { flex: 1; min-width: 200px; background: #edf2f7; padding: 15px; border-radius: 6px; border-left: 4px solid #3182ce; }
+    .stat-card p { font-size: 12px; color: #4a5568; font-weight: bold; }
+    .stat-card h3 { font-size: 20px; color: #2b6cb0; margin-top: 5px; }
+
     /* Tabela de Gastos */
     .expense-box { background: #f7fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -115,8 +121,21 @@
 
     <!-- STATUS -->
     <div id="emp-status" class="tab-content">
-      <h2>Status Atual</h2>
-      <p id="status-info">Nenhuma viagem em andamento no momento.</p>
+      <h2>Painel do Funcionário</h2>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <p>SALÁRIO BASE</p>
+          <h3>R$ 3.800,00</h3>
+        </div>
+        <div class="stat-card">
+          <p>KM RODADOS (ACUMULADO)</p>
+          <h3><span id="stat-km">0</span> KM</h3>
+        </div>
+      </div>
+
+      <h3>Situação Atual</h3>
+      <p id="status-info" style="margin-top: 10px; color: #4a5568;">Nenhuma viagem em andamento no momento.</p>
     </div>
 
     <!-- NOVA VIAGEM -->
@@ -137,29 +156,18 @@
           <input type="text" id="input-onibus" placeholder="Ex: Marcopolo Paradiso G7, Busscar Vissta Buss...">
         </div>
 
-        <!-- CAMPOS EXCLUSIVOS PARA CAMINHÃO (ETS2) -->
+        <!-- CAMPOS EXCLUSIVOS PARA CAMINHÃO -->
         <div id="box-caminhao" class="hidden">
-          <label>Selecione o Caminhão (ETS2):</label>
+          <label>Veículo:</label>
           <select id="select-caminhao">
-            <option value="">Selecione o modelo do ETS2...</option>
-            <option value="DAF XF">DAF XF</option>
-            <option value="DAF XF Euro 6">DAF XF Euro 6</option>
-            <option value="DAF 2021 (XG/XG+)">DAF 2021 (XG/XG+)</option>
-            <option value="Iveco Stralis">Iveco Stralis</option>
-            <option value="Iveco Hi-Way">Iveco Hi-Way</option>
-            <option value="MAN TGX">MAN TGX</option>
-            <option value="MAN TGX Euro 6">MAN TGX Euro 6</option>
-            <option value="Mercedes-Benz Actros">Mercedes-Benz Actros</option>
-            <option value="New Actros">Mercedes-Benz New Actros</option>
-            <option value="Renault Premium">Renault Premium</option>
-            <option value="Renault Magnum">Renault Magnum</option>
-            <option value="Renault T">Renault T</option>
-            <option value="Scania R (2009)">Scania R (2009)</option>
-            <option value="Scania Streamline">Scania Streamline</option>
-            <option value="Scania R (Next Gen)">Scania R (Next Gen)</option>
-            <option value="Scania S (Next Gen)">Scania S (Next Gen)</option>
-            <option value="Volvo FH16 (2009)">Volvo FH16 (2009)</option>
-            <option value="Volvo FH (2012)">Volvo FH (2012)</option>
+            <option value="">Selecione a marca do veículo...</option>
+            <option value="DAF XF">DAF</option>
+            <option value="Iveco Hi-Way">Iveco</option>
+            <option value="MAN TGX">MAN</option>
+            <option value="Mercedes-Benz Actros">Mercedes-Benz</option>
+            <option value="Renault T">Renault</option>
+            <option value="Scania S">Scania</option>
+            <option value="Volvo FH">Volvo</option>
           </select>
 
           <label>Tipo de Carga:</label>
@@ -227,6 +235,7 @@
     let selectedUserType = 'empresa';
     let totalGastosValor = 0;
     let gastosArray = [];
+    let kmAcumulado = 0;
 
     function selectType(type) {
       selectedUserType = type;
@@ -272,7 +281,6 @@
       if (element) element.classList.add('active');
     }
 
-    // Exibe ou oculta campos específicos conforme a seleção do veículo
     function toggleVehicleOptions() {
       const type = document.getElementById('vehicle-type').value;
       const boxOnibus = document.getElementById('box-onibus');
@@ -302,13 +310,16 @@
       }
     }
 
-    // Inicia a viagem e redireciona para a aba "VIAGEM ATUAL"
     function iniciarViagem(e) {
       e.preventDefault();
       const tipo = document.getElementById('vehicle-type').value;
       const origem = document.getElementById('input-origem').value;
       const destino = document.getElementById('input-destino').value;
-      const km = document.getElementById('input-km').value;
+      const km = parseFloat(document.getElementById('input-km').value) || 0;
+
+      // Atualiza KM acumulado na aba de Status
+      kmAcumulado += km;
+      document.getElementById('stat-km').innerText = kmAcumulado;
 
       let detalheVeiculo = '';
       if (tipo === 'onibus') {
@@ -316,7 +327,7 @@
       } else {
         const caminhao = document.getElementById('select-caminhao').value;
         const carga = document.getElementById('input-carga').value;
-        detalheVeiculo = `<strong>Caminhão:</strong> ${caminhao} | <strong>Carga:</strong> ${carga}`;
+        detalheVeiculo = `<strong>Veículo:</strong> ${caminhao} | <strong>Carga:</strong> ${carga}`;
       }
 
       const infoHTML = `
@@ -330,12 +341,10 @@
 
       alert('Viagem iniciada! Redirecionando para a aba Viagem Atual...');
       
-      // Muda para a aba Viagem Atual
       const btnTabViagem = document.getElementById('btn-tab-viagem-atual');
       switchTab('employee-screen', 'emp-viagem-atual', btnTabViagem);
     }
 
-    // Lança um novo gasto na tabela da viagem atual
     function adicionarGasto(e) {
       e.preventDefault();
       const tipo = document.getElementById('expense-type').value;
@@ -347,7 +356,6 @@
 
       renderGastos();
       
-      // Limpa os campos
       document.getElementById('expense-type').value = '';
       document.getElementById('expense-value').value = '';
       document.getElementById('expense-obs').value = '';
