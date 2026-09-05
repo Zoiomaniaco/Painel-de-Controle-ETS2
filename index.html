@@ -16,20 +16,22 @@
     .type-btn { flex: 1; padding: 10px; border: 1px solid #cbd5e0; background: #edf2f7; cursor: pointer; border-radius: 4px; font-weight: bold; }
     .type-btn.active { background: #3182ce; color: white; border-color: #3182ce; }
     
-    input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #cbd5e0; border-radius: 4px; }
+    input, select { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; background-color: #fff; }
     button.btn-main { width: 100%; padding: 12px; background: #2b6cb0; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
     button.btn-main:hover { background: #2c5282; }
     
     .link-action { margin-top: 15px; display: block; color: #3182ce; text-decoration: none; font-size: 14px; cursor: pointer; }
     
-    /* Layout Dashboards (Empresa e Funcionário) */
+    /* Layout Dashboards */
     .dashboard { display: none; width: 100%; max-width: 800px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     .nav-menu { display: flex; gap: 10px; margin-top: 20px; border-bottom: 2px solid #edf2f7; padding-bottom: 10px; }
     .nav-btn { padding: 10px 15px; background: none; border: none; font-weight: bold; color: #4a5568; cursor: pointer; }
     .nav-btn.active { color: #3182ce; border-bottom: 2px solid #3182ce; }
     .tab-content { padding: 20px 0; text-align: left; }
-    .hidden { display: none; }
+    .hidden { display: none !important; }
     .btn-logout { margin-top: 20px; padding: 8px 16px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    
+    label { font-weight: bold; font-size: 14px; color: #4a5568; display: block; margin-bottom: 5px; }
   </style>
 </head>
 <body>
@@ -109,13 +111,55 @@
       <p>Acompanhe o status da sua viagem atual, horários e paradas registradas.</p>
     </div>
 
+    <!-- ABA NOVA VIAGEM -->
     <div id="emp-nova-viagem" class="tab-content hidden">
       <h2>Iniciar Nova Viagem</h2>
-      <form onsubmit="alert('Viagem iniciada!'); event.preventDefault();">
-        <input type="text" placeholder="Placa do Veículo" style="margin-top: 10px;" required>
+      <form onsubmit="alert('Viagem iniciada com sucesso!'); event.preventDefault();">
+        
+        <label>Tipo de Veículo:</label>
+        <select id="vehicle-type" onchange="toggleVehicleOptions()" required>
+          <option value="">Selecione...</option>
+          <option value="onibus">Ônibus</option>
+          <option value="caminhao">Caminhão</option>
+        </select>
+
+        <!-- CAMPO EXCLUSIVO PARA ÔNIBUS -->
+        <div id="box-onibus" class="hidden">
+          <label>Modelo do Ônibus:</label>
+          <input type="text" id="input-onibus" placeholder="Ex: Marcopolo Paradiso G7, Busscar Vissta Buss...">
+        </div>
+
+        <!-- CAMPO EXCLUSIVO PARA CAMINHÃO (ETS2) -->
+        <div id="box-caminhao" class="hidden">
+          <label>Selecione o Caminhão (ETS2):</label>
+          <select id="select-caminhao">
+            <option value="">Selecione o modelo do ETS2...</option>
+            <option value="DAF XF">DAF XF</option>
+            <option value="DAF XF Euro 6">DAF XF Euro 6</option>
+            <option value="DAF 2021 (XG/XG+)">DAF 2021 (XG/XG+)</option>
+            <option value="Iveco Stralis">Iveco Stralis</option>
+            <option value="Iveco Hi-Way">Iveco Hi-Way</option>
+            <option value="MAN TGX">MAN TGX</option>
+            <option value="MAN TGX Euro 6">MAN TGX Euro 6</option>
+            <option value="Mercedes-Benz Actros">Mercedes-Benz Actros</option>
+            <option value="New Actros">Mercedes-Benz New Actros</option>
+            <option value="Renault Premium">Renault Premium</option>
+            <option value="Renault Magnum">Renault Magnum</option>
+            <option value="Renault T">Renault T</option>
+            <option value="Scania R (2009)">Scania R (2009)</option>
+            <option value="Scania Streamline">Scania Streamline</option>
+            <option value="Scania R (Next Gen)">Scania R (Next Gen)</option>
+            <option value="Scania S (Next Gen)">Scania S (Next Gen)</option>
+            <option value="Volvo FH16 (2009)">Volvo FH16 (2009)</option>
+            <option value="Volvo FH (2012)">Volvo FH (2012)</option>
+          </select>
+        </div>
+
+        <input type="text" placeholder="Placa do Veículo" required>
         <input type="text" placeholder="Origem" required>
         <input type="text" placeholder="Destino" required>
         <input type="number" placeholder="KM Inicial" required>
+        
         <button type="submit" class="btn-main">Registrar Viagem</button>
       </form>
     </div>
@@ -126,24 +170,19 @@
   <script>
     let selectedUserType = 'empresa';
 
-    // Seleção entre perfil Empresa / Funcionário no login
     function selectType(type) {
       selectedUserType = type;
       document.getElementById('btn-empresa').classList.toggle('active', type === 'empresa');
       document.getElementById('btn-funcionario').classList.toggle('active', type === 'funcionario');
     }
 
-    // Alternar visibilidade entre telas principais
     function showScreen(screenId) {
       const screens = ['login-screen', 'signup-screen', 'company-screen', 'employee-screen'];
       screens.forEach(id => {
         const el = document.getElementById(id);
         if (id === screenId) {
           el.classList.remove('hidden');
-          el.style.display = id.includes('screen') && !id.includes('dashboard') ? 'block' : (id.includes('screen') ? 'block' : 'none');
-          if (id === 'company-screen' || id === 'employee-screen') {
-            el.style.display = 'block';
-          }
+          el.style.display = 'block';
         } else {
           el.classList.add('hidden');
           el.style.display = 'none';
@@ -151,7 +190,6 @@
       });
     }
 
-    // Ação ao fazer Login
     function handleLogin(e) {
       e.preventDefault();
       if (selectedUserType === 'empresa') {
@@ -161,14 +199,12 @@
       }
     }
 
-    // Ação ao realizar Cadastro (direciona para a Área do Funcionário)
     function handleSignup(e) {
       e.preventDefault();
       alert('Cadastro realizado com sucesso!');
       showScreen('employee-screen');
     }
 
-    // Navegação de abas internas dos painéis
     function switchTab(containerId, tabId, element) {
       const container = document.getElementById(containerId);
       container.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
@@ -178,12 +214,36 @@
       element.classList.add('active');
     }
 
-    // Logout
+    // Alterna a exibição entre o campo do Ônibus e a lista do Caminhão (ETS2)
+    function toggleVehicleOptions() {
+      const type = document.getElementById('vehicle-type').value;
+      const boxOnibus = document.getElementById('box-onibus');
+      const boxCaminhao = document.getElementById('box-caminhao');
+      const inputOnibus = document.getElementById('input-onibus');
+      const selectCaminhao = document.getElementById('select-caminhao');
+
+      if (type === 'onibus') {
+        boxOnibus.classList.remove('hidden');
+        boxCaminhao.classList.add('hidden');
+        inputOnibus.required = true;
+        selectCaminhao.required = false;
+      } else if (type === 'caminhao') {
+        boxCaminhao.classList.remove('hidden');
+        boxOnibus.classList.add('hidden');
+        selectCaminhao.required = true;
+        inputOnibus.required = false;
+      } else {
+        boxOnibus.classList.add('hidden');
+        boxCaminhao.classList.add('hidden');
+        inputOnibus.required = false;
+        selectCaminhao.required = false;
+      }
+    }
+
     function logout() {
       showScreen('login-screen');
     }
 
-    // Inicialização da tela inicial
     showScreen('login-screen');
   </script>
 </body>
