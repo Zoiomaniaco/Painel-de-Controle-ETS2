@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -24,14 +24,20 @@
     
     /* Layout Dashboards */
     .dashboard { display: none; width: 100%; max-width: 800px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .nav-menu { display: flex; gap: 10px; margin-top: 20px; border-bottom: 2px solid #edf2f7; padding-bottom: 10px; }
-    .nav-btn { padding: 10px 15px; background: none; border: none; font-weight: bold; color: #4a5568; cursor: pointer; }
+    .nav-menu { display: flex; gap: 10px; margin-top: 20px; border-bottom: 2px solid #edf2f7; padding-bottom: 10px; overflow-x: auto; }
+    .nav-btn { padding: 10px 15px; background: none; border: none; font-weight: bold; color: #4a5568; cursor: pointer; whitespace: nowrap; }
     .nav-btn.active { color: #3182ce; border-bottom: 2px solid #3182ce; }
     .tab-content { padding: 20px 0; text-align: left; }
     .hidden { display: none !important; }
     .btn-logout { margin-top: 20px; padding: 8px 16px; background: #e53e3e; color: white; border: none; border-radius: 4px; cursor: pointer; }
     
     label { font-weight: bold; font-size: 14px; color: #4a5568; display: block; margin-bottom: 5px; }
+    
+    /* Tabela de Gastos */
+    .expense-box { background: #f7fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 8px; border-bottom: 1px solid #e2e8f0; text-align: left; font-size: 14px; }
+    th { background: #edf2f7; color: #2d3748; }
   </style>
 </head>
 <body>
@@ -104,17 +110,19 @@
     <div class="nav-menu">
       <button class="nav-btn active" onclick="switchTab('employee-screen', 'emp-status', this)">STATUS</button>
       <button class="nav-btn" onclick="switchTab('employee-screen', 'emp-nova-viagem', this)">NOVA VIAGEM</button>
+      <button class="nav-btn" id="btn-tab-viagem-atual" onclick="switchTab('employee-screen', 'emp-viagem-atual', this)">VIAGEM ATUAL</button>
     </div>
 
+    <!-- STATUS -->
     <div id="emp-status" class="tab-content">
       <h2>Status Atual</h2>
-      <p>Acompanhe o status da sua viagem atual, horários e paradas registradas.</p>
+      <p id="status-info">Nenhuma viagem em andamento no momento.</p>
     </div>
 
-    <!-- ABA NOVA VIAGEM -->
+    <!-- NOVA VIAGEM -->
     <div id="emp-nova-viagem" class="tab-content hidden">
       <h2>Iniciar Nova Viagem</h2>
-      <form onsubmit="alert('Viagem iniciada com sucesso!'); event.preventDefault();">
+      <form onsubmit="iniciarViagem(event)">
         
         <label>Tipo de Veículo:</label>
         <select id="vehicle-type" onchange="toggleVehicleOptions()" required>
@@ -129,7 +137,7 @@
           <input type="text" id="input-onibus" placeholder="Ex: Marcopolo Paradiso G7, Busscar Vissta Buss...">
         </div>
 
-        <!-- CAMPO EXCLUSIVO PARA CAMINHÃO (ETS2) -->
+        <!-- CAMPOS EXCLUSIVOS PARA CAMINHÃO (ETS2) -->
         <div id="box-caminhao" class="hidden">
           <label>Selecione o Caminhão (ETS2):</label>
           <select id="select-caminhao">
@@ -153,15 +161,63 @@
             <option value="Volvo FH16 (2009)">Volvo FH16 (2009)</option>
             <option value="Volvo FH (2012)">Volvo FH (2012)</option>
           </select>
+
+          <label>Tipo de Carga:</label>
+          <input type="text" id="input-carga" placeholder="Ex: Container, Carga Viva, Grãos, Maquinário...">
         </div>
 
-        <input type="text" placeholder="Placa do Veículo" required>
-        <input type="text" placeholder="Origem" required>
-        <input type="text" placeholder="Destino" required>
-        <input type="number" placeholder="KM Inicial" required>
+        <input type="text" id="input-origem" placeholder="Origem" required>
+        <input type="text" id="input-destino" placeholder="Destino" required>
+        <input type="number" id="input-km" placeholder="KM Inicial" required>
         
-        <button type="submit" class="btn-main">Registrar Viagem</button>
+        <button type="submit" class="btn-main">Iniciar Viagem</button>
       </form>
+    </div>
+
+    <!-- VIAGEM ATUAL -->
+    <div id="emp-viagem-atual" class="tab-content hidden">
+      <h2>Viagem Atual em Andamento</h2>
+      <div id="dados-viagem-ativa" style="margin-bottom: 20px; font-size: 15px; background: #e2e8f0; padding: 12px; border-radius: 6px;">
+        <em>Nenhuma viagem iniciada. Acesse a aba "NOVA VIAGEM" para começar.</em>
+      </div>
+
+      <div class="expense-box">
+        <h3>Lançar Gastos da Viagem</h3>
+        <form onsubmit="adicionarGasto(event)" style="margin-top: 10px;">
+          <label>Tipo de Despesa:</label>
+          <select id="expense-type" required>
+            <option value="">Selecione...</option>
+            <option value="Balsa">Balsa</option>
+            <option value="Pedágio">Pedágio</option>
+            <option value="Parada para descanso">Parada para descanso</option>
+          </select>
+
+          <label>Valor (R$):</label>
+          <input type="number" step="0.01" id="expense-value" placeholder="0.00" required>
+
+          <label>Observação / Local (opcional):</label>
+          <input type="text" id="expense-obs" placeholder="Ex: Posto Graal KM 120">
+
+          <button type="submit" class="btn-main">Adicionar Gasto</button>
+        </form>
+      </div>
+
+      <h3>Histórico de Gastos</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Local / Obs</th>
+            <th>Valor</th>
+          </tr>
+        </thead>
+        <tbody id="lista-gastos">
+          <tr>
+            <td colspan="3" style="text-align: center; color: #718096;">Nenhum gasto registrado.</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="margin-top: 10px; font-weight: bold; font-size: 16px;">Total de Gastos: R$ <span id="total-gastos">0.00</span></p>
     </div>
 
     <button onclick="logout()" class="btn-logout">Sair</button>
@@ -169,6 +225,8 @@
 
   <script>
     let selectedUserType = 'empresa';
+    let totalGastosValor = 0;
+    let gastosArray = [];
 
     function selectType(type) {
       selectedUserType = type;
@@ -211,33 +269,110 @@
       container.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       
       document.getElementById(tabId).classList.remove('hidden');
-      element.classList.add('active');
+      if (element) element.classList.add('active');
     }
 
-    // Alterna a exibição entre o campo do Ônibus e a lista do Caminhão (ETS2)
+    // Exibe ou oculta campos específicos conforme a seleção do veículo
     function toggleVehicleOptions() {
       const type = document.getElementById('vehicle-type').value;
       const boxOnibus = document.getElementById('box-onibus');
       const boxCaminhao = document.getElementById('box-caminhao');
       const inputOnibus = document.getElementById('input-onibus');
       const selectCaminhao = document.getElementById('select-caminhao');
+      const inputCarga = document.getElementById('input-carga');
 
       if (type === 'onibus') {
         boxOnibus.classList.remove('hidden');
         boxCaminhao.classList.add('hidden');
         inputOnibus.required = true;
         selectCaminhao.required = false;
+        inputCarga.required = false;
       } else if (type === 'caminhao') {
         boxCaminhao.classList.remove('hidden');
         boxOnibus.classList.add('hidden');
         selectCaminhao.required = true;
+        inputCarga.required = true;
         inputOnibus.required = false;
       } else {
         boxOnibus.classList.add('hidden');
         boxCaminhao.classList.add('hidden');
         inputOnibus.required = false;
         selectCaminhao.required = false;
+        inputCarga.required = false;
       }
+    }
+
+    // Inicia a viagem e redireciona para a aba "VIAGEM ATUAL"
+    function iniciarViagem(e) {
+      e.preventDefault();
+      const tipo = document.getElementById('vehicle-type').value;
+      const origem = document.getElementById('input-origem').value;
+      const destino = document.getElementById('input-destino').value;
+      const km = document.getElementById('input-km').value;
+
+      let detalheVeiculo = '';
+      if (tipo === 'onibus') {
+        detalheVeiculo = `<strong>Ônibus:</strong> ${document.getElementById('input-onibus').value}`;
+      } else {
+        const caminhao = document.getElementById('select-caminhao').value;
+        const carga = document.getElementById('input-carga').value;
+        detalheVeiculo = `<strong>Caminhão:</strong> ${caminhao} | <strong>Carga:</strong> ${carga}`;
+      }
+
+      const infoHTML = `
+        <p><strong>Rota:</strong> ${origem} ➔ ${destino}</p>
+        <p>${detalheVeiculo}</p>
+        <p><strong>KM Inicial:</strong> ${km} km</p>
+      `;
+
+      document.getElementById('dados-viagem-ativa').innerHTML = infoHTML;
+      document.getElementById('status-info').innerHTML = `Viagem em andamento de <strong>${origem}</strong> para <strong>${destino}</strong>.`;
+
+      alert('Viagem iniciada! Redirecionando para a aba Viagem Atual...');
+      
+      // Muda para a aba Viagem Atual
+      const btnTabViagem = document.getElementById('btn-tab-viagem-atual');
+      switchTab('employee-screen', 'emp-viagem-atual', btnTabViagem);
+    }
+
+    // Lança um novo gasto na tabela da viagem atual
+    function adicionarGasto(e) {
+      e.preventDefault();
+      const tipo = document.getElementById('expense-type').value;
+      const valor = parseFloat(document.getElementById('expense-value').value);
+      const obs = document.getElementById('expense-obs').value || '-';
+
+      gastosArray.push({ tipo, valor, obs });
+      totalGastosValor += valor;
+
+      renderGastos();
+      
+      // Limpa os campos
+      document.getElementById('expense-type').value = '';
+      document.getElementById('expense-value').value = '';
+      document.getElementById('expense-obs').value = '';
+    }
+
+    function renderGastos() {
+      const tbody = document.getElementById('lista-gastos');
+      tbody.innerHTML = '';
+
+      if (gastosArray.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #718096;">Nenhum gasto registrado.</td></tr>';
+        return;
+      }
+
+      gastosArray.forEach(gasto => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${gasto.tipo}</td>
+          <td>${gasto.obs}</td>
+          <td>R$ ${gasto.valor.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('total-gastos').innerText = totalGastosValor.toFixed(2);
     }
 
     function logout() {
