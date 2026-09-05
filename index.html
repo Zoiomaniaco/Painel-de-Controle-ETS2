@@ -451,7 +451,7 @@
 
     .chart-container {
       position: relative;
-      height: 250px;
+      height: 280px;
       width: 100%;
       margin-top: 15px;
     }
@@ -691,7 +691,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center;">
       <div>
         <h1 style="display: flex; align-items: center; gap: 10px;">
-          <i data-lucide="steering-wheel" style="color: var(--primary);"></i> Área do Motorista
+          <i data-lucide="disc" style="color: var(--primary);"></i> Área do Motorista
         </h1>
         <p class="subtitle" style="margin: 0;" id="saudacao-motorista">Bem-vindo de volta</p>
       </div>
@@ -1360,7 +1360,6 @@
       document.getElementById('modal-promocoes').classList.add('hidden');
     }
 
-    // VALIDAÇÃO E AUTENTICAÇÃO RIGOROSA
     function handleLogin(e) {
       e.preventDefault();
       const userVal = document.getElementById('login-user').value.trim();
@@ -1379,7 +1378,6 @@
       } else {
         const motorista = funcionariosCadastrados[userVal];
         
-        // Verifica se o motorista existe E se a senha confere
         if (motorista && motorista.senha === passVal) {
           soundSuccess();
           loginUsuarioAtual = userVal;
@@ -1557,13 +1555,18 @@
       const inicio = document.getElementById('time-inicio').value;
       const fim = document.getElementById('time-fim').value;
 
+      if (inicio === fim) {
+        alert("O horário final deve ser diferente do horário inicial.");
+        return;
+      }
+
       const [hIni, mIni] = inicio.split(':').map(Number);
       const [hFim, mFim] = fim.split(':').map(Number);
       
       let minIni = hIni * 60 + mIni;
       let minFim = hFim * 60 + mFim;
       
-      if (minFim < minIni) {
+      if (minFim <= minIni) {
         minFim += 24 * 60;
       }
 
@@ -1642,7 +1645,7 @@
       document.getElementById('aba-viagem-ativa').classList.add('hidden');
 
       viagemEmAndamento = null;
-      switchTab('employee-screen', 'emp-status', document.querySelector('#employee-screen .nav-btn'));
+      switchTab('employee-screen', 'emp-status', document.querySelectorAll('#employee-screen .nav-btn')[0]);
       lucide.createIcons();
     }
 
