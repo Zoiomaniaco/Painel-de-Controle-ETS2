@@ -513,11 +513,12 @@
     <h1>DIÁRIO DE BORDO</h1>
     <p class="subtitle">J&I Transportes - Gestão de Frota</p>
     
+    <!-- Motoristas selecionado por padrão -->
     <div class="type-selector">
-      <button class="type-btn active" id="btn-empresa" onclick="selectType('empresa')">
+      <button class="type-btn" id="btn-empresa" onclick="selectType('empresa')">
         <i data-lucide="building-2"></i> Empresa
       </button>
-      <button class="type-btn" id="btn-funcionario" onclick="selectType('funcionario')">
+      <button class="type-btn active" id="btn-funcionario" onclick="selectType('funcionario')">
         <i data-lucide="user"></i> Motoristas
       </button>
     </div>
@@ -538,6 +539,7 @@
       </button>
     </form>
 
+    <!-- Botão de Cadastro visível por padrão -->
     <span class="link-action" id="link-signup" onclick="showScreen('signup-screen')">Criar nova conta de Motorista</span>
   </div>
 
@@ -1108,7 +1110,8 @@
 
     lucide.createIcons();
 
-    let selectedUserType = 'empresa';
+    // Tipo padrão ajustado para 'funcionario' (Motoristas)
+    let selectedUserType = 'funcionario'; 
     let nomeUsuarioAtual = '';
     let loginUsuarioAtual = '';
     let kmAcumulado = 0;
@@ -1151,7 +1154,7 @@
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          selectedUserType = parsed.selectedUserType || 'empresa';
+          selectedUserType = parsed.selectedUserType || 'funcionario';
           nomeUsuarioAtual = parsed.nomeUsuarioAtual || '';
           loginUsuarioAtual = parsed.loginUsuarioAtual || '';
           kmAcumulado = parsed.kmAcumulado || 0;
