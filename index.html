@@ -157,31 +157,31 @@
     <!-- PAINEL DA EMPRESA (BALANÇO FINANCEIRO, PEDÁGIOS E BALSAS) -->
     <div id="painel-empresa" class="tab-content hidden">
       <h2>Painel da Empresa</h2>
-      <p style="margin-bottom: 15px; color: #4a5568;">Balanço financeiro e divisão de custos de Pedágios e Balsas (70% Empresa / 30% Funcionário).</p>
+      <p style="margin-bottom: 15px; color: #4a5568;">Balanço financeiro consolidado e dedução de despesas operacionais de viagens.</p>
 
       <div class="stats-grid">
         <div class="stat-card success">
-          <p>SALDO TOTAL DA EMPRESA (LÍQUIDO)</p>
+          <p>SALDO LÍQUIDO DA EMPRESA</p>
           <h3>R$ <span id="emp-saldo-total">0.00</span></h3>
         </div>
         <div class="stat-card accent">
-          <p>CUSTO TOTAL PEDÁGIOS/BALSAS</p>
+          <p>DESPESA TOTAL (PEDÁGIOS / BALSAS)</p>
           <h3>R$ <span id="emp-custo-pedagio-balsa">0.00</span></h3>
         </div>
       </div>
 
       <div class="section-box">
-        <h3>Divisão dos Custos de Pedágios e Balsas</h3>
-        <p style="font-size: 13px; color: #4a5568; margin-top: 5px;">O valor total de taxas é dividido na proporção regulamentada de <strong>70% cobrado da empresa</strong> e <strong>30% descontado na folha de pagamento do funcionário</strong>.</p>
+        <h3>Detalhamento das Despesas de Rotas</h3>
+        <p style="font-size: 13px; color: #4a5568; margin-top: 5px;">Os custos totais com pedágios e balsas são <strong>integralmente descontados da empresa (100%)</strong>, não havendo cobrança na folha de pagamento do funcionário.</p>
         
         <div class="stats-grid" style="margin-top: 15px;">
           <div class="stat-card">
-            <p>PARTE EMPRESA (70%) - DESCONTADO DO SALDO</p>
-            <h3>R$ <span id="emp-desconto-70">0.00</span></h3>
+            <p>VALOR BRUTO ACUMULADO</p>
+            <h3>R$ <span id="emp-saldo-bruto">0.00</span></h3>
           </div>
-          <div class="stat-card">
-            <p>PARTE FUNCIONÁRIOS (30%) - DESCONTO NA FOLHA</p>
-            <h3>R$ <span id="emp-desconto-30">0.00</span></h3>
+          <div class="stat-card accent">
+            <p>TOTAL DESCONTADO DA EMPRESA</p>
+            <h3>R$ <span id="emp-desconto-100">0.00</span></h3>
           </div>
         </div>
       </div>
@@ -324,7 +324,7 @@
 
       <div class="section-box">
         <h3>Gastos de Pedágio e Balsa</h3>
-        <p style="font-size: 13px; color: #4a5568; margin-bottom: 10px;">* Os gastos com Pedágio e Balsa serão divididos em <strong>70% para a Empresa</strong> e <strong>30% descontados na folha do funcionário</strong>.</p>
+        <p style="font-size: 13px; color: #4a5568; margin-bottom: 10px;">* Os gastos com Pedágio e Balsa são custeados <strong>100% pela Empresa</strong> (descontados integralmente no saldo corporativo).</p>
         
         <form onsubmit="adicionarGasto(event)" style="margin-top: 10px;">
           <label>Tipo de Gastos:</label>
@@ -408,7 +408,7 @@
     let salarioAcumulado = 0;
     
     // Base de dados local
-    let funcionariosCadastrados = {}; // { 'Nome': { viagensCount: 0, totalKm: 0 } }
+    let funcionariosCadastrados = {}; 
     let historicoViagensArray = [];
     let viagensEmpresaArray = [];
 
@@ -632,29 +632,24 @@
     function concluirViagem() {
       if (!viagemEmAndamento) return;
 
-      // Soma total de gastos de pedágios e balsas desta viagem
       const totalPedagioBalsaViagem = gastosArray.reduce((acc, g) => acc + g.valor, 0);
-      
-      // Divisão 70% empresa e 30% funcionário
-      const parteEmpresa70 = totalPedagioBalsaViagem * 0.70;
-      const parteFuncionario30 = totalPedagioBalsaViagem * 0.30;
       const totalDebitoDescansos = descansosArray.length * 50;
       
-      // Cálculo do salário líquido do funcionário (Subtrai 30% do pedágio + R$50 por descanso)
-      const salarioLiquidoViagem = viagemEmAndamento.valorViagem - parteFuncionario30 - totalDebitoDescansos;
+      // 100% dos pedágios e balsas são descontados exclusivamente da empresa.
+      // O funcionário só tem descontado o valor de seus descansos.
+      const salarioLiquidoViagem = viagemEmAndamento.valorViagem - totalDebitoDescansos;
 
-      // Atualiza variáveis da empresa
+      // Atualiza valores da empresa
       saldoTotalEmpresaBruto += viagemEmAndamento.valorViagem;
       custoTotalPedagioBalsa += totalPedagioBalsaViagem;
 
-      // Atualiza valores do funcionário
+      // Atualiza acumulados do funcionário
       kmAcumulado += viagemEmAndamento.km;
       salarioAcumulado += salarioLiquidoViagem;
 
       document.getElementById('stat-km').innerText = kmAcumulado;
       document.getElementById('stat-salario').innerText = salarioAcumulado.toFixed(2);
 
-      // Atualiza estatísticas do funcionário
       registrarFuncionarioBase(nomeUsuarioAtual);
       funcionariosCadastrados[nomeUsuarioAtual].viagensCount += 1;
       funcionariosCadastrados[nomeUsuarioAtual].totalKm += viagemEmAndamento.km;
@@ -711,7 +706,6 @@
       });
     }
 
-    // 1. VISÃO GERAL COM TABELA (SOMENTE NÚMERO DE VIAGENS)
     function renderVisaoGeralEmpresa() {
       const tbody = document.getElementById('empresa-resumo-funcionarios');
       tbody.innerHTML = '';
@@ -735,19 +729,16 @@
       });
     }
 
-    // 2. RENDERIZA PAINEL DA EMPRESA (CUSTOS E SALDO)
     function renderPainelEmpresa() {
-      const desconto70Empresa = custoTotalPedagioBalsa * 0.70;
-      const desconto30Funcionario = custoTotalPedagioBalsa * 0.30;
-      const saldoLiquidoEmpresa = saldoTotalEmpresaBruto - desconto70Empresa;
+      // Cálculo do saldo líquido: Saldo Bruto das Viagens (-) Total de Pedágios e Balsas
+      const saldoLiquidoEmpresa = saldoTotalEmpresaBruto - custoTotalPedagioBalsa;
 
       document.getElementById('emp-saldo-total').innerText = saldoLiquidoEmpresa.toFixed(2);
       document.getElementById('emp-custo-pedagio-balsa').innerText = custoTotalPedagioBalsa.toFixed(2);
-      document.getElementById('emp-desconto-70').innerText = desconto70Empresa.toFixed(2);
-      document.getElementById('emp-desconto-30').innerText = desconto30Funcionario.toFixed(2);
+      document.getElementById('emp-saldo-bruto').innerText = saldoTotalEmpresaBruto.toFixed(2);
+      document.getElementById('emp-desconto-100').innerText = custoTotalPedagioBalsa.toFixed(2);
     }
 
-    // 3. RENDERIZA VIAGENS DA EMPRESA SEPARADAS POR TIPO DE CARGA
     function renderViagensEmpresaPorCarga() {
       const container = document.getElementById('container-viagens-por-carga');
       container.innerHTML = '';
