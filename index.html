@@ -47,6 +47,29 @@
     th { background: #edf2f7; color: #2d3748; }
     
     .time-grid { display: flex; gap: 10px; }
+
+    /* MODAL DE VIAGEM EM ANDAMENTO */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 15px;
+    }
+    .modal-content {
+      background: white;
+      width: 100%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 8px;
+      padding: 25px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
   </style>
 </head>
 <body>
@@ -61,7 +84,7 @@
     </div>
 
     <form onsubmit="handleLogin(event)">
-      <input type="text" placeholder="Login / Usuário" required>
+      <input type="text" id="login-user" placeholder="Login / Usuário" required>
       <input type="password" placeholder="Senha" required>
       <button type="submit" class="btn-main">Entrar</button>
     </form>
@@ -75,7 +98,7 @@
     <h2>Cadastro de Funcionário</h2>
 
     <form onsubmit="handleSignup(event)">
-      <input type="text" placeholder="Nome Completo" required>
+      <input type="text" id="signup-name" placeholder="Nome Completo" required>
       <input type="text" placeholder="Login" required>
       <input type="password" placeholder="Senha" required>
       <button type="submit" class="btn-main">Cadastrar e Entrar</button>
@@ -105,8 +128,27 @@
     </div>
 
     <div id="viagens-cadastradas" class="tab-content hidden">
-      <h2>Viagens Cadastradas</h2>
-      <p>Histórico e listagem de viagens registradas no sistema.</p>
+      <h2>Viagens Cadastradas na Empresa</h2>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Motorista</th>
+              <th>Tipo</th>
+              <th>Veículo</th>
+              <th>Destino</th>
+              <th>Carga/Peso</th>
+              <th>Km</th>
+            </tr>
+          </thead>
+          <tbody id="empresa-viagens-cadastradas">
+            <tr>
+              <td colspan="7" style="text-align: center; color: #718096;">Nenhuma viagem registrada na empresa até o momento.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <button onclick="logout()" class="btn-logout">Sair</button>
@@ -208,92 +250,107 @@
         
         <button type="submit" class="btn-main">Aceitar e Iniciar Viagem</button>
       </form>
-
-      <!-- PAINEL DE GASTOS E DESCANSO (APARECE APÓS ACEITAR A VIAGEM) -->
-      <div id="painel-gastos-descanso" class="hidden" style="margin-top: 25px;">
-        <div class="section-box">
-          <h3>Lançar Gastos da Viagem</h3>
-          <form onsubmit="adicionarGasto(event)" style="margin-top: 10px;">
-            <label>Tipo de Despesa:</label>
-            <select id="expense-type" required>
-              <option value="">Selecione...</option>
-              <option value="Pedágio">Pedágio</option>
-              <option value="Balsa">Balsa</option>
-            </select>
-
-            <label>Valor (R$):</label>
-            <input type="number" step="0.01" id="expense-value" placeholder="0.00" required>
-
-            <label>Observação / Local (opcional):</label>
-            <input type="text" id="expense-obs" placeholder="Ex: Praça de Pedágio Rod. dos Bandeirantes">
-
-            <button type="submit" class="btn-main">Adicionar Gasto</button>
-          </form>
-
-          <div class="table-responsive">
-            <table>
-              <thead>
-                <tr>
-                  <th>Tipo</th>
-                  <th>Local / Obs</th>
-                  <th>Valor</th>
-                </tr>
-              </thead>
-              <tbody id="lista-gastos">
-                <tr>
-                  <td colspan="3" style="text-align: center; color: #718096;">Nenhum gasto registrado.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="section-box">
-          <h3>Registro de Parada para Descanso</h3>
-          <p style="font-size: 13px; color: #e53e3e; margin-bottom: 10px;">* Cada descanso registrado desconta R$ 50,00 do seu salário.</p>
-          
-          <form onsubmit="registrarDescanso(event)">
-            <div class="time-grid">
-              <div style="flex: 1;">
-                <label>Início do Descanso:</label>
-                <input type="time" id="time-inicio" required>
-              </div>
-              <div style="flex: 1;">
-                <label>Término do Descanso:</label>
-                <input type="time" id="time-fim" required>
-              </div>
-            </div>
-            <button type="submit" class="btn-main" style="background-color: #dd6b20;">Registrar Descanso (- R$ 50,00)</button>
-          </form>
-
-          <div class="table-responsive">
-            <table>
-              <thead>
-                <tr>
-                  <th>Início</th>
-                  <th>Término</th>
-                  <th>Desconto Aplicado</th>
-                </tr>
-              </thead>
-              <tbody id="lista-descansos">
-                <tr>
-                  <td colspan="3" style="text-align: center; color: #718096;">Nenhum descanso registrado nesta viagem.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
     </div>
 
     <button onclick="logout()" class="btn-logout">Sair</button>
   </div>
 
+  <!-- 5. JANELA MODAL: VIAGEM EM ANDAMENTO -->
+  <div id="modal-viagem-andamento" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h2 style="color: #1a365d;">Viagem em Andamento</h2>
+      <div id="modal-detalhes-viagem" style="margin-bottom: 20px; font-size: 14px; background: #edf2f7; padding: 12px; border-radius: 6px;"></div>
+
+      <!-- PAINEL DE GASTOS -->
+      <div class="section-box">
+        <h3>Lançar Gastos da Viagem</h3>
+        <form onsubmit="adicionarGasto(event)" style="margin-top: 10px;">
+          <label>Tipo de Despesa:</label>
+          <select id="expense-type" required>
+            <option value="">Selecione...</option>
+            <option value="Pedágio">Pedágio</option>
+            <option value="Balsa">Balsa</option>
+          </select>
+
+          <label>Valor (R$):</label>
+          <input type="number" step="0.01" id="expense-value" placeholder="0.00" required>
+
+          <label>Observação / Local (opcional):</label>
+          <input type="text" id="expense-obs" placeholder="Ex: Praça de Pedágio Rod. dos Bandeirantes">
+
+          <button type="submit" class="btn-main">Adicionar Gasto</button>
+        </form>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Tipo</th>
+                <th>Local / Obs</th>
+                <th>Valor</th>
+              </tr>
+            </thead>
+            <tbody id="lista-gastos">
+              <tr>
+                <td colspan="3" style="text-align: center; color: #718096;">Nenhum gasto registrado.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PAINEL DE DESCANSO -->
+      <div class="section-box">
+        <h3>Registro de Parada para Descanso</h3>
+        <p style="font-size: 13px; color: #e53e3e; margin-bottom: 10px;">* Cada descanso registrado desconta R$ 50,00 do seu salário acumulado.</p>
+        
+        <form onsubmit="registrarDescanso(event)">
+          <div class="time-grid">
+            <div style="flex: 1;">
+              <label>Início do Descanso:</label>
+              <input type="time" id="time-inicio" required>
+            </div>
+            <div style="flex: 1;">
+              <label>Término do Descanso:</label>
+              <input type="time" id="time-fim" required>
+            </div>
+          </div>
+          <button type="submit" class="btn-main" style="background-color: #dd6b20;">Registrar Descanso (- R$ 50,00)</button>
+        </form>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Início</th>
+                <th>Término</th>
+                <th>Desconto Aplicado</th>
+              </tr>
+            </thead>
+            <tbody id="lista-descansos">
+              <tr>
+                <td colspan="3" style="text-align: center; color: #718096;">Nenhum descanso registrado nesta viagem.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <button onclick="concluirViagem()" class="btn-main" style="background-color: #38a169; margin-top: 10px; font-size: 16px;">Concluir Viagem</button>
+    </div>
+  </div>
+
   <script>
     let selectedUserType = 'empresa';
+    let nomeUsuarioAtual = 'Funcionário Padrao';
     let kmAcumulado = 0;
     let salarioAcumulado = 0;
+    
     let historicoViagensArray = [];
+    let viagensEmpresaArray = [];
+
+    // Dados da viagem temporária em andamento
+    let viagemEmAndamento = null;
     let gastosArray = [];
     let descansosArray = [];
 
@@ -319,6 +376,9 @@
 
     function handleLogin(e) {
       e.preventDefault();
+      const loginVal = document.getElementById('login-user').value;
+      if (loginVal) nomeUsuarioAtual = loginVal;
+
       if (selectedUserType === 'empresa') {
         showScreen('company-screen');
       } else {
@@ -328,6 +388,9 @@
 
     function handleSignup(e) {
       e.preventDefault();
+      const nameVal = document.getElementById('signup-name').value;
+      if (nameVal) nomeUsuarioAtual = nameVal;
+
       alert('Cadastro realizado com sucesso!');
       showScreen('employee-screen');
     }
@@ -378,6 +441,7 @@
       e.preventDefault();
       const data = document.getElementById('input-data').value;
       const tipo = document.getElementById('vehicle-type').value;
+      const origem = document.getElementById('input-origem').value;
       const destino = document.getElementById('input-destino').value;
       const km = parseFloat(document.getElementById('input-km').value) || 0;
       const valorViagem = parseFloat(document.getElementById('input-valor-viagem').value) || 0;
@@ -394,30 +458,120 @@
         peso = document.getElementById('input-peso').value;
       }
 
-      // Atualiza os dados no painel do funcionário
-      kmAcumulado += km;
-      salarioAcumulado += valorViagem;
-      document.getElementById('stat-km').innerText = kmAcumulado;
-      document.getElementById('stat-salario').innerText = salarioAcumulado.toFixed(2);
-
-      // Adiciona ao histórico
-      historicoViagensArray.unshift({
+      // Prepara objeto temporário
+      viagemEmAndamento = {
         data,
         tipo: tipo === 'caminhao' ? 'Caminhão' : 'Ônibus',
         veiculo: veiculoNome,
+        origem,
         destino,
         carga,
         peso,
-        km
-      });
-      renderHistorico();
+        km,
+        valorViagem
+      };
 
-      // Habilita as opções de gastos e descanso para essa viagem
-      document.getElementById('painel-gastos-descanso').classList.remove('hidden');
-      alert('Viagem aceita! O painel de Gastos e Descanso foi liberado abaixo.');
+      gastosArray = [];
+      descansosArray = [];
+      document.getElementById('lista-gastos').innerHTML = '<tr><td colspan="3" style="text-align: center; color: #718096;">Nenhum gasto registrado.</td></tr>';
+      document.getElementById('lista-descansos').innerHTML = '<tr><td colspan="3" style="text-align: center; color: #718096;">Nenhum descanso registrado nesta viagem.</td></tr>';
+
+      // Preenche cabeçalho do Modal
+      document.getElementById('modal-detalhes-viagem').innerHTML = `
+        <p><strong>Motorista:</strong> ${nomeUsuarioAtual}</p>
+        <p><strong>Rota:</strong> ${origem} ➔ ${destino} | <strong>Data:</strong> ${data.split('-').reverse().join('/')}</p>
+        <p><strong>Veículo:</strong> ${veiculoNome} (${viagemEmAndamento.tipo}) | <strong>KM:</strong> ${km} KM</p>
+        ${tipo === 'caminhao' ? `<p><strong>Carga:</strong> ${carga} | <strong>Peso:</strong> ${peso}</p>` : ''}
+        <p><strong>Valor da Viagem:</strong> R$ ${valorViagem.toFixed(2)}</p>
+      `;
+
+      // Abre a janela de Viagem em Andamento
+      document.getElementById('modal-viagem-andamento').classList.remove('hidden');
     }
 
-    function renderHistorico() {
+    function adicionarGasto(e) {
+      e.preventDefault();
+      const tipo = document.getElementById('expense-type').value;
+      const valor = parseFloat(document.getElementById('expense-value').value);
+      const obs = document.getElementById('expense-obs').value || '-';
+
+      gastosArray.push({ tipo, valor, obs });
+
+      const tbody = document.getElementById('lista-gastos');
+      if (gastosArray.length === 1) tbody.innerHTML = '';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${tipo}</td><td>${obs}</td><td>R$ ${valor.toFixed(2)}</td>`;
+      tbody.appendChild(tr);
+
+      document.getElementById('expense-type').value = '';
+      document.getElementById('expense-value').value = '';
+      document.getElementById('expense-obs').value = '';
+    }
+
+    function registrarDescanso(e) {
+      e.preventDefault();
+      const inicio = document.getElementById('time-inicio').value;
+      const fim = document.getElementById('time-fim').value;
+
+      descansosArray.push({ inicio, fim });
+
+      const tbody = document.getElementById('lista-descansos');
+      if (descansosArray.length === 1) tbody.innerHTML = '';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${inicio}</td><td>${fim}</td><td style="color: #e53e3e; font-weight: bold;">- R$ 50,00</td>`;
+      tbody.appendChild(tr);
+
+      document.getElementById('time-inicio').value = '';
+      document.getElementById('time-fim').value = '';
+
+      alert('Descanso registrado! O desconto de R$ 50,00 será aplicado ao finalizar a viagem.');
+    }
+
+    function concluirViagem() {
+      if (!viagemEmAndamento) return;
+
+      // Aplica ganhos e descontos ao Salário e KM
+      const descontoTotalDescansos = descansosArray.length * 50;
+      const valorLiquidoViagem = viagemEmAndamento.valorViagem - descontoTotalDescansos;
+
+      kmAcumulado += viagemEmAndamento.km;
+      salarioAcumulado += valorLiquidoViagem;
+
+      document.getElementById('stat-km').innerText = kmAcumulado;
+      document.getElementById('stat-salario').innerText = salarioAcumulado.toFixed(2);
+
+      // Registo Completo
+      const viagemConcluida = {
+        ...viagemEmAndamento,
+        motorista: nomeUsuarioAtual,
+        gastos: [...gastosArray],
+        descansos: [...descansosArray]
+      };
+
+      // Salva no Funcionário
+      historicoViagensArray.unshift(viagemConcluida);
+      renderHistoricoFuncionario();
+
+      // Salva na Empresa
+      viagensEmpresaArray.unshift(viagemConcluida);
+      renderViagensEmpresa();
+
+      // Limpa formulários e fecha Modal
+      document.getElementById('form-cadastrar-viagem').reset();
+      document.getElementById('box-onibus').classList.add('hidden');
+      document.getElementById('box-caminhao').classList.add('hidden');
+      document.getElementById('modal-viagem-andamento').classList.add('hidden');
+
+      viagemEmAndamento = null;
+      alert('Viagem concluída com sucesso e salva nos históricos!');
+
+      // Redireciona para o painel Status do Funcionário
+      switchTab('employee-screen', 'emp-status', document.querySelector('#employee-screen .nav-btn'));
+    }
+
+    function renderHistoricoFuncionario() {
       const tbody = document.getElementById('historico-viagens');
       tbody.innerHTML = '';
 
@@ -443,56 +597,31 @@
       });
     }
 
-    function adicionarGasto(e) {
-      e.preventDefault();
-      const tipo = document.getElementById('expense-type').value;
-      const valor = parseFloat(document.getElementById('expense-value').value);
-      const obs = document.getElementById('expense-obs').value || '-';
+    function renderViagensEmpresa() {
+      const tbody = document.getElementById('empresa-viagens-cadastradas');
+      tbody.innerHTML = '';
 
-      gastosArray.push({ tipo, valor, obs });
+      if (viagensEmpresaArray.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #718096;">Nenhuma viagem registrada na empresa até o momento.</td></tr>';
+        return;
+      }
 
-      const tbody = document.getElementById('lista-gastos');
-      if (gastosArray.length === 1) tbody.innerHTML = '';
+      viagensEmpresaArray.forEach(v => {
+        const tr = document.createElement('tr');
+        const dataFormatada = v.data.split('-').reverse().join('/');
+        const cargaPesoInfo = v.tipo === 'Caminhão' ? `${v.carga} (${v.peso})` : '-';
 
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${tipo}</td>
-        <td>${obs}</td>
-        <td>R$ ${valor.toFixed(2)}</td>
-      `;
-      tbody.appendChild(tr);
-
-      document.getElementById('expense-type').value = '';
-      document.getElementById('expense-value').value = '';
-      document.getElementById('expense-obs').value = '';
-    }
-
-    function registrarDescanso(e) {
-      e.preventDefault();
-      const inicio = document.getElementById('time-inicio').value;
-      const fim = document.getElementById('time-fim').value;
-
-      // Desconto de R$ 50,00 no salário acumulado
-      salarioAcumulado -= 50;
-      document.getElementById('stat-salario').innerText = salarioAcumulado.toFixed(2);
-
-      descansosArray.push({ inicio, fim });
-
-      const tbody = document.getElementById('lista-descansos');
-      if (descansosArray.length === 1) tbody.innerHTML = '';
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${inicio}</td>
-        <td>${fim}</td>
-        <td style="color: #e53e3e; font-weight: bold;">- R$ 50,00</td>
-      `;
-      tbody.appendChild(tr);
-
-      document.getElementById('time-inicio').value = '';
-      document.getElementById('time-fim').value = '';
-
-      alert('Descanso registrado! R$ 50,00 foram descontados do seu salário.');
+        tr.innerHTML = `
+          <td>${dataFormatada}</td>
+          <td>${v.motorista}</td>
+          <td>${v.tipo}</td>
+          <td>${v.veiculo}</td>
+          <td>${v.destino}</td>
+          <td>${cargaPesoInfo}</td>
+          <td>${v.km} KM</td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
     function logout() {
