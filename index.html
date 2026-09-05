@@ -40,12 +40,14 @@
     .stat-card h3 { font-size: 20px; color: #2b6cb0; margin-top: 5px; }
 
     /* Painéis e Tabelas */
-    .section-box { background: #f7fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 15px; }
+    .section-box { background: #f7fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
     .table-responsive { overflow-x: auto; margin-top: 10px; }
     table { width: 100%; border-collapse: collapse; min-width: 600px; }
     th, td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: left; font-size: 14px; }
     th { background: #edf2f7; color: #2d3748; }
     
+    .categoria-carga-title { background: #ebf8ff; color: #2b6cb0; padding: 8px 12px; border-radius: 4px; font-size: 16px; margin-bottom: 10px; border-left: 4px solid #3182ce; }
+
     .time-grid { display: flex; gap: 10px; }
 
     /* JANELA / ABA OVERLAY (MODAL POR CIMA DA ANTIGA) */
@@ -123,41 +125,39 @@
 
     <div class="nav-menu">
       <button class="nav-btn active" onclick="switchTab('company-screen', 'visao-geral', this)">Visão Geral</button>
-      <button class="nav-btn" onclick="switchTab('company-screen', 'status-viagem', this)">Status de Viagem</button>
       <button class="nav-btn" onclick="switchTab('company-screen', 'viagens-cadastradas', this)">Viagens Cadastradas</button>
     </div>
 
+    <!-- VISÃO GERAL -->
     <div id="visao-geral" class="tab-content">
-      <h2>Visão Geral</h2>
-      <p>Resumo dos indicadores, veículos em rota e alertas da frota.</p>
-    </div>
-
-    <div id="status-viagem" class="tab-content hidden">
-      <h2>Status de Viagem</h2>
-      <p>Acompanhamento em tempo real das rotas ativas.</p>
-    </div>
-
-    <div id="viagens-cadastradas" class="tab-content hidden">
-      <h2>Viagens Cadastradas na Empresa</h2>
+      <h2>Visão Geral dos Funcionários</h2>
+      <p style="margin-bottom: 15px; color: #4a5568;">Resumo do desempenho e quilometragem da equipe de motoristas.</p>
+      
       <div class="table-responsive">
         <table>
           <thead>
             <tr>
-              <th>Data</th>
-              <th>Motorista</th>
-              <th>Tipo</th>
-              <th>Veículo</th>
-              <th>Destino</th>
-              <th>Carga/Peso</th>
-              <th>Km</th>
+              <th>Funcionário</th>
+              <th>Total de Viagens</th>
+              <th>Total KM Rodados</th>
             </tr>
           </thead>
-          <tbody id="empresa-viagens-cadastradas">
+          <tbody id="empresa-resumo-funcionarios">
             <tr>
-              <td colspan="7" style="text-align: center; color: #718096;">Nenhuma viagem registrada na empresa até o momento.</td>
+              <td colspan="3" style="text-align: center; color: #718096;">Nenhum funcionário registrado até o momento.</td>
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- VIAGENS CADASTRADAS SEPARADAS POR CARGA -->
+    <div id="viagens-cadastradas" class="tab-content hidden">
+      <h2>Viagens Cadastradas por Tipo de Carga</h2>
+      <p style="margin-bottom: 15px; color: #4a5568;">Relação completa de viagens agrupadas pelas categorias de carga.</p>
+
+      <div id="container-viagens-por-carga">
+        <p style="text-align: center; color: #718096; margin-top: 20px;">Nenhuma viagem registrada na empresa até o momento.</p>
       </div>
     </div>
 
@@ -269,7 +269,6 @@
         <label>Distância da Viagem (KM):</label>
         <input type="number" id="input-km" placeholder="KM Rodados na Viagem" oninput="calcularValorViagem()" required>
 
-        <!-- CAIXA INFORMATIVA COM O VALOR BRUTO CALCULADO AUTOMATICAMENTE -->
         <div id="box-valor-calculado" class="valor-calculado-box">
           Salário Bruto Estimado: R$ 0,00
         </div>
@@ -281,13 +280,12 @@
     <button onclick="logout()" class="btn-logout">Sair</button>
   </div>
 
-  <!-- 5. ABA / SOBREPOSIÇÃO: DETALHES DE GASTOS DA VIAGEM EM ANDAMENTO -->
+  <!-- 5. OVERLAY: DETALHES DE GASTOS DA VIAGEM EM ANDAMENTO -->
   <div id="aba-viagem-ativa" class="overlay-window hidden">
     <div class="overlay-content">
       <h2 style="color: #1a365d;">Lançamento de Gastos da Viagem</h2>
       <div id="detalhes-viagem-resumo" style="margin-bottom: 20px; font-size: 14px; background: #edf2f7; padding: 12px; border-radius: 6px;"></div>
 
-      <!-- PAINEL DE BALSAS E PEDÁGIOS -->
       <div class="section-box">
         <h3>Gastos Pagos pelo Funcionário</h3>
         <p style="font-size: 13px; color: #e53e3e; margin-bottom: 10px;">* Os valores cobrados de Pedágio e Balsa serão debitados diretamente do salário final da viagem.</p>
@@ -327,7 +325,6 @@
         </div>
       </div>
 
-      <!-- PAINEL DE DESCANSO -->
       <div class="section-box">
         <h3>Horário de Descanso</h3>
         <p style="font-size: 13px; color: #e53e3e; margin-bottom: 10px;">* Ao registrar o início e fim do descanso, será debitado o valor fixo de R$ 50,00 do salário do funcionário.</p>
@@ -374,10 +371,11 @@
     let kmAcumulado = 0;
     let salarioAcumulado = 0;
     
+    // Base de dados local
+    let funcionariosCadastrados = {}; // { 'Nome': { viagensCount: 0, totalKm: 0 } }
     let historicoViagensArray = [];
     let viagensEmpresaArray = [];
 
-    // Dados temporários da viagem ativa
     let viagemEmAndamento = null;
     let gastosArray = [];
     let descansosArray = [];
@@ -401,6 +399,17 @@
           el.style.display = 'none';
         }
       });
+
+      if (screenId === 'company-screen') {
+        renderVisaoGeralEmpresa();
+        renderViagensEmpresaPorCarga();
+      }
+    }
+
+    function registrarFuncionarioBase(nome) {
+      if (!funcionariosCadastrados[nome]) {
+        funcionariosCadastrados[nome] = { viagensCount: 0, totalKm: 0 };
+      }
     }
 
     function handleLogin(e) {
@@ -411,6 +420,7 @@
       if (selectedUserType === 'empresa') {
         showScreen('company-screen');
       } else {
+        registrarFuncionarioBase(nomeUsuarioAtual);
         showScreen('employee-screen');
       }
     }
@@ -420,6 +430,7 @@
       const nameVal = document.getElementById('signup-name').value;
       if (nameVal) nomeUsuarioAtual = nameVal;
 
+      registrarFuncionarioBase(nomeUsuarioAtual);
       alert('Cadastro realizado com sucesso!');
       showScreen('employee-screen');
     }
@@ -466,7 +477,6 @@
       }
     }
 
-    // CALCULA O VALOR BRUTO AUTOMATICAMENTE COM BASE NO KM E TIPO DE CARGA/ÔNIBUS
     function calcularValorViagem() {
       const tipoVeiculo = document.getElementById('vehicle-type').value;
       const km = parseFloat(document.getElementById('input-km').value) || 0;
@@ -494,18 +504,20 @@
       const km = parseFloat(document.getElementById('input-km').value) || 0;
 
       let veiculoNome = '';
+      let cargaCategoria = '';
       let cargaInfo = '-';
       let peso = '-';
 
       if (tipo === 'onibus') {
         veiculoNome = document.getElementById('input-onibus').value;
+        cargaCategoria = 'Passageiros / Ônibus';
         cargaInfo = 'Passageiros';
       } else {
         veiculoNome = document.getElementById('select-caminhao').value;
         const selectCarga = document.getElementById('select-tipo-carga');
-        const nomeTipoCarga = selectCarga.options[selectCarga.selectedIndex].text;
+        cargaCategoria = selectCarga.options[selectCarga.selectedIndex].text;
         const descCarga = document.getElementById('input-carga-desc').value;
-        cargaInfo = `${nomeTipoCarga}${descCarga ? ' (' + descCarga + ')' : ''}`;
+        cargaInfo = `${cargaCategoria}${descCarga ? ' (' + descCarga + ')' : ''}`;
         peso = document.getElementById('input-peso').value;
       }
 
@@ -515,6 +527,7 @@
         veiculo: veiculoNome,
         origem,
         destino,
+        cargaCategoria,
         carga: cargaInfo,
         peso,
         km,
@@ -531,10 +544,9 @@
         <p><strong>Rota:</strong> ${origem} ➔ ${destino} | <strong>Data:</strong> ${data.split('-').reverse().join('/')}</p>
         <p><strong>Veículo:</strong> ${veiculoNome} (${viagemEmAndamento.tipo}) | <strong>KM:</strong> ${km} KM</p>
         <p><strong>Carga:</strong> ${cargaInfo} | <strong>Peso:</strong> ${peso}</p>
-        <p><strong>Salário Bruto Inicial da Viagem:</strong> R$ ${valorBrutoCalculado.toFixed(2)}</p>
+        <p><strong>Salário Bruto Inicial:</strong> R$ ${valorBrutoCalculado.toFixed(2)}</p>
       `;
 
-      // Abre a aba/janela por cima da antiga
       document.getElementById('aba-viagem-ativa').classList.remove('hidden');
     }
 
@@ -579,18 +591,21 @@
     function concluirViagem() {
       if (!viagemEmAndamento) return;
 
-      // Cálculo dos débitos (Balsas + Pedágios + R$ 50 por descanso)
       const totalGastosPeloFuncionario = gastosArray.reduce((acc, g) => acc + g.valor, 0);
       const totalDebitoDescansos = descansosArray.length * 50;
       
       const salarioLiquidoViagem = viagemEmAndamento.valorViagem - totalGastosPeloFuncionario - totalDebitoDescansos;
 
-      // Atualiza valores globais do funcionário
       kmAcumulado += viagemEmAndamento.km;
       salarioAcumulado += salarioLiquidoViagem;
 
       document.getElementById('stat-km').innerText = kmAcumulado;
       document.getElementById('stat-salario').innerText = salarioAcumulado.toFixed(2);
+
+      // Atualiza acumulados do funcionário na base geral
+      registrarFuncionarioBase(nomeUsuarioAtual);
+      funcionariosCadastrados[nomeUsuarioAtual].viagensCount += 1;
+      funcionariosCadastrados[nomeUsuarioAtual].totalKm += viagemEmAndamento.km;
 
       const viagemConcluida = {
         ...viagemEmAndamento,
@@ -600,14 +615,11 @@
         salarioLiquido: salarioLiquidoViagem
       };
 
-      // Salva no histórico do funcionário e da empresa
       historicoViagensArray.unshift(viagemConcluida);
       renderHistoricoFuncionario();
 
       viagensEmpresaArray.unshift(viagemConcluida);
-      renderViagensEmpresa();
 
-      // Limpa dados e fecha a janela sobreposta
       document.getElementById('form-cadastrar-viagem').reset();
       document.getElementById('box-valor-calculado').innerText = 'Salário Bruto Estimado: R$ 0,00';
       document.getElementById('box-onibus').classList.add('hidden');
@@ -615,9 +627,8 @@
       document.getElementById('aba-viagem-ativa').classList.add('hidden');
 
       viagemEmAndamento = null;
-      alert('Viagem concluída com sucesso! Os valores por KM foram calculados e os custos de pedágio, balsa e descansos foram debitados.');
+      alert('Viagem concluída com sucesso!');
 
-      // Retorna para a aba STATUS do funcionário
       switchTab('employee-screen', 'emp-status', document.querySelector('#employee-screen .nav-btn'));
     }
 
@@ -647,31 +658,90 @@
       });
     }
 
-    function renderViagensEmpresa() {
-      const tbody = document.getElementById('empresa-viagens-cadastradas');
+    // 1. RENDERIZA VISÃO GERAL COM FUNCIONÁRIOS, VIAGENS E KMS
+    function renderVisaoGeralEmpresa() {
+      const tbody = document.getElementById('empresa-resumo-funcionarios');
       tbody.innerHTML = '';
 
-      if (viagensEmpresaArray.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #718096;">Nenhuma viagem registrada na empresa até o momento.</td></tr>';
+      const listaNomes = Object.keys(funcionariosCadastrados);
+
+      if (listaNomes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #718096;">Nenhum funcionário cadastrado até o momento.</td></tr>';
         return;
       }
 
-      viagensEmpresaArray.forEach(v => {
+      listaNomes.forEach(nome => {
+        const dados = funcionariosCadastrados[nome];
         const tr = document.createElement('tr');
-        const dataFormatada = v.data.split('-').reverse().join('/');
-        const cargaPesoInfo = v.tipo === 'Caminhão' ? `${v.carga} (${v.peso})` : v.carga;
-
         tr.innerHTML = `
-          <td>${dataFormatada}</td>
-          <td>${v.motorista}</td>
-          <td>${v.tipo}</td>
-          <td>${v.veiculo}</td>
-          <td>${v.destino}</td>
-          <td>${cargaPesoInfo}</td>
-          <td>${v.km} KM</td>
+          <td><strong>${nome}</strong></td>
+          <td>${dados.viagensCount} viagem(ns)</td>
+          <td><strong>${dados.totalKm} KM</strong></td>
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    // 2. RENDERIZA VIAGENS DA EMPRESA SEPARADAS POR TIPO DE CARGA
+    function renderViagensEmpresaPorCarga() {
+      const container = document.getElementById('container-viagens-por-carga');
+      container.innerHTML = '';
+
+      if (viagensEmpresaArray.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: #718096; margin-top: 20px;">Nenhuma viagem registrada na empresa até o momento.</p>';
+        return;
+      }
+
+      // Agrupa viagens por tipo de carga
+      const agrupado = {};
+      viagensEmpresaArray.forEach(v => {
+        const cat = v.cargaCategoria || 'Outros';
+        if (!agrupado[cat]) agrupado[cat] = [];
+        agrupado[cat].push(v);
+      });
+
+      // Gera as tabelas para cada tipo de carga
+      for (const categoria in agrupado) {
+        const box = document.createElement('div');
+        box.className = 'section-box';
+
+        let htmlHeader = `<div class="categoria-carga-title"><strong>Tipo de Carga: ${categoria}</strong></div>`;
+        let htmlTable = `
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Funcionário</th>
+                  <th>Veículo</th>
+                  <th>Origem/Destino</th>
+                  <th>Especificação</th>
+                  <th>Peso</th>
+                  <th>Km</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+
+        agrupado[categoria].forEach(v => {
+          const dataFmt = v.data.split('-').reverse().join('/');
+          htmlTable += `
+            <tr>
+              <td>${dataFmt}</td>
+              <td><strong>${v.motorista}</strong></td>
+              <td>${v.veiculo} (${v.tipo})</td>
+              <td>${v.origem} ➔ ${v.destino}</td>
+              <td>${v.carga}</td>
+              <td>${v.peso}</td>
+              <td>${v.km} KM</td>
+            </tr>
+          `;
+        });
+
+        htmlTable += `</tbody></table></div>`;
+        box.innerHTML = htmlHeader + htmlTable;
+        container.appendChild(box);
+      }
     }
 
     function logout() {
