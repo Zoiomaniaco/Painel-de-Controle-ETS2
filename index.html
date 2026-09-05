@@ -453,7 +453,7 @@
   <!-- 1. TELA DE LOGIN -->
   <div id="login-screen" class="card">
     <div class="version-badge" onclick="abrirChangelog()">
-      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-login">v2.5.0</span> • Ver o que mudou
+      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-login">v2.6.0</span> • Ver o que mudou
     </div>
 
     <div class="app-logo">
@@ -493,7 +493,7 @@
   <!-- 2. TELA DE CADASTRO DE MOTORISTA -->
   <div id="signup-screen" class="card hidden">
     <div class="version-badge" onclick="abrirChangelog()">
-      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-signup">v2.5.0</span> • O que melhorou?
+      <i data-lucide="sparkles" style="width: 14px; height: 14px;"></i> <span id="lbl-version-signup">v2.6.0</span> • O que melhorou?
     </div>
 
     <div class="app-logo">
@@ -537,8 +537,8 @@
       </div>
 
       <div style="background: #eff6ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--primary);">
-        <strong style="color: var(--primary-dark); font-size: 14px;" id="changelog-version-title">Versão 2.5.0 Atualizada</strong>
-        <p style="font-size: 11px; color: var(--text-muted);">Ajustes de moeda para o padrão Brasileiro (R$) e regra de descanso de 9 horas descontado do Bruto da empresa.</p>
+        <strong style="color: var(--primary-dark); font-size: 14px;" id="changelog-version-title">Versão 2.6.0 Atualizada</strong>
+        <p style="font-size: 11px; color: var(--text-muted);">Implementada a persistência de tela e dados via localStorage para evitar redirecionamento ao atualizar a página.</p>
       </div>
 
       <div id="changelog-list"></div>
@@ -926,17 +926,15 @@
   </div>
 
   <script>
-    // CONTROLADOR DE VERSÃO E CHANGELOG DO APLICATIVO
-    const APP_VERSION = "2.5.0";
+    const APP_VERSION = "2.6.0";
     const MELHORIAS_VERSAO = [
+      "Persistência de Tela: O aplicativo salva a tela aberta e não volta para o início ao atualizar (F5).",
+      "Persistência de Dados (localStorage): As viagens e o balanço financeiro são preservados mesmo atualizando o navegador.",
       "Regra Parada de Descanso: Paradas de 9 horas ou mais aplicam desconto de R$ 100,00 no valor Bruto da Empresa.",
       "Formatação Global BRL: Formatação monetária 100% configurada na moeda brasileira (R$).",
-      "Indicador visual dinâmico de versão com detalhes completos de alteração no modal.",
-      "Dedução integral de pedágios e balsas no balanço corporativo da empresa.",
-      "Painel gráfico financeiro em tempo real para controle corporativo."
+      "Dedução integral de pedágios e balsas no balanço corporativo da empresa."
     ];
 
-    // FUNÇÃO AUXILIAR PARA FORMATAR MOEDA BRASILEIRA (R$)
     function formatarBRL(valor) {
       return (parseFloat(valor) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
@@ -994,6 +992,44 @@
     let valorBrutoCalculado = 0;
     let financeChartInstance = null;
 
+    // SISTEMA DE SALVAMENTO DE DADOS (LOCALSTORAGE)
+    function salvarDadosNoStorage() {
+      const dadosState = {
+        selectedUserType,
+        nomeUsuarioAtual,
+        kmAcumulado,
+        salarioAcumulado,
+        funcionariosCadastrados,
+        historicoViagensArray,
+        viagensEmpresaArray,
+        saldoTotalEmpresaBruto,
+        custoTotalPedagioBalsa,
+        custoTotalDescansoEmpresa
+      };
+      localStorage.setItem('diarioBordoData', JSON.stringify(dadosState));
+    }
+
+    function carregarDadosDoStorage() {
+      const saved = localStorage.getItem('diarioBordoData');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          selectedUserType = parsed.selectedUserType || 'empresa';
+          nomeUsuarioAtual = parsed.nomeUsuarioAtual || 'Motorista';
+          kmAcumulado = parsed.kmAcumulado || 0;
+          salarioAcumulado = parsed.salarioAcumulado || 0;
+          funcionariosCadastrados = parsed.funcionariosCadastrados || {};
+          historicoViagensArray = parsed.historicoViagensArray || [];
+          viagensEmpresaArray = parsed.viagensEmpresaArray || [];
+          saldoTotalEmpresaBruto = parsed.saldoTotalEmpresaBruto || 0;
+          custoTotalPedagioBalsa = parsed.custoTotalPedagioBalsa || 0;
+          custoTotalDescansoEmpresa = parsed.custoTotalDescansoEmpresa || 0;
+        } catch(e) {
+          console.error("Erro ao carregar dados", e);
+        }
+      }
+    }
+
     function playAudioTone(freq, type, duration) {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1019,7 +1055,7 @@
       document.getElementById('btn-funcionario').classList.toggle('active', type === 'funcionario');
     }
 
-    function showScreen(screenId) {
+    function showScreen(screenId, save = true) {
       const screens = ['login-screen', 'signup-screen', 'company-screen', 'employee-screen'];
       screens.forEach(id => {
         const el = document.getElementById(id);
@@ -1032,10 +1068,19 @@
         }
       });
 
+      if (save) {
+        localStorage.setItem('diarioBordoCurrentScreen', screenId);
+      }
+
       if (screenId === 'company-screen') {
         renderVisaoGeralEmpresa();
         renderPainelEmpresa();
         renderViagensEmpresaPorCarga();
+      } else if (screenId === 'employee-screen') {
+        document.getElementById('saudacao-motorista').innerText = `Motorista: ${nomeUsuarioAtual}`;
+        document.getElementById('stat-km').innerText = kmAcumulado;
+        document.getElementById('stat-salario').innerText = formatarBRL(salarioAcumulado);
+        renderHistoricoFuncionario();
       }
       lucide.createIcons();
     }
@@ -1056,9 +1101,9 @@
         showScreen('company-screen');
       } else {
         registrarFuncionarioBase(nomeUsuarioAtual);
-        document.getElementById('saudacao-motorista').innerText = `Motorista: ${nomeUsuarioAtual}`;
         showScreen('employee-screen');
       }
+      salvarDadosNoStorage();
     }
 
     function handleSignup(e) {
@@ -1068,8 +1113,8 @@
       if (nameVal) nomeUsuarioAtual = nameVal;
 
       registrarFuncionarioBase(nomeUsuarioAtual);
-      document.getElementById('saudacao-motorista').innerText = `Motorista: ${nomeUsuarioAtual}`;
       showScreen('employee-screen');
+      salvarDadosNoStorage();
     }
 
     function switchTab(containerId, tabId, element) {
@@ -1080,6 +1125,8 @@
       
       document.getElementById(tabId).classList.remove('hidden');
       if (element) element.classList.add('active');
+
+      localStorage.setItem(`diarioBordoTab_${containerId}`, tabId);
     }
 
     function toggleVehicleOptions() {
@@ -1199,7 +1246,6 @@
       document.getElementById('expense-obs').value = '';
     }
 
-    // REGISTRO E CÁLCULO DAS 9h DE DESCANSO
     function registrarDescanso(e) {
       e.preventDefault();
       soundClick();
@@ -1207,7 +1253,6 @@
       const inicio = document.getElementById('time-inicio').value;
       const fim = document.getElementById('time-fim').value;
 
-      // Calcular a duração da parada em horas
       const [hIni, mIni] = inicio.split(':').map(Number);
       const [hFim, mFim] = fim.split(':').map(Number);
       
@@ -1215,13 +1260,12 @@
       let minFim = hFim * 60 + mFim;
       
       if (minFim < minIni) {
-        minFim += 24 * 60; // Parada virou a noite
+        minFim += 24 * 60;
       }
 
       const duracaoMinutos = minFim - minIni;
       const duracaoHoras = duracaoMinutos / 60;
       
-      // Aplicar R$ 100,00 de desconto no bruto da empresa se a parada for igual ou superior a 9 horas
       const aplicaDescontoEmpresa = duracaoHoras >= 9;
       const valorDesconto = aplicaDescontoEmpresa ? 100 : 0;
 
@@ -1250,7 +1294,6 @@
       const totalPedagioBalsaViagem = gastosArray.reduce((acc, g) => acc + g.valor, 0);
       const totalDescontoDescansoViagem = descansosArray.reduce((acc, d) => acc + d.valorDesconto, 0);
       
-      // Salário do Motorista mantido integralmente conforme percurso
       const salarioMotoristaViagem = viagemEmAndamento.valorViagem;
 
       saldoTotalEmpresaBruto += viagemEmAndamento.valorViagem;
@@ -1281,6 +1324,8 @@
       renderHistoricoFuncionario();
 
       viagensEmpresaArray.unshift(viagemConcluida);
+
+      salvarDadosNoStorage();
 
       document.getElementById('form-cadastrar-viagem').reset();
       document.getElementById('box-valor-calculado').innerHTML = `<i data-lucide="calculator"></i><span>Estimativa Bruta: <strong>${formatarBRL(0)}</strong></span>`;
@@ -1341,7 +1386,6 @@
     }
 
     function renderPainelEmpresa() {
-      // Saldo líquido = Saldo Bruto - Pedágios/Balsas - Descontos de descanso (R$ 100 por parada de 9h)
       const saldoLiquidoEmpresa = saldoTotalEmpresaBruto - custoTotalPedagioBalsa - custoTotalDescansoEmpresa;
 
       document.getElementById('emp-saldo-total').innerText = formatarBRL(saldoLiquidoEmpresa);
@@ -1433,12 +1477,31 @@
 
     function logout() {
       soundClick();
-      showScreen('login-screen');
+      localStorage.removeItem('diarioBordoCurrentScreen');
+      localStorage.removeItem('diarioBordoTab_company-screen');
+      localStorage.removeItem('diarioBordoTab_employee-screen');
+      showScreen('login-screen', false);
     }
 
-    // Inicialização do App com Controle de Versão
-    inicializarVersaoApp();
-    showScreen('login-screen');
+    // RESTAURAÇÃO DA TELA E ESTADO AO CARREGAR A PÁGINA
+    function restaurarSessao() {
+      inicializarVersaoApp();
+      carregarDadosDoStorage();
+
+      const lastScreen = localStorage.getItem('diarioBordoCurrentScreen') || 'login-screen';
+      showScreen(lastScreen, false);
+
+      if (lastScreen === 'company-screen') {
+        const lastTab = localStorage.getItem('diarioBordoTab_company-screen') || 'visao-geral';
+        switchTab('company-screen', lastTab);
+      } else if (lastScreen === 'employee-screen') {
+        const lastTab = localStorage.getItem('diarioBordoTab_employee-screen') || 'emp-status';
+        switchTab('employee-screen', lastTab);
+      }
+    }
+
+    // Inicializa mantendo o estado anterior
+    restaurarSessao();
   </script>
 </body>
 </html>
